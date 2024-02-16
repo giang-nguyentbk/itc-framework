@@ -3,43 +3,16 @@
 ## Fundamental knowledge:
 ### 1. General architecture:
 
-+----------------------------------------------------------------------+
-|                                Board 1                               |
-|                                                                      |
-|  +---------------+                                +---------------+  |
-|  |               |  <----sysv-message-queue---->  |               |  |
-|  |   Process 1   |                                |   Process 2   |  |
-|  |               |  <--------unix-socket------->  |               |  |
-|  +-------|-------+                                +---------------+  |
-+----------|-----------------------------------------------------------+
-           |
-    tcp/udp-socket
-           |
-+----------|-----------------------------------------------------------+
-|          |                     Board 2                               |
-|          |                                                           |
-|  +-------|-------+                                +---------------+  |
-|  |               |  <----sysv-message-queue---->  |               |  |
-|  |   Process 1   |                                |   Process 2   |  |
-|  |               |  <--------unix-socket------->  |               |  |
-|  +---------------+                                +---------------+  |
-+-/-----------------\--------------------------------------------------+
- /                   \ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-/                                                                     \
-+---------------------------------------------------------------------+
-|                              Process 1                              |
-|                                                                     |
-|  +---------------+                               +---------------+  |
-|  |               |                               |               |  |
-|  |   Thread 1    |  <----queue/linked-list---->  |   Thread 2    |  |
-|  |               |                               |               |  |
-|  +---------------+                               +---------------+  |
-+---------------------------------------------------------------------+
+![](./assets/itc-architecture.png?raw=true)
 
 This is an implementation that allows exchanging user messages between threads, processes and even boards.
+
 Each board is one instance of a single OS. Each board may have several processes.
+
 Each process must initialize itc infrastructure before any procedures can be started.
+
 Each threads (inside a process) must create an mailbo (probably one per thread) with an unique mailbox id.
+
 Each mailbox can have a mailbox name (char *) and some aliases, but only one mailbox id. This is same as that
 you can have several names (use at school, at home,...), but you are you (same as the number
 in your Citizen Identity Card).
