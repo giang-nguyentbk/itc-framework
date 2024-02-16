@@ -9,9 +9,10 @@ This is an implementation that allows exchanging user messages between threads, 
 
 Each board is one instance of a single OS. Each board may have several processes.
 
-Each process must initialize itc infrastructure before any procedures can be started.
+Each process must initialize itc infrastructure before any itc calls can be performed.
 
-Each threads (inside a process) must create an mailbo (probably one per thread) with an unique mailbox id.
+Each threads (inside a process) must create an mailbox (probably one per thread) with an unique mailbox id accross
+the entire universe (your whole system including all boards, devices,...).
 
 Each mailbox can have a mailbox name (char *) and some aliases, but only one mailbox id. This is same as that
 you can have several names (use at school, at home,...), but you are you (same as the number
