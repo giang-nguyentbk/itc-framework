@@ -142,6 +142,7 @@ void testMallocFree(struct itc_message *message)
         } else
         {
                 printf("[FAIL]:\t<testMallocFree>\t\titci_free = NULL!\n");
+                return;
         }
 
         printf("[SUCCESS]:\t<testMallocFree>\t\tSuccessful!\n");

@@ -22,12 +22,12 @@ in your Citizen Identity Card).
 ![](./assets/itc-message.png?raw=true)
 ```
 ITC messages includes two parts:
-    + First is the ITC header which consists of pointer to the next and previous
-    messages, a flags to indicate message state (such as it's in rx state,...), who is sender and receiver,
-    size of the itc msg. This is only used for internal control purposes by the framework.
+        + First is the ITC header which consists of pointer to the next and previous
+        messages, a flags to indicate message state (such as it's in rx state,...), who is sender and receiver,
+        size of the itc msg. This is only used for internal control purposes by the framework.
 
-    + Second is the ITC msg which will see and be used by users. They just need to define their own sets of itc msg
-    where every msg number must be unique across the whole universe.
+        + Second is the ITC msg which will see and be used by users. They just need to define their own sets of itc msg
+        where every msg number must be unique across the whole universe.
 ```
 
 ```
@@ -58,16 +58,31 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 ```
 ### 2. Transportation mechanism:
 ```
-    + Local trans: used for inter-thread communication. Because threads inside a process will share
-    a same virtual address space. We can easily implement a rx queue for each single mailbox. Sender will enqueue
-    a message to receiver's rx queue and receiver will dequeue it then. There are some synchronization
-    approaches needed. For example, after putting a message to receiver's queue, sender needs to do some way to notify
-    it to receiver. We will use pthread condition variables as a synchronous way, and epoll/eventfd for a async way.
-    
-    + Unix socket: used for inter-process and inter-host communication. There are two types of unix socket.
-    First is abstract/anonymous sockets which is automatically cleaned up by OS if noboday references to it.
-    Second is file-based/regular unix sockets which user has to manually clean it up.
-    
-    + System V message queue: used for inter-process communication only. Faster than socket, but message length and
-    queue length are limited. We will design a small algorithm that will prioritize sysv once itc message is not large.
+        + Local trans: used for inter-thread communication. Because threads inside a process will share
+        a same virtual address space. We can easily implement a rx queue for each single mailbox. Sender will enqueue
+        a message to receiver's rx queue and receiver will dequeue it then. There are some synchronization
+        approaches needed. For example, after putting a message to receiver's queue, sender needs to do some way
+        to notify it to receiver. We will use pthread condition variables as a synchronous way, and epoll/eventfd
+        for a async way.
+
+        + Unix socket: used for inter-process and inter-host communication. There are two types of unix socket.
+        First is abstract/anonymous sockets which is automatically cleaned up by OS if noboday references to it.
+        Second is file-based/regular unix sockets which user has to manually clean it up.
+
+        + System V message queue: used for inter-process communication only. Faster than socket, but message length and
+        queue length are limited. We will design a small algorithm that will prioritize sysv once itc message
+        is not large.
 ```
+
+### 3. Memory allocation mechanism:
+```
+        + Generalised Malloc (default): to allocate any size (bytes) of itc messages.
+
+        + Memory Pool: to pre-allocate memory blocks with fixed sizes such as 32, 224, 992, 4064, 16352, 65504 bytes.
+        Will be implemented later. Same as Paging which is done by OS, if you keep allocating memory in heap
+        via malloc ordinarily, your heap will be quickly fragmented. Instead of that, using fixed size of memory blocks,
+        also called pools, which will help you efficiently ultilize heap memories.
+```
+
+![](./assets/malloc-unitTest.png?raw=true)
+
