@@ -20,6 +20,9 @@ extern "C" {
 
 #include "itc.h"
 
+#define ITC_HEADER_SIZE 14 // itc_message: flags + receiver + sender + size. Also is the offset between
+                                // the starting of itc_message and the starting of itc_msg.
+
 // Result code used for allocator error handling
 #define ITC_ALLOC_RET_OK 0
 
@@ -41,7 +44,7 @@ do not access user data via itc_message but use itc_msg instead */
         /* DO NOT change anything in the remainder - this is a core part - to avoid breaking the whole ITC system. */
         itc_mbox_id_t               receiver;
         itc_mbox_id_t               sender;
-        int32_t                     size;   // Size of the itc_message
+        int32_t                     size;   // Size of the itc_msg that user gives to allocate itc_message
 
         /* This is the itc_msg part users can see and use it */
         uint32_t                    msgno;

@@ -36,6 +36,12 @@ union itc_scheme {
         struct itc_malloc_scheme        malloc_scheme;
 };
 
+typedef enum {
+        ITC_MALLOC = 0,
+        ITC_POOL,
+        ITC_NUM_SCHEMES
+} itc_alloc_scheme;
+
 #ifdef __cplusplus
 }
 #endif
