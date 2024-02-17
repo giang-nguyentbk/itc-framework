@@ -11,7 +11,7 @@ Each board is one instance of a single OS. Each board may have several processes
 
 Each process must initialize itc infrastructure before any itc calls can be performed.
 
-Each threads (inside a process) must create an mailbox (probably one per thread) with an unique mailbox id across
+Each threads (inside a process) must create a mailbox (probably one per thread) with a unique mailbox id across
 the entire universe (your whole system including all boards, devices,...).
 
 Each mailbox can have a mailbox name (char *) and some aliases, but only one mailbox id. This is same as that

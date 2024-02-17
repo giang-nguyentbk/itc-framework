@@ -25,16 +25,16 @@ typedef int (itci_send)(struct itc_mailbox  *mbox,
                         itc_mbox_id_t       to,
                         itc_mbox_id_t       from);
 
-typedef struct itc_message *(itci_receive)( struct itc_mailbox  *mbox,
-                                            const uint32_t      *filter,
-                                            long                tmo,
-                                            itc_mbox_id_t       from,
-                                            bool                recursive_call);
+typedef struct itc_message *(itci_receive)(     struct itc_mailbox  *mbox,
+                                                const uint32_t      *filter,
+                                                long                tmo,
+                                                itc_mbox_id_t       from,
+                                                bool                recursive_call);
 
 // Let's create a simple interface at now, but will be re-designed in a more complete way later.
 struct itci_transport_apis {
-    itci_send               *itci_send;
-    itci_receive            *itci_receive;
+        itci_send               *itci_send;
+        itci_receive            *itci_receive;
 };
 
 

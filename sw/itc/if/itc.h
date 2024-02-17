@@ -18,11 +18,23 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stddef.h>
+#include <sys/types.h>
 
 
 #define ITC_NAME_MAXLEN     255
 
 typedef uint32_t itc_mbox_id_t;
+
+// Because currently allocation scheme using malloc does not need any special parameters for allocation.
+// We will reserve it for future usages.
+struct itc_malloc_scheme {
+        unsigned int reserved;
+};
+
+union itc_scheme {
+        struct itc_malloc_scheme        malloc_scheme;
+};
 
 #ifdef __cplusplus
 }

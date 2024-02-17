@@ -22,3 +22,41 @@ Which functions to be done:
     + dequeue()
     + ...
 */
+
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "itc.h"
+#include "itc_impl.h"
+#include "itci_trans.h"
+
+/*****************************************************\/
+*   FUNCTION PROTOTYPES AND STATIC GLOBAL VARIABLES    *
+*******************************************************/
+static int local_send(  struct itc_mailbox  *mbox,
+                        struct itc_message  *message,
+                        itc_mbox_id_t       to,
+                        itc_mbox_id_t       from);
+
+static struct itc_message *local_receive(   struct itc_mailbox  *mbox,
+                                            const uint32_t      *filter,
+                                            long                tmo,
+                                            itc_mbox_id_t       from,
+                                            bool                recursive_call);
+
+struct itci_trans_apis local_trans_apis = { local_send,
+                                            local_receive };
+
+
+/*****************************************************\/
+*                  FUNCTION DEFINITIONS                *
+*******************************************************/
+static int local_send(  struct itc_mailbox  *mbox,
+                        struct itc_message  *message,
+                        itc_mbox_id_t       to,
+                        itc_mbox_id_t       from)
+{
+
+}
