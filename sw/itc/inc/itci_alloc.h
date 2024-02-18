@@ -28,20 +28,19 @@ extern "C" {
 
 #include "itc.h"
 
-
-#define ENDPOINT (char)0xAA
-
-typedef int                     (itci_init_alloc)(union itc_scheme *scheme_params,
-                                                  int max_msgsize);
-typedef int                     (itci_exit_alloc)(void);
-typedef struct itc_message     *(itci_alloc)(size_t size); // This is sizeof(UserItcMessage), union itc_msg
-typedef void                    (itci_free)(struct itc_message *message);
+typedef int                     (itci_alloc_init)(union itc_scheme *scheme_params, int max_msgsize);
+typedef int                     (itci_alloc_exit)(void);
+typedef struct itc_message     *(itci_alloc_alloc)(size_t size); // This is sizeof(UserItcMessage), union itc_msg
+typedef void                    (itci_alloc_free)(struct itc_message *message);
+typedef struct itc_alloc_info   (itci_alloc_getinfo)(void);
 
 struct itci_alloc_apis {
-        itci_init_alloc *itci_init_alloc;
-        itci_exit_alloc *itci_exit_alloc;
-        itci_alloc      *itci_alloc;
-        itci_free       *itci_free;
+        itci_alloc_init         *itci_alloc_init;       // Used for setting up internal configuration in 
+                                                        // individual allocation mechanism at itc_init().
+        itci_alloc_exit         *itci_alloc_exit;       // Used for releasing above configuration.
+        itci_alloc_alloc        *itci_alloc_alloc;      // Used for specifying how we will allocate memory for itc messages.
+        itci_alloc_free         *itci_alloc_free;       // Used for deallocate itc messages.
+        itci_alloc_getinfo      *itci_alloc_getinfo;    // Used for getting information about the current allocator.        
 };
 
 
