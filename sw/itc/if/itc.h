@@ -24,13 +24,17 @@ extern "C" {
 
 
 /*****************************************************************************\/
-*****                        ITC TYPE DECLARATIONS                         *****
+*****                          VARIABLE MACROS                             *****
 *******************************************************************************/
 #define ITC_NAME_MAXLEN 255
 
 // If you make sure your mailbox's names you set later will be unique across the entire universe, you can use this flag
 // for itc_init() call
 #define ITC_NO_NAMESPACE NULL
+/*****************************************************************************\/
+*****                          VARIABLE MACROS                             *****
+*******************************************************************************/
+
 
 
 /*****************************************************************************\/
@@ -38,10 +42,6 @@ extern "C" {
 *******************************************************************************/
 typedef uint32_t itc_mbox_id_t;
 
-
-/*****************************************************************************\/
-*****                        ALLOCATION MECHANISM                          *****
-*******************************************************************************/
 // Because currently allocation scheme using malloc does not need any special parameters for allocation.
 // We will reserve it for future usages.
 struct itc_malloc_scheme {
@@ -75,7 +75,7 @@ struct itc_alloc_info {
         } info;
 };
 /*****************************************************************************\/
-*****                        ALLOCATION MECHANISM                          *****
+*****                        ITC TYPE DECLARATIONS                         *****
 *******************************************************************************/
 
 
