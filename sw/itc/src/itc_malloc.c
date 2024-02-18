@@ -5,7 +5,7 @@
 #include "itci_alloc.h"
 
 /*********************************************************************************************************************\/
-*****                                 FUNCTION PROTOTYPES AND STATIC GLOBAL VARIABLES                              *****
+*****                                        INTERNAL VARIABLES IN MALLOC-ATOR                                     *****
 ***********************************************************************************************************************/
 /* This is a global variable for this file only, used for malloc allocator
    to manage how large memory block will be allocated.
@@ -18,8 +18,15 @@
    What we should do is that we will choose which trans functions should be used depending on message size.
 */
 static int max_mallocsize;
+/*********************************************************************************************************************\/
+*****                                        INTERNAL VARIABLES IN MALLOC-ATOR                                     *****
+***********************************************************************************************************************/
 
 
+
+/*********************************************************************************************************************\/
+*****                                          ALLOC INTERFACE IMPLEMENTATION                                      *****
+***********************************************************************************************************************/
 static  int                     malloc_init(union itc_scheme *scheme_params, int max_msgsize);
 static  int                     malloc_exit(void);
 static  struct itc_message     *malloc_alloc(size_t size);
@@ -34,7 +41,7 @@ struct itci_alloc_apis malloc_apis = {
         malloc_getinfo
 };
 /*********************************************************************************************************************\/
-*****                                 FUNCTION PROTOTYPES AND STATIC GLOBAL VARIABLES                              *****
+*****                                          ALLOC INTERFACE IMPLEMENTATION                                      *****
 ***********************************************************************************************************************/
 
 
