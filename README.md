@@ -34,11 +34,18 @@ ITC messages includes two parts:
 There is a concept called itc_coordinator or just itc_coor which plays a role as a representative or contact point
 to orchestrate all itc activities within a board. This must be run before any other programs that use ITC can start.
 
-This is the first contact point for any ITC mailbox at initialization.
+This is the first contact point for itc_init() at ITC initialization for a process.
 
-Each mailbox when created must locate the itc_coor. It will monitor "alive" status for registered mailboxes
-and make sure to remove all related mailboxes when a process dies. It will be implemented as a UNIX socket which is
-opened at /var/usr/itc_coor/itc_coor_locator.
+At ITC initialization itc_init() of a process, we must locate the itc_coor to get information:
+your mailbox id in itc_coor, itc_coor_mask, itc_coor mailbox id.
+
+After initialization, whenever a mailbox is created, it must notify itc_coor by sending a message. Similarly, when
+a mailbox or the process is terminated, you also need to inform itc_coor about that.
+
+It will monitor "alive" status for registered mailboxes of each process and make sure to remove all related mailboxes
+when a process dies.
+
+It will be implemented as a UNIX socket which is opened at /var/usr/itc_coor/itc_coor_locator.
 ```
 ```
 To communicate over hosts (different boards), we will need AF_INET TCP/UDP IP socket, rather than AF_UNIX/AF_LOCAL

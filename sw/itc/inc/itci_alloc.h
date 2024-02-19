@@ -35,12 +35,13 @@ typedef void                    (itci_alloc_free)(struct itc_message *message);
 typedef struct itc_alloc_info   (itci_alloc_getinfo)(void);
 
 struct itci_alloc_apis {
-        itci_alloc_init         *itci_alloc_init;       // Used for setting up internal configuration in 
+        itci_alloc_init         *itci_alloc_init;       // API to setup internal configuration in 
                                                         // individual allocation mechanism at itc_init().
-        itci_alloc_exit         *itci_alloc_exit;       // Used for releasing above configuration.
-        itci_alloc_alloc        *itci_alloc_alloc;      // Used for specifying how we will allocate memory for itc messages.
-        itci_alloc_free         *itci_alloc_free;       // Used for deallocate itc messages.
-        itci_alloc_getinfo      *itci_alloc_getinfo;    // Used for getting information about the current allocator.        
+
+        itci_alloc_exit         *itci_alloc_exit;       // API to release above configuration.
+        itci_alloc_alloc        *itci_alloc_alloc;      // API to specify how we will allocate memory for itc messages.
+        itci_alloc_free         *itci_alloc_free;       // API to deallocate itc messages.
+        itci_alloc_getinfo      *itci_alloc_getinfo;    // API to get information about the current allocator.        
 };
 
 
