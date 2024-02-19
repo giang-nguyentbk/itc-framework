@@ -21,11 +21,13 @@ extern "C" {
 #include "itc.h"
 
 /*****************************************************************************\/
-*****                          VARIABLE MACROS                             *****
+*****                     VARIABLE/FUNCTIONS MACROS                        *****
 *******************************************************************************/
 #define ENDPOINT (char)0xAA
 #define ITC_HEADER_SIZE 14 // itc_message: flags + receiver + sender + size. Also is the offset between
                                 // the starting of itc_message and the starting of itc_msg.
+
+#define CLZ(val) __builtin_clz(val)
 /*****************************************************************************\/
 *****                          VARIABLE MACROS                             *****
 *******************************************************************************/
@@ -37,6 +39,8 @@ extern "C" {
 *******************************************************************************/
 // Flags to see if you're itc_coordinator or not (used by itc_init() call)
 #define ITC_FLAGS_I_AM_ITC_COOR 0x00000001
+// Force to redo itc_init() for a process
+#define ITC_FLAGS_FORCE_REINIT  0x00000100
 /*****************************************************************************\/
 *****                          FLAG DEFINITIONS                            *****
 *******************************************************************************/
@@ -47,7 +51,11 @@ extern "C" {
 *****                            RETURN CODE                               *****
 *******************************************************************************/
 // Result code used for allocator error handling
-#define ITC_ALLOC_RET_OK 0
+#define ITC_RET_OK                0
+// itc_init() was already run for this process
+#define ITC_RET_INIT_ALREADY_INIT       -2
+// malloc() couldn't allocate memories due to out of memory
+#define ITC_RET_INIT_OUT_OF_MEM         -4
 /*****************************************************************************\/
 *****                            RETURN CODE                               *****
 *******************************************************************************/
@@ -84,6 +92,13 @@ do not access user data via itc_message but use itc_msg instead */
         if not, then there is something wrong with your itc message */
         /* Why it's 0xAA, because 0xAA = 1010 1010. Most efficient way to confirm the itc message correctness */
         /* char                     endpoint; */
+};
+
+struct llrxqueue {
+        struct itc_message      *head;
+        struct itc_message      *tail;
+
+        struct itc_message      *find;
 };
 /*****************************************************************************\/
 *****                         TYPE DEFINITIONS                             *****
