@@ -19,6 +19,16 @@ you can have several names (use at school, at home,...), but you are you (same a
 in your Citizen Identity Card).
 ```
 
+![](./assets/mailbox-id.png?raw=true)
+```
+Mailbox ID will be formed like the figure above. Number of bit "m" is fixed as 12 bits and used for itc_coord process id
+(show how many processes are running). Number of bit "n" is depending on the number of mailboxes you want
+(show how many mailboxes in a process being used).
+
+For example, if you want this process to have 100 mailboxes -> we will use 7 right-most bits 0x7F (127) -> n = 7.
+Maximum n = 16 bits, because we did set ITC_MAX_MAILBOXES = 65534.
+```
+
 ![](./assets/itc-message.png?raw=true)
 ```
 ITC messages includes two parts:
@@ -31,21 +41,21 @@ ITC messages includes two parts:
 ```
 
 ```
-There is a concept called itc_coordinator or just itc_coor which plays a role as a representative or contact point
+There is a concept called itc_coordinator or just itc_coord which plays a role as a representative or contact point
 to orchestrate all itc activities within a board. This must be run before any other programs that use ITC can start.
 
 This is the first contact point for itc_init() at ITC initialization for a process.
 
-At ITC initialization itc_init() of a process, we must locate the itc_coor to get information:
-your mailbox id in itc_coor, itc_coor_mask, itc_coor mailbox id.
+At ITC initialization itc_init() of a process, we must locate the itc_coord to get information:
+your mailbox id in itc_coord, itc_coord_mask, itc_coord mailbox id.
 
-After initialization, whenever a mailbox is created, it must notify itc_coor by sending a message. Similarly, when
-a mailbox or the process is terminated, you also need to inform itc_coor about that.
+After initialization, whenever a mailbox is created, it must notify itc_coord by sending a message. Similarly, when
+a mailbox or the process is terminated, you also need to inform itc_coord about that.
 
 It will monitor "alive" status for registered mailboxes of each process and make sure to remove all related mailboxes
 when a process dies.
 
-It will be implemented as a UNIX socket which is opened at /var/usr/itc_coor/itc_coor_locator.
+It will be implemented as a UNIX socket which is opened at /var/usr/itc_coord/itc_coord_locator.
 ```
 ```
 To communicate over hosts (different boards), we will need AF_INET TCP/UDP IP socket, rather than AF_UNIX/AF_LOCAL
@@ -63,6 +73,7 @@ For example, an mailbox should have a full name (path) like this: /board_1/proce
 
 Based on namespace, it's easier for mailbox to select which trans function should be used for the best convenience.
 ```
+
 ### 2. Transportation mechanism:
 ```
         + Local trans: used for inter-thread communication. Because threads inside a process will share
@@ -92,4 +103,41 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 ```
 
 ![](./assets/malloc-unitTest.png?raw=true)
+
+
+### 4. Future Improvements
+```
+1. One message can be only sent to one receiver:
+	+ The current implementation is implicitly understood as Single Input Single Out SISO, which means a sender
+	can only send a message to one receiver, not to multiple receivers.
+
+	+ Since to send a message to multiple mailboxes, we need to re-design message deallocation mechanism. Currently,
+	a sender calls itc_alloc() -> itc_send(), whereas a receiver will constantly call itc_receive() in
+	an infinite loop to expect the message, then handle it and call itc_free() to deallocate it.
+
+	+ So, what happens when we send a message to many receivers? Who will call itc_free()? That's the problem.
+
+	+ We will re-design it so that receivers will pass responsibilities about deallocating the message to the sender
+	
+	+ When the message is not in any rx queues of any mailboxes, meaning all receivers have dequeued the message
+	from their queue, sender will call itc_free() to free the message.
+	
+	+ But, shall sender have to wait for this? Sender will be blocked? There must be some smart way to implement
+	this asynchronously.
+
+2. In local transportation, need some way to manage rx queue more reliable such as max items in queue, auto clean up
+messages in queue which is not dequeued for a long time,...
+
+3. No message filter for itc_receive() currently:
+	+ We can filter which message types you want to get. Param filter is an array with:
+                filter[0] = how many message types you want to get.
+                filter[1] = msgno1
+                filter[2] = msgno2
+                filter[3] = msgno3
+                ...
+
+	+ We may want to get messages from someone only, or get from all mailboxes via ITC_FROM_ALL.
+
+----> All improvements will be soon committed in ITC V2.
+```
 

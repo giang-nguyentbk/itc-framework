@@ -90,11 +90,11 @@ struct itc_alloc_info {
 *  (aligned with 16-byte, same as malloc work).
 *  3. When user call itc_create_mailbox(), take an mailbox available from a block and give it to user.
 */
-extern int itc_init(int32_t number_of_mailboxes,
+extern int itc_init(int32_t nr_mboxes,
                     itc_alloc_scheme alloc_scheme,
                     union itc_scheme *scheme_params,
                     char *namespace, // Will be implemented later
-                    uint32_t init_flags); // First usage is to see if itc_coor or not,
+                    uint32_t init_flags); // First usage is to see if itc_coord or not,
                                             // this is reserved for future usages.
 
 /*
@@ -141,8 +141,13 @@ extern void itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
         ITC_NO_TMO means wait forever until receiving any message and 0 means check the rx queue and return
         immediately no matter if there are messages or not.
         3. You may want to get messages from someone only, or get from all mailboxes via ITC_FROM_ALL.
+
+	Note that: 1 and 3 will be implemented in ITC V2.
 */
-extern union itc_msg *itc_receive(const uint32_t *filter, uint32_t tmo,itc_mbox_id_t from);
+// extern union itc_msg *itc_receive(const uint32_t *filter, uint32_t tmo,itc_mbox_id_t from);
+extern union itc_msg *itc_receive(uint32_t tmo); // By default ITC V1 receiving the 1st message in the rx queue
+						 // no matter from who it came.
+
 /*****************************************************************************\/
 *****                        CORE API DECLARATIONS                         *****
 *******************************************************************************/
@@ -160,8 +165,8 @@ extern itc_mbox_id_t itc_current_mbox(void);
 /*
 *  Locate a mailbox across the entire universe.
 *       1. First search for local mailboxes in the current process.
-*       2. If cannot find, send a message ITC_LOCATE_OVER_PROC to itc_coor asking for seeking across processes.
-*       3. If still cannot find, itc_coor will help send a message ITC_LOCATE_OVER_HOST to itc_gw asking for
+*       2. If cannot find, send a message ITC_LOCATE_OVER_PROC to itc_coord asking for seeking across processes.
+*       3. If still cannot find, itc_coord will help send a message ITC_LOCATE_OVER_HOST to itc_gw asking for
 *       broadcasting this message to all hosts on LAN network for locating the requested mailbox.
 *
 *       Note that: this may block your thread for some time, so please consider using itc_locate_async instead
@@ -213,13 +218,13 @@ extern int32_t itc_get_name(itc_mbox_id_t mbox_id, char *name, uint32_t name_len
 /*****************************************************************************\/
 *****                    MAP TO BACKEND IMPLEMENTATION                     *****
 *******************************************************************************/
-extern int itc_init_zz(int32_t number_of_mailboxes,
+extern int itc_init_zz(int32_t nr_mboxes,
                     itc_alloc_scheme alloc_scheme,
                     union itc_scheme *scheme_params,
                     char *namespace,
                     uint32_t init_flags);
-#define itc_init(number_of_mailboxes, alloc_scheme, scheme_params, namespace, init_flags) \
-                itc_init_zz((number_of_mailboxes), (alloc_scheme), (scheme_params), (namespace), (init_flags))
+#define itc_init(nr_mboxes, alloc_scheme, scheme_params, namespace, init_flags) \
+                itc_init_zz((nr_mboxes), (alloc_scheme), (scheme_params), (namespace), (init_flags))
 
 
 extern void itc_exit_zz(void);
@@ -240,8 +245,8 @@ extern void itc_delete_mailbox_zz(itc_mbox_id_t mbox_id);
 extern void itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 #define itc_send(msg, to, from) itc_send_zz((msg), (to), (from))
 
-extern union itc_msg *itc_receive_zz(const uint32_t *filter, uint32_t tmo,itc_mbox_id_t from);
-#define itc_receive(filter, tmo, from) itc_receive_zz((filter), (tmo), (from))
+extern union itc_msg *itc_receive_zz(uint32_t tmo);
+#define itc_receive(tmo) itc_receive_zz(tmo)
 
 extern itc_mbox_id_t itc_sender_zz(union itc_msg *msg);
 #define itc_sender(msg) itc_sender_zz((msg))

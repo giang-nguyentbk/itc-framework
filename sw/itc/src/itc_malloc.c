@@ -4,9 +4,9 @@
 #include "itc_impl.h"
 #include "itci_alloc.h"
 
-/*********************************************************************************************************************\/
-*****                                        INTERNAL VARIABLES IN MALLOC-ATOR                                     *****
-***********************************************************************************************************************/
+/*****************************************************************************\/
+*****                  INTERNAL VARIABLES IN MALLOC-ATOR                   *****
+*******************************************************************************/
 /* This is a global variable for this file only, used for malloc allocator
    to manage how large memory block will be allocated.
    Should be updated by itc_init() via going through all transport mechanisms and see what is the minimum message size.
@@ -18,15 +18,15 @@
    What we should do is that we will choose which trans functions should be used depending on message size.
 */
 static int max_mallocsize;
-/*********************************************************************************************************************\/
-*****                                        INTERNAL VARIABLES IN MALLOC-ATOR                                     *****
-***********************************************************************************************************************/
+/*****************************************************************************\/
+*****                  INTERNAL VARIABLES IN MALLOC-ATOR                   *****
+*******************************************************************************/
 
 
 
-/*********************************************************************************************************************\/
-*****                                          ALLOC INTERFACE IMPLEMENTATION                                      *****
-***********************************************************************************************************************/
+/*****************************************************************************\/
+*****                   ALLOC INTERFACE IMPLEMENTATION                     *****
+*******************************************************************************/
 static  int                     malloc_init(union itc_scheme *scheme_params, int max_msgsize);
 static  int                     malloc_exit(void);
 static  struct itc_message     *malloc_alloc(size_t size);
@@ -40,15 +40,15 @@ struct itci_alloc_apis malloc_apis = {
         malloc_free,
         malloc_getinfo
 };
-/*********************************************************************************************************************\/
-*****                                          ALLOC INTERFACE IMPLEMENTATION                                      *****
-***********************************************************************************************************************/
+/*****************************************************************************\/
+*****                   ALLOC INTERFACE IMPLEMENTATION                     *****
+*******************************************************************************/
 
 
 
-/*********************************************************************************************************************\/
-*****                                               FUNCTION DEFINITIONS                                           *****
-***********************************************************************************************************************/
+/*****************************************************************************\/
+*****                        FUNCTION DEFINITIONS                          *****
+*******************************************************************************/
 static int malloc_init(union itc_scheme *scheme_params,
                                 int max_msgsize)
 {
@@ -58,13 +58,13 @@ static int malloc_init(union itc_scheme *scheme_params,
 
         max_mallocsize = max_msgsize;
 
-        return ITC_ALLOC_RET_OK;
+        return ITC_RET_OK;
 }
 
 static int malloc_exit(void)
 {
         // Do nothing. Because malloc allocator has only one max_mallocsize varible, nothing to be cleaned up.
-        return ITC_ALLOC_RET_OK;
+        return ITC_RET_OK;
 }
 
 static struct itc_message *malloc_alloc(size_t size)
@@ -104,6 +104,6 @@ static  struct itc_alloc_info (malloc_getinfo)(void)
                                                                 
         return info;
 }
-/*********************************************************************************************************************\/
-*****                                               FUNCTION DEFINITIONS                                           *****
-***********************************************************************************************************************/
+/*****************************************************************************\/
+*****                        FUNCTION DEFINITIONS                          *****
+*******************************************************************************/

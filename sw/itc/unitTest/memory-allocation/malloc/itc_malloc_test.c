@@ -83,7 +83,7 @@ int testMallocInitAlloc(itc_alloc_scheme alloc_scheme,
         if(allocator.itci_alloc_init != NULL)
         {
                 int ret = allocator.itci_alloc_init(scheme_params, max_msgsize);
-                if(ret != ITC_ALLOC_RET_OK)
+                if(ret != ITC_RET_OK)
                 {
                         printf("[FAIL]:\t\t<testMallocInitAlloc>\t\tFailed to itci_alloc_init()!\n");
                         return -1;
@@ -103,7 +103,7 @@ int testMallocExitAlloc()
         if(allocator.itci_alloc_exit != NULL)
         {
                 int ret = allocator.itci_alloc_exit();
-                if(ret != ITC_ALLOC_RET_OK)
+                if(ret != ITC_RET_OK)
                 {
                         printf("[FAIL]:\t\t<testMallocExitAlloc>\t\tFailed to itci_alloc_exit()!\n");
                         return -1;
