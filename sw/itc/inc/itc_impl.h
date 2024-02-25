@@ -28,6 +28,9 @@ extern "C" {
                                 // the starting of itc_message and the starting of itc_msg.
 
 #define CLZ(val) __builtin_clz(val)
+#define CONVERT_TO_MESSAGE(msg) (struct itc_message*)((unsigned long)msg - ITC_HEADER_SIZE) // See itc_message in README
+
+#define CONVERT_TO_MSG(message) (union itc_msg*)(&message->msgno)
 /*****************************************************************************\/
 *****                          VARIABLE MACROS                             *****
 *******************************************************************************/
@@ -41,6 +44,8 @@ extern "C" {
 #define ITC_FLAGS_I_AM_ITC_COOR 0x00000001
 // Force to redo itc_init() for a process
 #define ITC_FLAGS_FORCE_REINIT  0x00000100
+// Indicate a message are in a rx queue of some mailbox.
+#define ITC_FLAGS_MSG_INRXQUEUE 0x0001
 /*****************************************************************************\/
 *****                          FLAG DEFINITIONS                            *****
 *******************************************************************************/
@@ -94,11 +99,19 @@ do not access user data via itc_message but use itc_msg instead */
         /* char                     endpoint; */
 };
 
-struct llrxqueue {
-        struct itc_message      *head;
-        struct itc_message      *tail;
+struct llqueue_item {
+	struct llqueue_item*	next;
+	struct llqueue_item*	prev;
 
-        struct itc_message      *find;
+	/* Data of queue item, which points to an itc_message */
+	struct itc_message*	msg_item;
+}
+
+/* Push into tail and pop from head */
+struct rxqueue {
+        struct llqueue_item* 	head;
+        struct llqueue_item*	tail;
+        struct llqueue_item*	find;
 };
 /*****************************************************************************\/
 *****                         TYPE DEFINITIONS                             *****

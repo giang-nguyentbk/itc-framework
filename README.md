@@ -104,3 +104,40 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 
 ![](./assets/malloc-unitTest.png?raw=true)
 
+
+### 4. Future Improvements
+```
+1. One message can be only sent to one receiver:
+	+ The current implementation is implicitly understood as Single Input Single Out SISO, which means a sender
+	can only send a message to one receiver, not to multiple receivers.
+
+	+ Since to send a message to multiple mailboxes, we need to re-design message deallocation mechanism. Currently,
+	a sender calls itc_alloc() -> itc_send(), whereas a receiver will constantly call itc_receive() in
+	an infinite loop to expect the message, then handle it and call itc_free() to deallocate it.
+
+	+ So, what happens when we send a message to many receivers? Who will call itc_free()? That's the problem.
+
+	+ We will re-design it so that receivers will pass responsibilities about deallocating the message to the sender
+	
+	+ When the message is not in any rx queues of any mailboxes, meaning all receivers have dequeued the message
+	from their queue, sender will call itc_free() to free the message.
+	
+	+ But, shall sender have to wait for this? Sender will be blocked? There must be some smart way to implement
+	this asynchronously.
+
+2. In local transportation, need some way to manage rx queue more reliable such as max items in queue, auto clean up
+messages in queue which is not dequeued for a long time,...
+
+3. No message filter for itc_receive() currently:
+	+ We can filter which message types you want to get. Param filter is an array with:
+                filter[0] = how many message types you want to get.
+                filter[1] = msgno1
+                filter[2] = msgno2
+                filter[3] = msgno3
+                ...
+
+	+ We may want to get messages from someone only, or get from all mailboxes via ITC_FROM_ALL.
+
+----> All improvements will be soon committed in ITC V2.
+```
+

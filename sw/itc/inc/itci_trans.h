@@ -41,11 +41,7 @@ typedef int (itci_trans_send)(struct itc_mailbox  *mbox,
                               itc_mbox_id_t       to,
                               itc_mbox_id_t       from);
 
-typedef struct itc_message *(itci_trans_receive)(struct itc_mailbox  *mbox,
-                                                 const uint32_t      *filter,
-                                                 long                tmo,
-                                                 itc_mbox_id_t       from,
-                                                 bool                recursive_call);
+typedef struct itc_message *(itci_trans_receive)(struct itc_mailbox  *mbox);
 
 typedef struct itc_message *(itci_trans_remove)(struct itc_message  *mailbox,
                                                 struct itc_message  *removemessage);

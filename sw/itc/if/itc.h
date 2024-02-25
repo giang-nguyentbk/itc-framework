@@ -141,8 +141,13 @@ extern void itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
         ITC_NO_TMO means wait forever until receiving any message and 0 means check the rx queue and return
         immediately no matter if there are messages or not.
         3. You may want to get messages from someone only, or get from all mailboxes via ITC_FROM_ALL.
+
+	Note that: 1 and 3 will be implemented in ITC V2.
 */
-extern union itc_msg *itc_receive(const uint32_t *filter, uint32_t tmo,itc_mbox_id_t from);
+// extern union itc_msg *itc_receive(const uint32_t *filter, uint32_t tmo,itc_mbox_id_t from);
+extern union itc_msg *itc_receive(uint32_t tmo); // By default ITC V1 receiving the 1st message in the rx queue
+						 // no matter from who it came.
+
 /*****************************************************************************\/
 *****                        CORE API DECLARATIONS                         *****
 *******************************************************************************/
@@ -240,8 +245,8 @@ extern void itc_delete_mailbox_zz(itc_mbox_id_t mbox_id);
 extern void itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 #define itc_send(msg, to, from) itc_send_zz((msg), (to), (from))
 
-extern union itc_msg *itc_receive_zz(const uint32_t *filter, uint32_t tmo,itc_mbox_id_t from);
-#define itc_receive(filter, tmo, from) itc_receive_zz((filter), (tmo), (from))
+extern union itc_msg *itc_receive_zz(uint32_t tmo);
+#define itc_receive(tmo) itc_receive_zz(tmo)
 
 extern itc_mbox_id_t itc_sender_zz(union itc_msg *msg);
 #define itc_sender(msg) itc_sender_zz((msg))
