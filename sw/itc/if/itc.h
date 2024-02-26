@@ -26,7 +26,8 @@ extern "C" {
 /*****************************************************************************\/
 *****                          VARIABLE MACROS                             *****
 *******************************************************************************/
-#define ITC_NAME_MAXLEN 255
+#define ITC_NAME_MAXLEN 	255
+#define ITC_MAX_MAILBOXES	65534
 
 // If you make sure your mailbox's names you set later will be unique across the entire universe, you can use this flag
 // for itc_init() call

@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 #include "itc.h"
+#include "itc_impl.h"
 
 typedef int                     (itci_alloc_init)(union itc_scheme *scheme_params, int max_msgsize);
 typedef int                     (itci_alloc_exit)(void);

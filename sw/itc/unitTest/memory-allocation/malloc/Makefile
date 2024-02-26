@@ -21,7 +21,7 @@ vpath %.sig 	$(SIG_DIR)
 all: $(TARGET)
 
 $(TARGET): $(BIN)/itc_malloc.o $(BIN)/itc_malloc_test.o
-	$(CC) $^ -o $(BIN)/$(TARGET)
+	$(CC) $^ -DUNITTEST -o $(BIN)/$(TARGET)
 
 $(BIN)/itc_malloc.o: itc_malloc.c itc.h itc_impl.h itci_alloc.h
 	$(CC) -c -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
@@ -34,7 +34,7 @@ run:
 # 0 = ITC_MALLOC
 
 val:
-	sudo valgrind --leak-check=yes $(BIN)/$(TARGET) 0
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET) 0
 
 clean:
 	rm -rf $(BIN)/*
