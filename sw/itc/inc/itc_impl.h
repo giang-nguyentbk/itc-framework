@@ -27,6 +27,8 @@ extern "C" {
 #define ITC_HEADER_SIZE 14 // itc_message: flags + receiver + sender + size. Also is the offset between
                                 // the starting of itc_message and the starting of itc_msg.
 
+#define ITC_NR_INTERNAL_USED_MBOXES 2 // One for socket and one for sysv transports
+
 #define CLZ(val) __builtin_clz(val)
 #define CONVERT_TO_MESSAGE(msg) (struct itc_message*)((unsigned long)msg - ITC_HEADER_SIZE) // See itc_message in README
 
