@@ -1,5 +1,6 @@
 TARGET = itc_local_test
 BIN = ../bin
+CFLAGS= -g -Wall -Wextra
 
 INCLUDE_DIR =
 INCLUDE_DIR += -I ../../../if
@@ -21,13 +22,13 @@ vpath %.sig 	$(SIG_DIR)
 all: $(TARGET)
 
 $(TARGET): $(BIN)/itc_local.o $(BIN)/itc_local_test.o
-	$(CC) $^ -o $(BIN)/$(TARGET)
+	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET)
 
 $(BIN)/itc_local.o: itc_local.c itc.h itc_impl.h itci_trans.h
-	$(CC) -DUNITTEST -c -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 $(BIN)/itc_local_test.o: itc_local_test.c itc.h itci_trans.h itc_impl.h
-	$(CC) -c -o $@ $(INCLUDE_DIR) $(SRC_DIR) $(SIG_DIR) $<
+	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $(SIG_DIR) $<
 
 run:
 	$(BIN)/$(TARGET)

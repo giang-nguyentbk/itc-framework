@@ -29,11 +29,11 @@ extern "C" {
 #include "itc.h"
 #include "itc_impl.h"
 
-typedef int                     (itci_alloc_init)(union itc_scheme *scheme_params, int max_msgsize);
-typedef int                     (itci_alloc_exit)(void);
-typedef struct itc_message     *(itci_alloc_alloc)(size_t size); // This is sizeof(UserItcMessage), union itc_msg
-typedef void                    (itci_alloc_free)(struct itc_message *message);
-typedef struct itc_alloc_info   (itci_alloc_getinfo)(void);
+typedef void (itci_alloc_init)(struct result_code* rc, union itc_scheme *scheme_params, int max_msgsize);
+typedef void (itci_alloc_exit)(struct result_code* rc);
+typedef struct itc_message* (itci_alloc_alloc)(struct result_code* rc, size_t size);
+typedef void (itci_alloc_free)(struct result_code* rc, struct itc_message *message);
+typedef struct itc_alloc_info (itci_alloc_getinfo)(struct result_code* rc);
 
 struct itci_alloc_apis {
         itci_alloc_init         *itci_alloc_init;       // API to setup internal configuration in 

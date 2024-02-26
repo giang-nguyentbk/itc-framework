@@ -4,6 +4,8 @@
 #include "itc_impl.h"
 #include "itci_alloc.h"
 
+#include <stdio.h>
+
 /*****************************************************************************\/
 *****                  INTERNAL VARIABLES IN MALLOC-ATOR                   *****
 *******************************************************************************/
@@ -17,7 +19,7 @@
    and limit msg size of local and socket trans functions as same as sysv???
    What we should do is that we will choose which trans functions should be used depending on message size.
 */
-static int max_mallocsize;
+static int max_mallocsize = 0;
 /*****************************************************************************\/
 *****                  INTERNAL VARIABLES IN MALLOC-ATOR                   *****
 *******************************************************************************/
@@ -27,11 +29,11 @@ static int max_mallocsize;
 /*****************************************************************************\/
 *****                   ALLOC INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
-static  int                     malloc_init(union itc_scheme *scheme_params, int max_msgsize);
-static  int                     malloc_exit(void);
-static  struct itc_message     *malloc_alloc(size_t size);
-static  void                    malloc_free(struct itc_message *message);
-static  struct itc_alloc_info  (malloc_getinfo)(void);
+static void malloc_init(struct result_code* rc, union itc_scheme *scheme_params, int max_msgsize);
+static void malloc_exit(struct result_code* rc);
+static struct itc_message* malloc_alloc(struct result_code* rc, size_t size);
+static void malloc_free(struct result_code* rc, struct itc_message *message);
+static struct itc_alloc_info (malloc_getinfo)(struct result_code* rc);
 
 struct itci_alloc_apis malloc_apis = {
         malloc_init,
@@ -49,32 +51,37 @@ struct itci_alloc_apis malloc_apis = {
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
-static int malloc_init(union itc_scheme *scheme_params,
-                                int max_msgsize)
+static void malloc_init(struct result_code* rc, union itc_scheme *scheme_params, int max_msgsize)
 {
         // Because malloc allocator does not need any special scheme_params, see struct itc_malloc_scheme.
         // So we will ignore scheme_params here, users can just input nullptr for this argument.
         (void)scheme_params;
+	(void)rc;
+
+	if(max_msgsize < 0)
+	{
+		rc->flags |= ITC_INVALID_MAX_MSGSIZE;
+                return;
+	}
 
         max_mallocsize = max_msgsize;
-
-        return ITC_RET_OK;
 }
 
-static int malloc_exit(void)
+static void malloc_exit(struct result_code* rc)
 {
-        // Do nothing. Because malloc allocator has only one max_mallocsize varible, nothing to be cleaned up.
-        return ITC_RET_OK;
+	// Do nothing. Because malloc allocator has only one max_mallocsize varible, nothing to be cleaned up.
+	(void)rc;
 }
 
-static struct itc_message *malloc_alloc(size_t size)
+static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
 {
         struct itc_message *retmessage;
 
-        if(max_mallocsize < 0 || size > (size_t)max_mallocsize)
+        if(size > (size_t)max_mallocsize)
         {
                 // Requested itc message's length is too large or itc_init() hasn't been called yet.
                 // Should implement tracing/logging later for debugging purposes.
+		rc->flags |= ITC_INVALID_MAX_MSGSIZE;
                 return NULL;
         }
 
@@ -82,19 +89,31 @@ static struct itc_message *malloc_alloc(size_t size)
         if(retmessage == NULL)
         {
                 // Logging malloc() failed to allocate memory needed.
+		rc->flags |= ITC_OUT_OF_MEM;
                 return NULL;
         }
 
         return retmessage;
 }
 
-static void malloc_free(struct itc_message *message)
+static void malloc_free(struct result_code* rc, struct itc_message *message)
 {
+	if(message == NULL)
+	{
+		rc->flags |= ITC_FREE_NULL_PTR;
+		return;
+	}
+
         free(message);
+	/* Idk why but even if I assign this message = NULL. but after malloc_free return, in the context of the calling
+	   function, message is not NULL anymore, it's pointing to a garbage address.
+	   This is interesting and I'll investigate further later */
+	message = NULL;
 }
 
-static  struct itc_alloc_info (malloc_getinfo)(void)
+static struct itc_alloc_info (malloc_getinfo)(struct result_code* rc)
 {
+	(void)rc;
         struct itc_alloc_info info;
 
         info.scheme = ITC_MALLOC;
