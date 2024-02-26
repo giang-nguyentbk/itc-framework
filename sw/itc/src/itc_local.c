@@ -48,7 +48,7 @@ struct local_instance {
         itc_mbox_id_t           itccoord_mask;
         itc_mbox_id_t           local_mbox_mask;
 
-        int                     nr_localmbx_datas;
+        uint32_t                     nr_localmbx_datas;
         struct local_mbox_data  *localmbx_data;
 };
 
@@ -71,20 +71,20 @@ static struct local_instance local_inst; // One instance per a process, multiple
 /*****************************************************************************\/
 *****                   INTERNAL FUNCTIONS PROTOTYPES                      *****
 *******************************************************************************/
-static struct local_mbox_data *find_localmbx_data(itc_mbox_id_t mbox_id);
-static void release_localmbx_resources(void);
-static struct rxqueue* init_queue(void); // Used at mailbox creation to initialize rxqueue for the mailbox.
-static void enqueue_message(struct rxqueue* q, struct itc_message* message);
-static struct itc_message* dequeue_message(struct rxqueue *q);
+static struct local_mbox_data *find_localmbx_data(struct result_code* rc, itc_mbox_id_t mbox_id);
+static void release_localmbx_resources(struct result_code* rc);
+static struct rxqueue* init_queue(struct result_code* rc); // Used at mailbox creation to initialize rxqueue for the mailbox.
+static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct itc_message* message);
+static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueue *q);
 // Will be implemented in ITC V2, below function is used for filtering out specific messages
 // static struct itc_message* find_message_fromqueue(struct rxqueue* q, const uint32_t* filter, itc_mbox_id_t from);
 
 /* Note that this function only find the message and remove its status "INQUEUE", not free() it */
 /* Remember that deallocating a itc_msg is the responsibility of users who is expected that sender will call
    itc_alloc() -> itc_send() and receiver will call itc_receive() -> handle the message and itc_free() */
-static struct itc_message* remove_message_fromqueue(struct rxqueue* q, struct itc_message* message);
-static struct llqueue_item* create_qitem(struct itc_message* message);
-static void remove_qitem(struct llqueue_item* qitem);
+static struct itc_message* remove_message_fromqueue(struct result_code* rc, struct rxqueue* q, struct itc_message* message);
+static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_message* message);
+static void remove_qitem(struct result_code* rc, struct llqueue_item* qitem);
 
 
 /*****************************************************************************\/
@@ -96,19 +96,22 @@ static void remove_qitem(struct llqueue_item* qitem);
 /*****************************************************************************\/
 *****                   TRANS INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
-static int local_init(itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, int nr_mboxes, uint32_t flags);
+static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
+		      int nr_mboxes, uint32_t flags);
 
-static int local_exit(void);
+static void local_exit(struct result_code* rc);
 
-static int local_create_mbox(struct itc_mailbox *mailbox, uint32_t flags);
+static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbox, uint32_t flags);
 
-static int local_delete_mbox(struct itc_mailbox *mailbox);
+static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbox);
 
-static int local_send(struct itc_mailbox *mbox, struct itc_message *message, itc_mbox_id_t to, itc_mbox_id_t from);
+static void local_send(struct result_code* rc, struct itc_mailbox *mbox, struct itc_message *message, itc_mbox_id_t to, \
+		      itc_mbox_id_t from);
 
-static struct itc_message *local_receive(struct itc_mailbox *mbox, long timeout);
+static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox, long timeout);
 
-static struct itc_message *local_remove(struct itc_mailbox *mbox, struct itc_message *removed_message);
+static struct itc_message *local_remove(struct result_code* rc, struct itc_mailbox *mbox, \
+					struct itc_message *removed_message);
 
 struct itci_transport_apis local_trans_apis = { NULL,
                                             	local_init,
@@ -128,7 +131,8 @@ struct itci_transport_apis local_trans_apis = { NULL,
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
-static int local_init(itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, int nr_mboxes, uint32_t flags)
+static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
+		      int nr_mboxes, uint32_t flags)
 {       
         uint32_t mask, nr_localmb_data;
         
@@ -137,10 +141,11 @@ static int local_init(itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoo
         {
                 if(flags & ITC_FLAGS_FORCE_REINIT)
                 {
-                        release_localmbx_resources();
+                        release_localmbx_resources(rc);
                 } else
                 {
-                        return ITC_RET_INIT_ALREADY_INIT;
+			rc->flags |= ITC_ALREADY_INIT;
+                        return;
                 }
         }
 
@@ -162,31 +167,30 @@ static int local_init(itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoo
         if(local_inst.localmbx_data == NULL)
         {
                 // Print a trace malloc() failed to allocate memory needed.
-                return ITC_RET_INIT_OUT_OF_MEM;
+		rc->flags |= ITC_OUT_OF_MEM;
+                return;
         }
         memset(local_inst.localmbx_data, 0, (nr_localmb_data*sizeof(struct local_mbox_data)));
         local_inst.nr_localmbx_datas = nr_localmb_data;
-
-        return ITC_RET_OK;
 }
 
 /* ITC infrastructure needs 2 more mailboxes for socket and sysv transports usage */
 /* Users are expected to ensure they delete all mailboxes which were requested by themselve before calling itc_exit() */
-static int local_exit(void)
+static void local_exit(struct result_code* rc)
 {
 	struct local_mbox_data* lc_mb_data;
-	int i, running_mboxes = 0;
+	uint32_t i, running_mboxes = 0;
 
 	for(i = 0; i < local_inst.nr_localmbx_datas; i++)
 	{
 		/* Go through all local mailbox's data */
-		lc_mb_data = find_localmbx_data(local_inst.my_mbox_id_in_itccoord | i);
+		lc_mb_data = find_localmbx_data(rc, local_inst.my_mbox_id_in_itccoord | i);
 
 		/* If NULL, not init yet or not belong to this process or mbox_id out of range */
-		if(lc_mb_data == NULL)
+		if(rc->flags != ITC_OK)
 		{
 			// ERROR trace here needed
-			return -1;
+			return;
 		}
 
 		/* This local mailbox data slot was allocated for a mailbox via itc_create_mailbox() call */
@@ -198,68 +202,69 @@ static int local_exit(void)
 		if(running_mboxes > ITC_NR_INTERNAL_USED_MBOXES)
 		{
 			// ERROR trace here needed, to let users know that they should delete their mailboxes first
-			return -1;
+			rc->flags |= ITC_NOT_DEL_ALL_MBOX;
+			return;
 		}
 	}
 
 	free(local_inst.localmbx_data);
 	memset(&local_inst.localmbx_data, 0, sizeof(struct local_instance));
 	local_inst.localmbx_data = NULL;
-
-	return 0;
 }
 
-static int local_create_mbox(struct itc_mailbox *mailbox, uint32_t flags)
+static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbox, uint32_t flags)
 {
+	(void)flags;
 	struct local_mbox_data* new_lc_mb_data;
 
-	new_lc_mb_data = find_localmbx_data(mailbox->mbox_id);
-	if(new_lc_mb_data == NULL)
+	new_lc_mb_data = find_localmbx_data(rc, mailbox->mbox_id);
+	if(rc->flags != ITC_OK)
 	{
 		// Not init yet, or not belong to this process or mbox_id out of range
-		return ITC_RET_INIT_NOT_INIT_YET;
+		return;
 	}
 
 	if(new_lc_mb_data->state == MBOX_INUSE)
 	{
 		// Already in use by another mailbox, try another mailbox id instead
-		return ITC_RET_INIT_ALREADY_USED;
+		rc->flags |= ITC_ALREADY_USED;
+		return;
 	}
 
 	new_lc_mb_data->mbox_id = mailbox->mbox_id;
 	new_lc_mb_data->flags = mailbox->flags;
-	new_lc_mb_data->rxq = init_queue();
-	if(new_lc_mb_data->rxq == NULL)
+	new_lc_mb_data->rxq = init_queue(rc);
+	if(rc->flags != ITC_OK)
 	{
 		// Failed to allocate new mailbox rx queue due to out of memory
-		return ITC_RET_INIT_OUT_OF_MEM;
+		return;
 	}
 
 	new_lc_mb_data->state = MBOX_INUSE;
-	return ITC_RET_OK;
 }
 
-static int local_delete_mbox(struct itc_mailbox *mailbox)
+static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbox)
 {
 	struct local_mbox_data* lc_mb_data;
 	struct itc_message* message;
 	union itc_msg* msg;
 
-	lc_mb_data = find_localmbx_data(mailbox->mbox_id);
-	if(lc_mb_data == NULL)
+	lc_mb_data = find_localmbx_data(rc, mailbox->mbox_id);
+	if(rc->flags != ITC_OK)
 	{
 		// Not init yet, or not belong to this process or mbox_id out of range
-		return -1;
+		return;
 	}
 
 	if(lc_mb_data->state == MBOX_UNUSED)
 	{
 		// Deleting a local mailbox data in wrong state
-		return -1;
+		rc->flags |= ITC_DEL_IN_WRONG_STATE;
+		return;
 	}
 
 	/* Discard all messages in rx queue */
-	while((message = dequeue_message(lc_mb_data->rxq)) != NULL)
+	while((message = dequeue_message(rc, lc_mb_data->rxq)) != NULL)
 	{
 
 /* This kind of preprocessor directive will be defined in Makefile with -DUNITTEST option for gcc/g++ compiler */
@@ -268,6 +273,8 @@ static int local_delete_mbox(struct itc_mailbox *mailbox)
 		   which is not good design. Luckily, itc_free() actually simple does call free() of stdlib.h,
 		   so we can just call it here to simulate deallocating itc messages */
 		free(message);
+		message = NULL;
+		(void)msg; // Avoid gcc compiler warning unused of msg in UNITTEST scenario.
 #else
 		msg = CONVERT_TO_MSG(message);
 		itc_free(&msg);
@@ -278,10 +285,10 @@ static int local_delete_mbox(struct itc_mailbox *mailbox)
 	lc_mb_data->rxq = NULL;
 
 	lc_mb_data->state = MBOX_UNUSED;
-	return 0;
 }
 
-static int local_send(struct itc_mailbox *mbox, struct itc_message *message, itc_mbox_id_t to, itc_mbox_id_t from)
+static void local_send(struct result_code* rc, struct itc_mailbox *mbox, struct itc_message *message, \
+			itc_mbox_id_t to, itc_mbox_id_t from)
 {
 	/* Currently no use of mbox and from input params, for future uses */
 	(void)mbox;
@@ -289,62 +296,49 @@ static int local_send(struct itc_mailbox *mbox, struct itc_message *message, itc
 
 	struct local_mbox_data* to_lc_mb_data;
 
-	to_lc_mb_data = find_localmbx_data(to);
-	if(to_lc_mb_data == NULL)
+	to_lc_mb_data = find_localmbx_data(rc, to);
+	if(rc->flags != ITC_OK)
 	{
 		// Cannot find local mailbox data for this mailbox id in this process
-		return -1;
+		return;
 	}
 
-	enqueue_message(to_lc_mb_data->rxq, message);
-
-	return 0;
+	enqueue_message(rc, to_lc_mb_data->rxq, message);
 }
 
-static struct itc_message *local_receive(struct itc_mailbox *mbox, long timeout)
+static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox, long timeout)
 {
 	/* Currently no use of timeout input param, for future uses */
 	(void)timeout;
 
 	struct local_mbox_data* lc_mb_data;
-	struct itc_message* message;
 
-	lc_mb_data = find_localmbx_data(mbox->mbox_id);
-	if(lc_mb_data == NULL)
+	lc_mb_data = find_localmbx_data(rc, mbox->mbox_id);
+	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
 		return NULL;
 	}
 
-	message = dequeue_message(lc_mb_data->rxq);
-
-	if(message == NULL)
-	{
-		// Not init yet or rx queue empty
-		return NULL;
-	} else
-	{
-		return message;
-	}
+	return dequeue_message(rc, lc_mb_data->rxq);
 }
 
-static struct itc_message *local_remove(struct itc_mailbox *mbox, struct itc_message *removed_message)
+static struct itc_message *local_remove(struct result_code* rc, struct itc_mailbox *mbox, \
+					struct itc_message *removed_message)
 {
 	struct local_mbox_data* lc_mb_data;
-	/* NULL meaning not found, or pointer to the removed message */
-	/* Note again: remove status of the message from rx queue not meaning itc_free() the message */
-	struct itc_message* ret_message;
 
-	lc_mb_data = find_localmbx_data(mbox->mbox_id);
-	if(lc_mb_data == NULL)
+
+	lc_mb_data = find_localmbx_data(rc, mbox->mbox_id);
+	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
 		return NULL;
 	}
 
-	ret_message = remove_message_fromqueue(lc_mb_data->rxq, removed_message);
-
-	return ret_message;
+	/* NULL (not found), or pointer to the removed message */
+	/* Note again: remove status of the message from rx queue not meaning itc_free() the message */
+	return remove_message_fromqueue(rc, lc_mb_data->rxq, removed_message);
 }
 
 
@@ -358,22 +352,31 @@ static struct itc_message *local_remove(struct itc_mailbox *mbox, struct itc_mes
 /*****************************************************************************\/
 *****                  INTERNAL FUNCTIONS IMPLEMENTATION                   *****
 *******************************************************************************/
-static void release_localmbx_resources(void)
+static void release_localmbx_resources(struct result_code* rc)
 {
         struct local_mbox_data* lc_mb_data;
         struct itc_message* message;
         union itc_msg* msg;
+	uint32_t i = 0;
 
-        for(int i=0; i < local_inst.nr_localmbx_datas; i++)
+        for(i = 0; i < local_inst.nr_localmbx_datas; i++)
         {
 		/* local_inst manages a list of mailboxes for all threads, so first search for our thread's mailbox */
                 /* (local_inst.my_mbox_id_in_itccoord | i) -> our local mailbox id */
-                lc_mb_data = find_localmbx_data(local_inst.my_mbox_id_in_itccoord | i);
+                lc_mb_data = find_localmbx_data(rc, local_inst.my_mbox_id_in_itccoord | i);
 
-                while((message = dequeue_message(lc_mb_data->rxq)) != NULL)
+		/* No mailbox was created for this id, continue to the next one */
+		if(lc_mb_data->rxq == NULL)
+		{
+			continue;
+		}
+
+                while((message = dequeue_message(rc, lc_mb_data->rxq)) != NULL)
                 {
 #ifdef UNITTEST
 		free(message);
+		message = NULL;
+		(void)msg; // Avoid gcc compiler warning unused of msg in UNITTEST scenario.
 #else
 		msg = CONVERT_TO_MSG(message);
 		itc_free(&msg);
@@ -384,14 +387,22 @@ static void release_localmbx_resources(void)
                 lc_mb_data->rxq = NULL;
         }
 
+	memset(&local_inst.localmbx_data, 0, sizeof(struct local_instance));
         free(local_inst.localmbx_data);
-        memset(&local_inst.localmbx_data, 0, sizeof(struct local_instance));
+	local_inst.localmbx_data = NULL;
 }
 
-static struct local_mbox_data* find_localmbx_data(itc_mbox_id_t mbox_id)
+static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mbox_id_t mbox_id)
 {
 	if(local_inst.localmbx_data == NULL)
 	{
+		rc->flags |= ITC_NOT_INIT_YET;
+		return NULL;
+	}
+
+	if((mbox_id & local_inst.itccoord_mask) != local_inst.my_mbox_id_in_itccoord)
+	{
+		rc->flags |= ITC_NOT_THIS_PROC;
 		return NULL;
 	}
 
@@ -402,16 +413,16 @@ static struct local_mbox_data* find_localmbx_data(itc_mbox_id_t mbox_id)
 	   so the local_mask is 7 -> local_inst.nr_localmbx_datas = 8
 	   But when AND 0x0050000A vs local_mask=7 -> we get local_mb_id=2 which is wrong, we expect it's 10
 	   Therefore, masking mbox_id with ITC_MAX_MAILBOXES is a good workaround but not absolutely correct */
-	if((mbox_id & local_inst.itccoord_mask) == local_inst.my_mbox_id_in_itccoord && \
-		(mbox_id & ITC_MAX_MAILBOXES) < local_inst.nr_localmbx_datas)
+	if((mbox_id & ITC_MAX_MAILBOXES) >= local_inst.nr_localmbx_datas)
 	{
-		return &(local_inst.localmbx_data[mbox_id & local_inst.local_mbox_mask]);
+		rc->flags |= ITC_OUT_OF_RANGE;
+		return NULL;
 	}
-
-	return NULL;
+	
+	return &(local_inst.localmbx_data[mbox_id & local_inst.local_mbox_mask]);
 }
 
-static struct rxqueue* init_queue(void)
+static struct rxqueue* init_queue(struct result_code* rc)
 {
 	struct rxqueue* retq;
 
@@ -419,6 +430,7 @@ static struct rxqueue* init_queue(void)
 	if(retq == NULL)
 	{
 		// Print out a ERROR trace here is needed.
+		rc->flags |= ITC_OUT_OF_MEM;
 		return NULL;
 	}
 
@@ -428,17 +440,24 @@ static struct rxqueue* init_queue(void)
 	return retq;
 }
 
-static void enqueue_message(struct rxqueue* q, struct itc_message* message)
+static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct itc_message* message)
 {
 	// If q is NULL, that means the queue has not been initialized yet by init_queue()
 	if(q == NULL)
 	{
+		rc->flags |= ITC_RX_QUEUE_NULL;
 		return;
 	}
 
 	struct llqueue_item* new_qitem;
 
-	new_qitem = create_qitem(message);
+	new_qitem = create_qitem(rc, message);
+
+	if(rc->flags != ITC_OK)
+	{
+		// create_qitem() failed due to out of memory
+		return;
+	}
 
 	// Check if the queue tail is NULL or not.
 	// If yes, so the queue now is empty, so move q->head and q->tail to the 1st item.
@@ -457,20 +476,21 @@ static void enqueue_message(struct rxqueue* q, struct itc_message* message)
 	new_qitem->msg_item->flags |= ITC_FLAGS_MSG_INRXQUEUE;
 }
 
-static struct itc_message* dequeue_message(struct rxqueue *q)
+static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueue *q)
 {
-	struct llqueue_item* item;
 	struct itc_message* message;
 
-	// queue not initialized yet
+	// Not created mailbox yet -> rx queue is NULL
 	if(q == NULL)
 	{
+		rc->flags |= ITC_RX_QUEUE_NULL;
 		return NULL;
 	}
 
 	// queue empty
 	if(q->head == NULL)
 	{
+		rc->flags |= ITC_RX_QUEUE_EMPTY;
 		return NULL;
 	}
 
@@ -479,7 +499,7 @@ static struct itc_message* dequeue_message(struct rxqueue *q)
 	// In case queue has only one item
 	if(q->head == q->tail)
 	{
-		remove_qitem(q->head);
+		remove_qitem(rc, q->head);
 		// Both head and tail should be moved to NULL
 		q->head = NULL;
 		q->tail = NULL;
@@ -488,7 +508,7 @@ static struct itc_message* dequeue_message(struct rxqueue *q)
 		// In case queue has more than one items, move head to the 2nd item and remove the 1st item via prev
 		// pointer of the 2nd.
 		q->head = q->head->next;
-		remove_qitem(q->head->prev);
+		remove_qitem(rc, q->head->prev);
 	}
 	
 	message->flags &= ~ITC_FLAGS_MSG_INRXQUEUE;
@@ -496,7 +516,7 @@ static struct itc_message* dequeue_message(struct rxqueue *q)
 	return message;
 }
 
-static struct itc_message* remove_message_fromqueue(struct rxqueue* q, struct itc_message* message)
+static struct itc_message* remove_message_fromqueue(struct result_code* rc, struct rxqueue* q, struct itc_message* message)
 {
 	struct llqueue_item* iter, *prev = NULL;
 	struct itc_message* ret = NULL;
@@ -541,13 +561,13 @@ static struct itc_message* remove_message_fromqueue(struct rxqueue* q, struct it
 	}
 
 	/* Clean up the removed queue item */
-	remove_qitem(iter);
+	remove_qitem(rc, iter);
 
 	/* If not found ret = NULL */
 	return ret;
 }
 
-static struct llqueue_item* create_qitem(struct itc_message* message)
+static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_message* message)
 {
 	struct llqueue_item* ret_qitem;
 
@@ -555,6 +575,7 @@ static struct llqueue_item* create_qitem(struct itc_message* message)
 	if(ret_qitem == NULL)
 	{
 		// Print out a ERROR trace here is needed.
+		rc->flags |= ITC_OUT_OF_MEM;
 		return NULL;
 	}
 
@@ -565,9 +586,16 @@ static struct llqueue_item* create_qitem(struct itc_message* message)
 	return ret_qitem;
 }
 
-static void remove_qitem(struct llqueue_item* qitem)
+static void remove_qitem(struct result_code* rc, struct llqueue_item* qitem)
 {
+	if(qitem == NULL)
+	{
+		rc->flags |= ITC_FREE_NULL_PTR;
+		return;
+	}
+
 	free(qitem);
+	qitem = NULL;
 }
 
 /*****************************************************************************\/

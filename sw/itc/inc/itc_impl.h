@@ -57,16 +57,27 @@ extern "C" {
 /*****************************************************************************\/
 *****                            RETURN CODE                               *****
 *******************************************************************************/
-// Result code used for allocator error handling
-#define ITC_RET_OK                	0
-// Already in use by another mailbox, try another mailbox id instead
-#define ITC_RET_INIT_ALREADY_USED	-1
-// itc_init() was already run for this process
-#define ITC_RET_INIT_ALREADY_INIT       -2
-// Not initialised yet or not belong to this process or mbox_id out of range
-#define ITC_RET_INIT_NOT_INIT_YET	-3
-// malloc() couldn't allocate memories due to out of memory
-#define ITC_RET_INIT_OUT_OF_MEM         -4
+typedef enum {
+	ITC_OK 			= 	0b0,			/* Everything good */
+	ITC_ALREADY_USED  	= 	0b1,			/* The mailbox id already used by someone */
+	ITC_ALREADY_INIT  	= 	0b10,			/* Already calling local_init() */
+	ITC_NOT_INIT_YET  	=	0b100,			/* Not calling local_init() yet */
+	ITC_OUT_OF_MEM    	=	0b1000,			/* Malloc return NULL due to not enough memory in heap */
+	ITC_RX_QUEUE_NULL 	=	0b10000,		/* Not calling local_create_mailbox yet */
+	ITC_RX_QUEUE_EMPTY	=	0b100000,		/* This is not really a problem at all */
+	ITC_NOT_THIS_PROC	=	0b1000000,		/* 3 highest hexes of mailbox id != my_mbox_id_in_itccoord */
+	ITC_OUT_OF_RANGE	=	0b10000000,		/* Local_mb_id > nr_localmbx_datas */
+	ITC_NOT_DEL_ALL_MBOX	=	0b100000000,		/* Not deleting all user mailboxes before itc_exit() */
+	ITC_DEL_IN_WRONG_STATE	=	0b1000000000,		/* Delete a mailbox when it's not created yet */
+	ITC_FREE_NULL_PTR	=	0b10000000000,		/* Attempts to remove null qitem */
+	ITC_INVALID_MAX_MSGSIZE	=	0b100000000000		/* Max_mallocsize < 0 or requested itc_msg size > max_mallocsize */
+
+} result_code_e;
+
+struct result_code {
+	int32_t flags;
+};
+
 /*****************************************************************************\/
 *****                            RETURN CODE                               *****
 *******************************************************************************/

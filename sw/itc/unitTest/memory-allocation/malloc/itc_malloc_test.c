@@ -14,50 +14,63 @@
 #include "itci_alloc.h"
 #include "itc.h"
 #include "itc_impl.h"
-#include "moduleXyz.sig"
 
 
 static struct itci_alloc_apis allocator;
 extern struct itci_alloc_apis malloc_apis;
 
-int                     testMallocInitAlloc(itc_alloc_scheme alloc_scheme, union itc_scheme *scheme_params);
-int                     testMallocExitAlloc();
-struct itc_message     *testMallocAlloc(size_t size);
-void                    testMallocFree(struct itc_message *message);
-void                    testMallocGetInfo(const struct itc_alloc_info alloc_info, size_t itc_msgsize);
+void test_malloc_init(union itc_scheme *scheme_params, int max_msgsize);
+void test_malloc_exit(void);
+struct itc_message* test_malloc_alloc(size_t size);
+void test_malloc_free(struct itc_message *message);
+void test_malloc_getinfo(void);
 
 
-/* Expect main call:    ./itc_malloc_test       0 
-                                                |
-                                                ITC_MALLOC
-*/
+/* Expect main call:    ./itc_malloc_test */
 int main(int argc, char* argv[])
 {
-        char *p;
-        itc_alloc_scheme m_alloc_scheme = ITC_MALLOC;
+/* TEST EXPECTATION:
+------------------------------------------------------------------------------------------
+test_malloc_init	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_MAX_MSGSIZE
+test_malloc_init	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
+test_malloc_alloc	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_MAX_MSGSIZE
+------------------------------------------------------------------------------------------
+test_malloc_alloc	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
+------------------------------------------------------------------------------------------
+test_malloc_free	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
+------------------------------------------------------------------------------------------
+test_malloc_free	-> EXPECT: FAILED	rc = 1024	-> ITC_FREE_NULL_PTR
+------------------------------------------------------------------------------------------
+test_malloc_getinfo	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
+test_malloc_exit	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
+------------------------------------------------------------------------------------------
+*/
 
-        if(argc < 2)
-        {
-                printf("[FAILED]:\t\t<itc_malloc_test>\t\tNot enough argurments!\n");
-                return -1;
-        } else
-        {
-                m_alloc_scheme = (itc_alloc_scheme)strtol(argv[1], &p, 10);
-        }
+	allocator = malloc_apis;
+	struct itc_message* message;
 
-        // Test malloc_init
-        testMallocInitAlloc(m_alloc_scheme, NULL);
-        // Test malloc_exit
-        testMallocExitAlloc();
-        // Test malloc_alloc
-        struct itc_message *message = testMallocAlloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS));
-        // Test malloc_free
-        testMallocFree(message);
-        // Test malloc_getinfo
-        struct itc_alloc_info alloc_info;
-        alloc_info.scheme = m_alloc_scheme;
-        testMallocGetInfo(alloc_info, 1025); // FAIL CASE
-        testMallocGetInfo(alloc_info, 1000); // PASS CASE
+	// Test malloc_init invalid max_msgsize 					ITC_INVALID_MAX_MSGSIZE
+        test_malloc_init(NULL, -1024);
+        // Test malloc_init valid max_msgsize 						ITC_OK
+        test_malloc_init(NULL, 1024);
+        
+	// Test malloc_alloc with too large msgsize					ITC_INVALID_MAX_MSGSIZE
+        message = test_malloc_alloc((size_t)1500);
+
+        // Test malloc_alloc with valid msgsize						ITC_OK
+        message = test_malloc_alloc((size_t)100);
+        
+	// Test malloc_free successfully						ITC_OK
+        test_malloc_free(message);
+	// Test malloc_free free nullptr, or double free due to previous call		ITC_FREE_NULL_PTR
+	message = NULL; // To ensure message is NULL, even if previous malloc_free call did actually assign it to NULL?
+        test_malloc_free(message);
+
+        // Test malloc_getinfo								ITC_OK
+        test_malloc_getinfo();
+
+	// Test malloc_exit								ITC_OK
+        test_malloc_exit();
 
         return 0;
 }
@@ -66,120 +79,172 @@ int main(int argc, char* argv[])
 
 
 
-int testMallocInitAlloc(itc_alloc_scheme alloc_scheme,
-                        union itc_scheme *scheme_params)
+void test_malloc_init(union itc_scheme *scheme_params, int max_msgsize)
 {
-        if(alloc_scheme == ITC_MALLOC)
-        {
-                allocator = malloc_apis;
-        } else
-        {
-                printf("[FAILED]:\t\t<testMallocInitAlloc>\t\tUnexpected alloc_scheme argument!\n");
-                return -1;
-        }
-
-        int max_msgsize = 1024; // this is itc_msg_size + ITC_HEADER_SIZE + 1, assigned to max_mallocsize in itc_malloc.c
+        struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
+	if(rc != NULL)
+	{
+		rc->flags = ITC_OK;
+	} else
+	{
+		printf("[FAILED]:\t<test_malloc_init>\t\t Failed to allocate result_code!\n");
+                return;
+	}
 
         if(allocator.itci_alloc_init != NULL)
         {
-                int ret = allocator.itci_alloc_init(scheme_params, max_msgsize);
-                if(ret != ITC_RET_OK)
+                allocator.itci_alloc_init(rc, scheme_params, max_msgsize);
+                if(rc->flags != ITC_OK)
                 {
-                        printf("[FAILED]:\t\t<testMallocInitAlloc>\t\tFailed to itci_alloc_init()!\n");
-                        return -1;
+                        printf("[FAILED]:\t<test_malloc_init>\t\t Failed to malloc_init(),\t\t\t rc = %d!\n", \
+				rc->flags);
+			free(rc);
+                        return;
                 }
         } else
         {
-                printf("[FAILED]:\t\t<testMallocInitAlloc>\t\titci_alloc_init = NULL!\n");
-                return -1;
+                printf("[FAILED]:\t<test_malloc_init>\t\t itci_alloc_init = NULL!\n");
+		free(rc);
+                return;
         }
 
-        printf("[SUCCESS]:\t<testMallocInitAlloc>\t\tSuccessful!\n");
-        return 1;
+        printf("[SUCCESS]:\t<test_malloc_init>\t\t Calling malloc_init() successful\t\t rc = %d!\n", rc->flags);
+	free(rc);
+        return;
 }
 
-int testMallocExitAlloc()
+void test_malloc_exit()
 {
+	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
+	if(rc != NULL)
+	{
+		rc->flags = ITC_OK;
+	} else
+	{
+		printf("[FAILED]:\t<test_malloc_exit>\t\t Failed to allocate result_code!\n");
+                return;
+	}
+
         if(allocator.itci_alloc_exit != NULL)
         {
-                int ret = allocator.itci_alloc_exit();
-                if(ret != ITC_RET_OK)
+                allocator.itci_alloc_exit(rc);
+                if(rc->flags != ITC_OK)
                 {
-                        printf("[FAILED]:\t\t<testMallocExitAlloc>\t\tFailed to itci_alloc_exit()!\n");
-                        return -1;
+                        printf("[FAILED]:\t<test_malloc_exit>\t\t Failed to malloc_exit(),\t\t rc = %d!\n", \
+				rc->flags);
+			free(rc);
+                        return;
                 }
         } else
         {
-                printf("[FAILED]:\t\t<testMallocExitAlloc>\t\titci_alloc_exit = NULL!\n");
-                return -1;
+                printf("[FAILED]:\t<test_malloc_exit>\t\t itci_alloc_exit = NULL!\n");
+		free(rc);
+                return;
         }
 
-        printf("[SUCCESS]:\t<testMallocExitAlloc>\t\tSuccessful!\n");
-        return 1;
+        printf("[SUCCESS]:\t<test_malloc_exit>\t\t Calling malloc_exit() successful\t\t rc = %d!\n", rc->flags);
+	free(rc);
+        return;
 }
 
-struct itc_message *testMallocAlloc(size_t size)
+struct itc_message* test_malloc_alloc(size_t size)
 {
-        struct itc_message *message;
-
+	struct itc_message *message;
+	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
+	if(rc != NULL)
+	{
+		rc->flags = ITC_OK;
+	} else
+	{
+		printf("[FAILED]:\t<test_malloc_alloc>\t\t Failed to allocate result_code!\n");
+                return NULL;
+	}
+        
         if(allocator.itci_alloc_alloc != NULL)
         {
-                message = allocator.itci_alloc_alloc(size + ITC_HEADER_SIZE + 1); // Extra 1 byte is for ENDPOINT
-                if(message == NULL)
+                message = allocator.itci_alloc_alloc(rc, size + ITC_HEADER_SIZE + 1); // Extra 1 byte is for ENDPOINT
+                if(rc->flags != ITC_OK)
                 {
-                        printf("[FAILED]:\t\t<testMallocAlloc>\t\tFailed to itci_alloc_alloc()!\n");
+                        printf("[FAILED]:\t<test_malloc_alloc>\t\t Failed to malloc_alloc(),\t\t\t rc = %d!\n", \
+				rc->flags);
+			free(rc);
                         return NULL;
                 }
         } else
         {
-                printf("[FAILED]:\t\t<testMallocAlloc>\t\titci_alloc_alloc = NULL!\n");
+                printf("[FAILED]:\t<test_malloc_alloc>\t\t itci_alloc_alloc = NULL!\n");
+		free(rc);
                 return NULL;
         }
 
-        printf("[SUCCESS]:\t<testMallocAlloc>\t\tSuccessful!\n");
+        printf("[SUCCESS]:\t<test_malloc_alloc>\t\t Calling malloc_alloc() successful\t\t rc = %d!\n", rc->flags);
+	free(rc);
         return message;
 }
 
-void testMallocFree(struct itc_message *message)
+void test_malloc_free(struct itc_message *message)
 {
+	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
+	if(rc != NULL)
+	{
+		rc->flags = ITC_OK;
+	} else
+	{
+		printf("[FAILED]:\t<test_malloc_free>\t\t Failed to allocate result_code!\n");
+                return;
+	}
+
         if(allocator.itci_alloc_free != NULL)
         {
-                allocator.itci_alloc_free(message);
+                allocator.itci_alloc_free(rc, message);
+		if(rc->flags != ITC_OK)
+                {
+                        printf("[FAILED]:\t<test_malloc_free>\t\t Failed to malloc_free(),\t\t\t rc = %d!\n", \
+				rc->flags);
+			free(rc);
+                        return;
+                }
         } else
         {
-                printf("[FAILED]:\t\t<testMallocFree>\t\titci_alloc_free = NULL!\n");
+                printf("[FAILED]:\t<test_malloc_free>\t\t itci_alloc_free = NULL!\n");
+		free(rc);
                 return;
         }
 
-        printf("[SUCCESS]:\t<testMallocFree>\t\tSuccessful!\n");
+        printf("[SUCCESS]:\t<test_malloc_free>\t\t Calling malloc_free() successful\t\t rc = %d!\n", rc->flags);
+	free(rc);
 }
 
-void testMallocGetInfo(const struct itc_alloc_info alloc_info, size_t itc_msgsize)
+void test_malloc_getinfo()
 {
-        struct itc_alloc_info ret;
-        ret.scheme = ITC_INVALID_SCHEME;
+	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
+	if(rc != NULL)
+	{
+		rc->flags = ITC_OK;
+	} else
+	{
+		printf("[FAILED]:\t<test_malloc_getinfo>\t\t Failed to allocate result_code!\n");
+                return;
+	}
 
         if(allocator.itci_alloc_getinfo != NULL)
         {
-                ret = allocator.itci_alloc_getinfo();
+                allocator.itci_alloc_getinfo(rc);
+		if(rc->flags != ITC_OK)
+                {
+                        printf("[FAILED]:\t<test_malloc_getinfo>\t\t Failed to malloc_getinfo(),\t\t rc = %d!\n", \
+				rc->flags);
+			free(rc);
+                        return;
+                }
         } else
         {
-                printf("[FAILED]:\t\t<testMallocGetInfo>\t\titci_alloc_getinfo = NULL!\n");
-                return;
-        }
-
-        if(alloc_info.scheme != ret.scheme)
-        {
-                printf("[FAILED]:\t\t<testMallocGetInfo>\t\tAllocation scheme does not matched, " \
-                "current allocator using scheme = %d!\n", ret.scheme);
-                return;
-        } else if (itc_msgsize > ret.info.malloc_info.max_msgsize)
-        {
-                printf("[FAILED]:\t<testMallocGetInfo>\t\tITC Msg size is too large, " \
-                "itc_msgsize = %ld, max_msgsize = %ld!\n", itc_msgsize, ret.info.malloc_info.max_msgsize);
+                printf("[FAILED]:\t<test_malloc_getinfo>\t\t itci_alloc_getinfo = NULL!\n");
+		free(rc);
                 return;
         }
         
-        printf("[SUCCESS]:\t<testMallocGetInfo>\t\tSuccessful!\n");
+        printf("[SUCCESS]:\t<test_malloc_getinfo>\t\t Calling malloc_getinfo() successful\t\t rc = %d!\n", rc->flags);
+	free(rc);
         return;
 }

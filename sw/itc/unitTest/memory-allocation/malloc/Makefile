@@ -1,5 +1,6 @@
 TARGET = itc_malloc_test
 BIN = ../bin
+CFLAGS= -g -Wall -Wextra
 
 INCLUDE_DIR =
 INCLUDE_DIR += -I ../../../if
@@ -9,32 +10,31 @@ SRC_DIR =
 SRC_DIR += -I ../../../src
 SRC_DIR += -I ./
 
-SIG_DIR =
-SIG_DIR += -I ../../../unitTest
+#SIG_DIR =
+#SIG_DIR += -I ../../../unitTest
 
 vpath %.h 	$(INCLUDE_DIR)
 vpath %.c 	$(SRC_DIR)
-vpath %.sig 	$(SIG_DIR)
+#vpath %.sig 	$(SIG_DIR)
 
 .PHONY: all
 
 all: $(TARGET)
 
 $(TARGET): $(BIN)/itc_malloc.o $(BIN)/itc_malloc_test.o
-	$(CC) $^ -DUNITTEST -o $(BIN)/$(TARGET)
+	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET)
 
 $(BIN)/itc_malloc.o: itc_malloc.c itc.h itc_impl.h itci_alloc.h
-	$(CC) -c -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
-$(BIN)/itc_malloc_test.o: itc_malloc_test.c itc.h itci_alloc.h itc_impl.h moduleXyz.sig
-	$(CC) -c -o $@ $(INCLUDE_DIR) $(SRC_DIR) $(SIG_DIR) $<
+$(BIN)/itc_malloc_test.o: itc_malloc_test.c itc.h itci_alloc.h itc_impl.h
+	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 run:
-	$(BIN)/$(TARGET) 0
-# 0 = ITC_MALLOC
+	$(BIN)/$(TARGET)
 
 val:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET) 0
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET)
 
 clean:
 	rm -rf $(BIN)/*

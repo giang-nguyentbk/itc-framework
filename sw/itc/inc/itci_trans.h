@@ -20,30 +20,27 @@ extern "C" {
 #include "itc.h"
 
 // This is a function prototype
-typedef bool (itci_trans_locate_coord)(itc_mbox_id_t *my_mbox_id_in_itccoord, itc_mbox_id_t  *itccoord_mask,
-                                       itc_mbox_id_t *itccoord_mbox_id);
+typedef bool (itci_trans_locate_coord)(struct result_code* rc, itc_mbox_id_t *my_mbox_id_in_itccoord, \
+					itc_mbox_id_t *itccoord_mask, itc_mbox_id_t *itccoord_mbox_id);
 
-typedef int (itci_trans_init)(itc_mbox_id_t  my_mbox_id_in_itccoord,
-                              itc_mbox_id_t  itccoord_mask,
-                              int            nr_mboxes,
-                              uint32_t       flags);
+typedef void (itci_trans_init)(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, \
+                              itc_mbox_id_t itccoord_mask, int nr_mboxes, uint32_t flags);
 
-typedef int (itci_trans_exit)(void);
+typedef void (itci_trans_exit)(struct result_code* rc);
 
-typedef int (itci_trans_create_mbox)(struct itc_mailbox *mailbox, uint32_t flags);
+typedef void (itci_trans_create_mbox)(struct result_code* rc, struct itc_mailbox *mailbox, uint32_t flags);
 
-typedef int (itci_trans_delete_mbox)(struct itc_mailbox *mailbox);
+typedef void (itci_trans_delete_mbox)(struct result_code* rc, struct itc_mailbox *mailbox);
 
-typedef int (itci_trans_send)(struct itc_mailbox  *mbox,   
-                              struct itc_message  *message,
-                              itc_mbox_id_t       to,
-                              itc_mbox_id_t       from);
+typedef void (itci_trans_send)(struct result_code* rc, struct itc_mailbox *mbox, struct itc_message *message, \
+                              itc_mbox_id_t to, itc_mbox_id_t from);
 
-typedef struct itc_message *(itci_trans_receive)(struct itc_mailbox *mbox, long timeout);
+typedef struct itc_message *(itci_trans_receive)(struct result_code* rc, struct itc_mailbox *mbox, long timeout);
 
-typedef struct itc_message *(itci_trans_remove)(struct itc_mailbox *mbox, struct itc_message *removemessage);
+typedef struct itc_message *(itci_trans_remove)(struct result_code* rc, struct itc_mailbox *mbox, \
+			     struct itc_message *removemessage);
 
-typedef int (itci_trans_maxmsgsize)(void);
+typedef int (itci_trans_maxmsgsize)(struct result_code* rc);
 
 /*
 *  1. Local trans: implemented as a rx message queue for each mailbox. Only manage message passing within a process and
