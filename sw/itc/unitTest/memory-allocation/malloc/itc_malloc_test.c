@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 
         if(argc < 2)
         {
-                printf("[FAIL]:\t\t<itc_malloc_test>\t\tNot enough argurments!\n");
+                printf("[FAILED]:\t\t<itc_malloc_test>\t\tNot enough argurments!\n");
                 return -1;
         } else
         {
@@ -74,7 +74,7 @@ int testMallocInitAlloc(itc_alloc_scheme alloc_scheme,
                 allocator = malloc_apis;
         } else
         {
-                printf("[FAIL]:\t\t<testMallocInitAlloc>\t\tUnexpected alloc_scheme argument!\n");
+                printf("[FAILED]:\t\t<testMallocInitAlloc>\t\tUnexpected alloc_scheme argument!\n");
                 return -1;
         }
 
@@ -85,12 +85,12 @@ int testMallocInitAlloc(itc_alloc_scheme alloc_scheme,
                 int ret = allocator.itci_alloc_init(scheme_params, max_msgsize);
                 if(ret != ITC_RET_OK)
                 {
-                        printf("[FAIL]:\t\t<testMallocInitAlloc>\t\tFailed to itci_alloc_init()!\n");
+                        printf("[FAILED]:\t\t<testMallocInitAlloc>\t\tFailed to itci_alloc_init()!\n");
                         return -1;
                 }
         } else
         {
-                printf("[FAIL]:\t\t<testMallocInitAlloc>\t\titci_alloc_init = NULL!\n");
+                printf("[FAILED]:\t\t<testMallocInitAlloc>\t\titci_alloc_init = NULL!\n");
                 return -1;
         }
 
@@ -105,12 +105,12 @@ int testMallocExitAlloc()
                 int ret = allocator.itci_alloc_exit();
                 if(ret != ITC_RET_OK)
                 {
-                        printf("[FAIL]:\t\t<testMallocExitAlloc>\t\tFailed to itci_alloc_exit()!\n");
+                        printf("[FAILED]:\t\t<testMallocExitAlloc>\t\tFailed to itci_alloc_exit()!\n");
                         return -1;
                 }
         } else
         {
-                printf("[FAIL]:\t\t<testMallocExitAlloc>\t\titci_alloc_exit = NULL!\n");
+                printf("[FAILED]:\t\t<testMallocExitAlloc>\t\titci_alloc_exit = NULL!\n");
                 return -1;
         }
 
@@ -127,12 +127,12 @@ struct itc_message *testMallocAlloc(size_t size)
                 message = allocator.itci_alloc_alloc(size + ITC_HEADER_SIZE + 1); // Extra 1 byte is for ENDPOINT
                 if(message == NULL)
                 {
-                        printf("[FAIL]:\t\t<testMallocAlloc>\t\tFailed to itci_alloc_alloc()!\n");
+                        printf("[FAILED]:\t\t<testMallocAlloc>\t\tFailed to itci_alloc_alloc()!\n");
                         return NULL;
                 }
         } else
         {
-                printf("[FAIL]:\t\t<testMallocAlloc>\t\titci_alloc_alloc = NULL!\n");
+                printf("[FAILED]:\t\t<testMallocAlloc>\t\titci_alloc_alloc = NULL!\n");
                 return NULL;
         }
 
@@ -147,7 +147,7 @@ void testMallocFree(struct itc_message *message)
                 allocator.itci_alloc_free(message);
         } else
         {
-                printf("[FAIL]:\t\t<testMallocFree>\t\titci_alloc_free = NULL!\n");
+                printf("[FAILED]:\t\t<testMallocFree>\t\titci_alloc_free = NULL!\n");
                 return;
         }
 
@@ -164,18 +164,18 @@ void testMallocGetInfo(const struct itc_alloc_info alloc_info, size_t itc_msgsiz
                 ret = allocator.itci_alloc_getinfo();
         } else
         {
-                printf("[FAIL]:\t\t<testMallocGetInfo>\t\titci_alloc_getinfo = NULL!\n");
+                printf("[FAILED]:\t\t<testMallocGetInfo>\t\titci_alloc_getinfo = NULL!\n");
                 return;
         }
 
         if(alloc_info.scheme != ret.scheme)
         {
-                printf("[FAIL]:\t\t<testMallocGetInfo>\t\tAllocation scheme does not matched, " \
+                printf("[FAILED]:\t\t<testMallocGetInfo>\t\tAllocation scheme does not matched, " \
                 "current allocator using scheme = %d!\n", ret.scheme);
                 return;
         } else if (itc_msgsize > ret.info.malloc_info.max_msgsize)
         {
-                printf("[FAIL]:\t\t<testMallocGetInfo>\t\tITC Msg size is too large, " \
+                printf("[FAILED]:\t<testMallocGetInfo>\t\tITC Msg size is too large, " \
                 "itc_msgsize = %ld, max_msgsize = %ld!\n", itc_msgsize, ret.info.malloc_info.max_msgsize);
                 return;
         }

@@ -16,7 +16,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "itc.impl.h"
+#include "itc_impl.h"
 #include "itc.h"
 
 // This is a function prototype
@@ -41,7 +41,7 @@ typedef int (itci_trans_send)(struct itc_mailbox  *mbox,
 
 typedef struct itc_message *(itci_trans_receive)(struct itc_mailbox *mbox, long timeout);
 
-typedef struct itc_message *(itci_trans_remove)(struct itc_message *mailbox, struct itc_message *removemessage);
+typedef struct itc_message *(itci_trans_remove)(struct itc_mailbox *mbox, struct itc_message *removemessage);
 
 typedef int (itci_trans_maxmsgsize)(void);
 
@@ -62,11 +62,11 @@ struct itci_transport_apis {
                                                                         // when ITC system is initialized for a process
 
         itci_trans_exit                 *itci_trans_exit;               // API to release all above configuration
-        itci_trans_create_mbx           *itci_trans_create_mbox;         // API to initialize necessary stuffs
+        itci_trans_create_mbox           *itci_trans_create_mbox;         // API to initialize necessary stuffs
                                                                         // (init a local trans's rx queue)
                                                                         // when a mailbox is created
 
-        itci_trans_delete_mbx           *itci_trans_delete_mbox;         // API to release stuffs at mailbox deletion
+        itci_trans_delete_mbox           *itci_trans_delete_mbox;         // API to release stuffs at mailbox deletion
         itci_trans_send                 *itci_trans_send;               // API to send a message
         itci_trans_receive              *itci_trans_receive;            // API to receive a message
         itci_trans_remove               *itci_trans_remove;             // API to remove a message from rx queue

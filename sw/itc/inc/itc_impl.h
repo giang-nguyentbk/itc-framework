@@ -58,9 +58,13 @@ extern "C" {
 *****                            RETURN CODE                               *****
 *******************************************************************************/
 // Result code used for allocator error handling
-#define ITC_RET_OK                0
+#define ITC_RET_OK                	0
+// Already in use by another mailbox, try another mailbox id instead
+#define ITC_RET_INIT_ALREADY_USED	-1
 // itc_init() was already run for this process
 #define ITC_RET_INIT_ALREADY_INIT       -2
+// Not initialised yet or not belong to this process or mbox_id out of range
+#define ITC_RET_INIT_NOT_INIT_YET	-3
 // malloc() couldn't allocate memories due to out of memory
 #define ITC_RET_INIT_OUT_OF_MEM         -4
 /*****************************************************************************\/
@@ -107,7 +111,7 @@ struct llqueue_item {
 
 	/* Data of queue item, which points to an itc_message */
 	struct itc_message*	msg_item;
-}
+};
 
 /* Push into tail and pop from head */
 struct rxqueue {
