@@ -20,9 +20,8 @@ extern "C" {
 #include "itc.h"
 
 // This is a function prototype
-typedef bool (itci_trans_locate_coord)(itc_mbox_id_t  *my_mbox_id_in_itccoord,
-                                      itc_mbox_id_t  *itccoord_mask,
-                                      itc_mbox_id_t  *itccoord_mbox_id);
+typedef bool (itci_trans_locate_coord)(itc_mbox_id_t *my_mbox_id_in_itccoord, itc_mbox_id_t  *itccoord_mask,
+                                       itc_mbox_id_t *itccoord_mbox_id);
 
 typedef int (itci_trans_init)(itc_mbox_id_t  my_mbox_id_in_itccoord,
                               itc_mbox_id_t  itccoord_mask,
@@ -31,20 +30,18 @@ typedef int (itci_trans_init)(itc_mbox_id_t  my_mbox_id_in_itccoord,
 
 typedef int (itci_trans_exit)(void);
 
-typedef int (itci_trans_create_mbox)(struct itc_mailbox  *mailbox,
-                                     uint32_t            flags);
+typedef int (itci_trans_create_mbox)(struct itc_mailbox *mailbox, uint32_t flags);
 
-typedef int (itci_trans_delete_mbox)(struct itc_mailbox  *mailbox);
+typedef int (itci_trans_delete_mbox)(struct itc_mailbox *mailbox);
 
 typedef int (itci_trans_send)(struct itc_mailbox  *mbox,   
                               struct itc_message  *message,
                               itc_mbox_id_t       to,
                               itc_mbox_id_t       from);
 
-typedef struct itc_message *(itci_trans_receive)(struct itc_mailbox  *mbox);
+typedef struct itc_message *(itci_trans_receive)(struct itc_mailbox *mbox, long timeout);
 
-typedef struct itc_message *(itci_trans_remove)(struct itc_message  *mailbox,
-                                                struct itc_message  *removemessage);
+typedef struct itc_message *(itci_trans_remove)(struct itc_message *mailbox, struct itc_message *removemessage);
 
 typedef int (itci_trans_maxmsgsize)(void);
 
