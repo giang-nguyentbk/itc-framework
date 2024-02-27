@@ -9,7 +9,7 @@
 
 ## Reference:
 ```
-[POSIX vs System V](https://eslinuxprogramming.blogspot.com/2015/06/posix-vs-system-v.html)
+1. POSIX vs System V: [link](https://eslinuxprogramming.blogspot.com/2015/06/posix-vs-system-v.html).
 
 2. [System V Wiki](https://en.wikipedia.org/wiki/UNIX_System_V)
 3. [POSIX Wiki](https://en.wikipedia.org/wiki/POSIX)
