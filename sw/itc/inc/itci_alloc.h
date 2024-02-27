@@ -32,7 +32,7 @@ extern "C" {
 typedef void (itci_alloc_init)(struct result_code* rc, union itc_scheme *scheme_params, int max_msgsize);
 typedef void (itci_alloc_exit)(struct result_code* rc);
 typedef struct itc_message* (itci_alloc_alloc)(struct result_code* rc, size_t size);
-typedef void (itci_alloc_free)(struct result_code* rc, struct itc_message *message);
+typedef void (itci_alloc_free)(struct result_code* rc, struct itc_message** message);
 typedef struct itc_alloc_info (itci_alloc_getinfo)(struct result_code* rc);
 
 struct itci_alloc_apis {

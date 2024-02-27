@@ -26,8 +26,11 @@ extern "C" {
 #define ENDPOINT (char)0xAA
 #define ITC_HEADER_SIZE 14 // itc_message: flags + receiver + sender + size. Also is the offset between
                                 // the starting of itc_message and the starting of itc_msg.
-
+#ifdef UNITTEST
+#define ITC_NR_INTERNAL_USED_MBOXES 0 // Unittest for local trans so sock and sysv not used yet
+#else
 #define ITC_NR_INTERNAL_USED_MBOXES 2 // One for socket and one for sysv transports
+#endif
 
 #define CLZ(val) __builtin_clz(val)
 #define CONVERT_TO_MESSAGE(msg) (struct itc_message*)((unsigned long)msg - ITC_HEADER_SIZE) // See itc_message in README
@@ -77,6 +80,12 @@ typedef enum {
 struct result_code {
 	int32_t flags;
 };
+
+typedef enum {
+	MBOX_UNUSED,
+	MBOX_INUSE,
+	MBOX_NUM_STATES
+} mbox_state;
 
 /*****************************************************************************\/
 *****                            RETURN CODE                               *****

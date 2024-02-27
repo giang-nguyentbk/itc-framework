@@ -43,12 +43,6 @@ extern "C" {
 *******************************************************************************/
 typedef uint32_t itc_mbox_id_t;
 
-typedef enum {
-	MBOX_UNUSED,
-	MBOX_INUSE,
-	MBOX_NUM_STATES
-} mbox_state;
-
 // Because currently allocation scheme using malloc does not need any special parameters for allocation.
 // We will reserve it for future usages.
 struct itc_malloc_scheme {
