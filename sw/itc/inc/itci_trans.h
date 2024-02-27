@@ -45,7 +45,7 @@ typedef int (itci_trans_maxmsgsize)(struct result_code* rc);
 *  1. Local trans: implemented as a rx message queue for each mailbox. Only manage message passing within a process and
 *     create/delete mailboxes, not used for locating itc_coord.
 *  2. Socket trans: only used for locating itc_coord purposes and send large messages over processes
-*     that sysv could not carry.
+*     that sysvmq could not carry.
 *  3. Sysv trans: only used for sending messages over processes.
 */
 struct itci_transport_apis {

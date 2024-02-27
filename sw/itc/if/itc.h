@@ -190,7 +190,7 @@ extern itc_mbox_id_t itc_locate_sync(const char *name, uint32_t wheretofind);
 /*
 *  Return file descriptor for the mailbox of the current thread.
 *       Each thread has its own one itc mailbox. Each process (or the first default thread of a process) may have some
-*       other mailboxes for socket, sysv, local_coordinator, which are shared for all threads.
+*       other mailboxes for socket, sysvmq, local_coordinator, which are shared for all threads.
 *
 *       Each mailbox has its own one eventfd instance which is used for notifying receiver regarding some message
 *       has been sent to it. This is async mechanism for notification. Additionally, Pthread condition variable is

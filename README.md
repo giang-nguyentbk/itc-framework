@@ -1,4 +1,9 @@
 # itc-framework
+```bash
+How many lines of code in this repo?
+$ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
+-> Total: 2114 lines
+```
 
 ## Fundamental knowledge:
 ### 1. General architecture:
@@ -88,7 +93,7 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
         Second is file-based/regular unix sockets which user has to manually clean it up.
 
         + System V message queue: used for inter-process communication only. Faster than socket, but message length and
-        queue length are limited. We will design a small algorithm that will prioritize sysv once itc message
+        queue length are limited. We will design a small algorithm that will prioritize sysvmq once itc message
         is not large.
 ```
 
