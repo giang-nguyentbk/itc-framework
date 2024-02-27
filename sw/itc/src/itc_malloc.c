@@ -4,8 +4,6 @@
 #include "itc_impl.h"
 #include "itci_alloc.h"
 
-#include <stdio.h>
-
 /*****************************************************************************\/
 *****                  INTERNAL VARIABLES IN MALLOC-ATOR                   *****
 *******************************************************************************/
@@ -32,8 +30,8 @@ static int max_mallocsize = 0;
 static void malloc_init(struct result_code* rc, union itc_scheme *scheme_params, int max_msgsize);
 static void malloc_exit(struct result_code* rc);
 static struct itc_message* malloc_alloc(struct result_code* rc, size_t size);
-static void malloc_free(struct result_code* rc, struct itc_message *message);
-static struct itc_alloc_info (malloc_getinfo)(struct result_code* rc);
+static void malloc_free(struct result_code* rc, struct itc_message** message);
+static struct itc_alloc_info malloc_getinfo(struct result_code* rc);
 
 struct itci_alloc_apis malloc_apis = {
         malloc_init,
@@ -96,22 +94,34 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         return retmessage;
 }
 
-static void malloc_free(struct result_code* rc, struct itc_message *message)
+static void malloc_free(struct result_code* rc, struct itc_message** message)
 {
-	if(message == NULL)
+	if(message == NULL || *message == NULL)
 	{
 		rc->flags |= ITC_FREE_NULL_PTR;
 		return;
 	}
 
-        free(message);
-	/* Idk why but even if I assign this message = NULL. but after malloc_free return, in the context of the calling
-	   function, message is not NULL anymore, it's pointing to a garbage address.
+        free(*message);
+	/* Using: malloc_free(struct result_code* rc, struct itc_message* message)
+
+	   Idk why but even if I assign this message = NULL. but after malloc_free return, in the context of the caller,
+	   message is not NULL anymore, it's still pointing to its old address.
 	   This is interesting and I'll investigate further later */
-	message = NULL;
+
+	/* Using: malloc_free(struct result_code* rc, struct itc_message** message)
+	
+	   UPDATE: I got the answer. In C, there is nothing called pass-by-reference like in C++.
+	   So, even if you pass a pointer to a function that actually means you're passing a copy of an address
+	   which is hold by the pointer, to the stack memory. So what? If you even assign NULL to the pointer, it still
+	   cannot change actual original value outside the function.
+	   
+	   So, what could be a solution? This is declaring pointer-to-pointer "itc_message** message" in function
+	   prototype and passing address of the pointer "&message" instead of passing address that pointer holds :D */
+	*message = NULL;
 }
 
-static struct itc_alloc_info (malloc_getinfo)(struct result_code* rc)
+static struct itc_alloc_info malloc_getinfo(struct result_code* rc)
 {
 	(void)rc;
         struct itc_alloc_info info;

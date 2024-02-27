@@ -22,7 +22,7 @@ extern struct itci_alloc_apis malloc_apis;
 void test_malloc_init(union itc_scheme *scheme_params, int max_msgsize);
 void test_malloc_exit(void);
 struct itc_message* test_malloc_alloc(size_t size);
-void test_malloc_free(struct itc_message *message);
+void test_malloc_free(struct itc_message** message);
 void test_malloc_getinfo(void);
 
 
@@ -36,9 +36,7 @@ test_malloc_init	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 test_malloc_alloc	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_MAX_MSGSIZE
 ------------------------------------------------------------------------------------------
 test_malloc_alloc	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-------------------------------------------------------------------------------------------
 test_malloc_free	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-------------------------------------------------------------------------------------------
 test_malloc_free	-> EXPECT: FAILED	rc = 1024	-> ITC_FREE_NULL_PTR
 ------------------------------------------------------------------------------------------
 test_malloc_getinfo	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
@@ -46,31 +44,41 @@ test_malloc_exit	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 ------------------------------------------------------------------------------------------
 */
 
+	(void)argc; // Avoid compiler warning unused variables
+	(void)argv; // Avoid compiler warning unused variables
 	allocator = malloc_apis;
 	struct itc_message* message;
+
+	printf("--------------------------------------------------------------------------------------" \
+		"-----------------------------\n");
 
 	// Test malloc_init invalid max_msgsize 					ITC_INVALID_MAX_MSGSIZE
         test_malloc_init(NULL, -1024);
         // Test malloc_init valid max_msgsize 						ITC_OK
         test_malloc_init(NULL, 1024);
-        
 	// Test malloc_alloc with too large msgsize					ITC_INVALID_MAX_MSGSIZE
         message = test_malloc_alloc((size_t)1500);
 
+	printf("--------------------------------------------------------------------------------------" \
+		"-----------------------------\n");
+
         // Test malloc_alloc with valid msgsize						ITC_OK
         message = test_malloc_alloc((size_t)100);
-        
 	// Test malloc_free successfully						ITC_OK
-        test_malloc_free(message);
+	test_malloc_free(&message);
 	// Test malloc_free free nullptr, or double free due to previous call		ITC_FREE_NULL_PTR
-	message = NULL; // To ensure message is NULL, even if previous malloc_free call did actually assign it to NULL?
-        test_malloc_free(message);
+	test_malloc_free(&message);
+
+	printf("--------------------------------------------------------------------------------------" \
+		"-----------------------------\n");
 
         // Test malloc_getinfo								ITC_OK
         test_malloc_getinfo();
-
 	// Test malloc_exit								ITC_OK
         test_malloc_exit();
+
+	printf("--------------------------------------------------------------------------------------" \
+		"-----------------------------\n");
 
         return 0;
 }
@@ -182,7 +190,7 @@ struct itc_message* test_malloc_alloc(size_t size)
         return message;
 }
 
-void test_malloc_free(struct itc_message *message)
+void test_malloc_free(struct itc_message** message)
 {
 	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
 	if(rc != NULL)

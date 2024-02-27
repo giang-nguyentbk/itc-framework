@@ -31,15 +31,12 @@ Which functions to be done:
 #include "itc_impl.h"
 #include "itci_trans.h"
 
-#include <stdio.h>
-
 /*****************************************************************************\/
 *****                    INTERNAL TYPES IN LOCAL-ATOR                      *****
 *******************************************************************************/
 struct local_mbox_data {
         itc_mbox_id_t           mbox_id;
         uint32_t                flags;
-	mbox_state		state;
         struct rxqueue        	*rxq;  // from itc_impl.h
 };
 
@@ -84,7 +81,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
    itc_alloc() -> itc_send() and receiver will call itc_receive() -> handle the message and itc_free() */
 static struct itc_message* remove_message_fromqueue(struct result_code* rc, struct rxqueue* q, struct itc_message* message);
 static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_message* message);
-static void remove_qitem(struct result_code* rc, struct llqueue_item* qitem);
+static void remove_qitem(struct result_code* rc, struct llqueue_item** qitem);
 
 
 /*****************************************************************************\/
@@ -105,10 +102,9 @@ static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 
 static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbox);
 
-static void local_send(struct result_code* rc, struct itc_mailbox *mbox, struct itc_message *message, itc_mbox_id_t to, \
-		      itc_mbox_id_t from);
+static void local_send(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to);
 
-static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox, long timeout);
+static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox);
 
 static struct itc_message *local_remove(struct result_code* rc, struct itc_mailbox *mbox, \
 					struct itc_message *removed_message);
@@ -181,6 +177,12 @@ static void local_exit(struct result_code* rc)
 	struct local_mbox_data* lc_mb_data;
 	uint32_t i, running_mboxes = 0;
 
+	if(local_inst.localmbx_data == NULL)
+	{
+		// If not init yet, it's ok and just return, not a problem so not set ITC_NOT_INIT_YET here
+		return;
+	}
+
 	for(i = 0; i < local_inst.nr_localmbx_datas; i++)
 	{
 		/* Go through all local mailbox's data */
@@ -224,15 +226,13 @@ static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 		return;
 	}
 
-	if(new_lc_mb_data->state == MBOX_INUSE)
+	if(new_lc_mb_data->rxq != NULL)
 	{
 		// Already in use by another mailbox, try another mailbox id instead
 		rc->flags |= ITC_ALREADY_USED;
 		return;
 	}
 
-	new_lc_mb_data->mbox_id = mailbox->mbox_id;
-	new_lc_mb_data->flags = mailbox->flags;
 	new_lc_mb_data->rxq = init_queue(rc);
 	if(rc->flags != ITC_OK)
 	{
@@ -240,7 +240,8 @@ static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 		return;
 	}
 
-	new_lc_mb_data->state = MBOX_INUSE;
+	new_lc_mb_data->mbox_id = mailbox->mbox_id;
+	new_lc_mb_data->flags = mailbox->flags;
 }
 
 static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbox)
@@ -256,10 +257,10 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 		return;
 	}
 
-	if(lc_mb_data->state == MBOX_UNUSED)
+	if(lc_mb_data->rxq == NULL)
 	{
 		// Deleting a local mailbox data in wrong state
-		rc->flags |= ITC_DEL_IN_WRONG_STATE;
+		rc->flags |= ITC_RX_QUEUE_NULL;
 		return;
 	}
 
@@ -281,19 +282,19 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 #endif
 	}
 
+	// Delete a mailbox with empty rx queue is not a problem, so remove flag ITC_RX_QUEUE_EMPTY
+	// after dequeue_message()
+	rc->flags &= ~ITC_RX_QUEUE_EMPTY;
+
 	free(lc_mb_data->rxq);
 	lc_mb_data->rxq = NULL;
 
-	lc_mb_data->state = MBOX_UNUSED;
+	lc_mb_data->mbox_id = 0;
+	lc_mb_data->flags = 0;
 }
 
-static void local_send(struct result_code* rc, struct itc_mailbox *mbox, struct itc_message *message, \
-			itc_mbox_id_t to, itc_mbox_id_t from)
+static void local_send(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to)
 {
-	/* Currently no use of mbox and from input params, for future uses */
-	(void)mbox;
-	(void)from;
-
 	struct local_mbox_data* to_lc_mb_data;
 
 	to_lc_mb_data = find_localmbx_data(rc, to);
@@ -303,20 +304,30 @@ static void local_send(struct result_code* rc, struct itc_mailbox *mbox, struct 
 		return;
 	}
 
+	if(to_lc_mb_data->rxq == NULL)
+	{
+		// If q is NULL, that means the queue has not been initialized yet by init_queue()
+		rc->flags |= ITC_RX_QUEUE_NULL;
+		return;
+	}
+
 	enqueue_message(rc, to_lc_mb_data->rxq, message);
 }
 
-static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox, long timeout)
+static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox)
 {
-	/* Currently no use of timeout input param, for future uses */
-	(void)timeout;
-
 	struct local_mbox_data* lc_mb_data;
 
 	lc_mb_data = find_localmbx_data(rc, mbox->mbox_id);
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
+		return NULL;
+	}
+
+	if(lc_mb_data->rxq == NULL)
+	{
+		rc->flags |= ITC_RX_QUEUE_NULL;
 		return NULL;
 	}
 
@@ -333,6 +344,12 @@ static struct itc_message *local_remove(struct result_code* rc, struct itc_mailb
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
+		return NULL;
+	}
+
+	if(lc_mb_data->rxq == NULL)
+	{
+		rc->flags |= ITC_RX_QUEUE_NULL;
 		return NULL;
 	}
 
@@ -387,8 +404,8 @@ static void release_localmbx_resources(struct result_code* rc)
                 lc_mb_data->rxq = NULL;
         }
 
-	memset(&local_inst.localmbx_data, 0, sizeof(struct local_instance));
         free(local_inst.localmbx_data);
+	memset(&local_inst.localmbx_data, 0, sizeof(struct local_instance));
 	local_inst.localmbx_data = NULL;
 }
 
@@ -442,13 +459,6 @@ static struct rxqueue* init_queue(struct result_code* rc)
 
 static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct itc_message* message)
 {
-	// If q is NULL, that means the queue has not been initialized yet by init_queue()
-	if(q == NULL)
-	{
-		rc->flags |= ITC_RX_QUEUE_NULL;
-		return;
-	}
-
 	struct llqueue_item* new_qitem;
 
 	new_qitem = create_qitem(rc, message);
@@ -480,13 +490,6 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 {
 	struct itc_message* message;
 
-	// Not created mailbox yet -> rx queue is NULL
-	if(q == NULL)
-	{
-		rc->flags |= ITC_RX_QUEUE_NULL;
-		return NULL;
-	}
-
 	// queue empty
 	if(q->head == NULL)
 	{
@@ -499,7 +502,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 	// In case queue has only one item
 	if(q->head == q->tail)
 	{
-		remove_qitem(rc, q->head);
+		remove_qitem(rc, &q->head);
 		// Both head and tail should be moved to NULL
 		q->head = NULL;
 		q->tail = NULL;
@@ -508,7 +511,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 		// In case queue has more than one items, move head to the 2nd item and remove the 1st item via prev
 		// pointer of the 2nd.
 		q->head = q->head->next;
-		remove_qitem(rc, q->head->prev);
+		remove_qitem(rc, &q->head->prev);
 	}
 	
 	message->flags &= ~ITC_FLAGS_MSG_INRXQUEUE;
@@ -558,13 +561,17 @@ static struct itc_message* remove_message_fromqueue(struct result_code* rc, stru
 		iter->msg_item->flags &= ~ITC_FLAGS_MSG_INRXQUEUE;
 
 		ret = iter->msg_item;
-	}
 
-	/* Clean up the removed queue item */
-	remove_qitem(rc, iter);
+		/* Clean up the removed queue item */
+		remove_qitem(rc, &iter);
+
+		return ret;
+	}
+	
+	rc->flags |= ITC_RX_QUEUE_EMPTY;
 
 	/* If not found ret = NULL */
-	return ret;
+	return NULL;
 }
 
 static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_message* message)
@@ -586,16 +593,16 @@ static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_mess
 	return ret_qitem;
 }
 
-static void remove_qitem(struct result_code* rc, struct llqueue_item* qitem)
+static void remove_qitem(struct result_code* rc, struct llqueue_item** qitem)
 {
-	if(qitem == NULL)
+	if(qitem == NULL || *qitem == NULL)
 	{
 		rc->flags |= ITC_FREE_NULL_PTR;
 		return;
 	}
 
-	free(qitem);
-	qitem = NULL;
+	free(*qitem);
+	*qitem = NULL;
 }
 
 /*****************************************************************************\/

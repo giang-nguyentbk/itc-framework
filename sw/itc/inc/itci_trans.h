@@ -32,10 +32,9 @@ typedef void (itci_trans_create_mbox)(struct result_code* rc, struct itc_mailbox
 
 typedef void (itci_trans_delete_mbox)(struct result_code* rc, struct itc_mailbox *mailbox);
 
-typedef void (itci_trans_send)(struct result_code* rc, struct itc_mailbox *mbox, struct itc_message *message, \
-                              itc_mbox_id_t to, itc_mbox_id_t from);
+typedef void (itci_trans_send)(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to);
 
-typedef struct itc_message *(itci_trans_receive)(struct result_code* rc, struct itc_mailbox *mbox, long timeout);
+typedef struct itc_message *(itci_trans_receive)(struct result_code* rc, struct itc_mailbox *mbox);
 
 typedef struct itc_message *(itci_trans_remove)(struct result_code* rc, struct itc_mailbox *mbox, \
 			     struct itc_message *removemessage);
@@ -50,7 +49,7 @@ typedef int (itci_trans_maxmsgsize)(struct result_code* rc);
 *  3. Sysv trans: only used for sending messages over processes.
 */
 struct itci_transport_apis {
-        itci_trans_locate_coord          *itci_trans_locate_itccoord;     // API to locate the itc_coord which will
+        itci_trans_locate_coord         *itci_trans_locate_itccoord;    // API to locate the itc_coord which will
                                                                         // be replied by itc_coord with
                                                                         // your mbox id in itc_coord, mask
                                                                         // and itc_coord's mbox id respectively.
@@ -59,11 +58,11 @@ struct itci_transport_apis {
                                                                         // when ITC system is initialized for a process
 
         itci_trans_exit                 *itci_trans_exit;               // API to release all above configuration
-        itci_trans_create_mbox           *itci_trans_create_mbox;         // API to initialize necessary stuffs
+        itci_trans_create_mbox          *itci_trans_create_mbox;        // API to initialize necessary stuffs
                                                                         // (init a local trans's rx queue)
                                                                         // when a mailbox is created
 
-        itci_trans_delete_mbox           *itci_trans_delete_mbox;         // API to release stuffs at mailbox deletion
+        itci_trans_delete_mbox          *itci_trans_delete_mbox;        // API to release stuffs at mailbox deletion
         itci_trans_send                 *itci_trans_send;               // API to send a message
         itci_trans_receive              *itci_trans_receive;            // API to receive a message
         itci_trans_remove               *itci_trans_remove;             // API to remove a message from rx queue
