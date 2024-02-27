@@ -10,11 +10,11 @@
 /* This is a global variable for this file only, used for malloc allocator
    to manage how large memory block will be allocated.
    Should be updated by itc_init() via going through all transport mechanisms and see what is the minimum message size.
-   By default, it's 1024*1024 ~ 10MB size. No limit for local and socket, but for sysv it's limited by msgctl()
+   By default, it's 1024*1024 ~ 10MB size. No limit for local and socket, but for sysvmq it's limited by msgctl()
    (normally it's one page size 4KB).
 
    TODO: There is something wrong in systemization here. Why did we choose max_msgsize only once at itc_init()
-   and limit msg size of local and socket trans functions as same as sysv???
+   and limit msg size of local and socket trans functions as same as sysvmq???
    What we should do is that we will choose which trans functions should be used depending on message size.
 */
 static int max_mallocsize = 0;

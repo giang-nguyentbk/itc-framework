@@ -7,7 +7,7 @@ INCLUDE_DIR += -I ../../../if
 INCLUDE_DIR += -I ../../../inc
 
 SRC_DIR =
-SRC_DIR += -I ../../../src
+SRC_DIR += -I ../../../src/transporters
 SRC_DIR += -I ./
 
 SIG_DIR =
@@ -37,4 +37,4 @@ val:
 	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET)
 
 clean:
-	rm -rf $(BIN)/*
+	rm -rf $(BIN)
