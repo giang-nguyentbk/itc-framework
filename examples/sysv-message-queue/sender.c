@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 
 #define MSGSZ	128
-#define SERVER_KEY_PATHNAME	"/tmp/itccoord/sysvmsq"
+#define SERVER_KEY_PATHNAME	"/tmp/sysvmsq/sysvmsq_file"
 
 struct msgbuf {
 	long mtype;

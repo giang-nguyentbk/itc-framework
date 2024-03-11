@@ -10,7 +10,10 @@ filegen: sudo_sysvmsq_filepath_generator.c
 	gcc -Wall -Werror -Wextra -o filegen sudo_sysvmsq_filepath_generator.c
 
 gen:
-	sudo ./filegen
+	./filegen
+
+rmgen:
+	rm -rf /tmp/sysvmsq
 
 clean:
 	rm -rf ./send ./receive ./filegen

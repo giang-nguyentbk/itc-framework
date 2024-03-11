@@ -24,5 +24,5 @@ lucy@172.30.247.32 $ ./receive 1
 lucy@172.30.247.32 $ ./send 2 "Yes, I am. How is it going, Bob?"
 bob@172.30.247.32  $ ./receive 2
 
-# Note: you can change magic numbers 1 and 2 in the above commands to macro of LUCY_ADDRESS and BOB_ADDRESS respectively for easier understanding.
+# Note: you can change magic numbers 1 and 2 in the above commands to macro of LUCY_QUEUEID and BOB_QUEUEID respectively for easier understanding.
 ```
