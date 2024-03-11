@@ -2,12 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #define MSGSZ	128
+#define SERVER_KEY_PATHNAME	"/tmp/itccoord/sysvmsq"
 
 struct msgbuf {
 	long mtype;
@@ -17,21 +20,28 @@ struct msgbuf {
 int main(int argc, char** argv)
 {
 	int msqid;
+	int proj_id;
 	key_t key;
 	struct msgbuf sbuf;
 	size_t len;
 
 	if(argc != 3)
 	{
-		(void)fprintf(stderr, "Usage: ./send <key> <message>\n");
+		(void)fprintf(stderr, "Usage: ./send <proj_id> <message>\n");
 		exit(EXIT_FAILURE);
 	}
 
-	if((key = atoi(argv[1])) < 1)
+	if((proj_id = atoi(argv[1])) < 1)
 	{
-		(void)fprintf(stderr, "Invalid key: %d!\n", key);
+		(void)fprintf(stderr, "Invalid proj_id: %d!\n", proj_id);
 		exit(EXIT_FAILURE);
 	}
+
+	if ((key = ftok(SERVER_KEY_PATHNAME, proj_id)) == -1)
+	{
+		perror ("ftok");
+		exit (EXIT_FAILURE);
+    	}
 
 	if((msqid = msgget(key, IPC_CREAT | 0666)) < 0)
 	{
