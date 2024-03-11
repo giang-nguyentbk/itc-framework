@@ -32,10 +32,6 @@ extern "C" {
 // If you make sure your mailbox's names you set later will be unique across the entire universe, you can use this flag
 // for itc_init() call
 #define ITC_NO_NAMESPACE NULL
-/*****************************************************************************\/
-*****                          VARIABLE MACROS                             *****
-*******************************************************************************/
-
 
 
 /*****************************************************************************\/
@@ -75,10 +71,6 @@ struct itc_alloc_info {
                 // struct itc_poolflex_info        poolflex_info;
         } info;
 };
-/*****************************************************************************\/
-*****                        ITC TYPE DECLARATIONS                         *****
-*******************************************************************************/
-
 
 
 /*****************************************************************************\/
@@ -149,10 +141,6 @@ extern void itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 extern union itc_msg *itc_receive(uint32_t tmo); // By default ITC V1 receiving the 1st message in the rx queue
 						 // no matter from who it came.
 
-/*****************************************************************************\/
-*****                        CORE API DECLARATIONS                         *****
-*******************************************************************************/
-
 
 
 /*****************************************************************************\/
@@ -211,9 +199,6 @@ extern int32_t itc_get_name(itc_mbox_id_t mbox_id, char *name, uint32_t name_len
 // extern itc_monitor_id_t itc_monitor(itc_mbox_id_t mbox_id, union itc_msg **msg);
 // extern void itc_unmonitor(itc_mbox_id_t mbox_id);
 
-/*****************************************************************************\/
-*****                       HELPER API DECLARATIONS                        *****
-*******************************************************************************/
 
 
 /*****************************************************************************\/
@@ -269,9 +254,6 @@ extern int itc_get_fd_zz(void);
 
 extern int32_t itc_get_name_zz(itc_mbox_id_t mbox_id, char *name, uint32_t name_len);
 #define itc_get_name(mbox_id, name, name_len) itc_get_name_zz((mbox_id), (name), (name_len))
-/*****************************************************************************\/
-*****                    MAP TO BACKEND IMPLEMENTATION                     *****
-*******************************************************************************/
 
 
 #ifdef __cplusplus

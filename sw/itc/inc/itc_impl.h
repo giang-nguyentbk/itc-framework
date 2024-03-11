@@ -26,6 +26,11 @@ extern "C" {
 #define ENDPOINT (char)0xAA
 #define ITC_HEADER_SIZE 14 // itc_message: flags + receiver + sender + size. Also is the offset between
                                 // the starting of itc_message and the starting of itc_msg.
+
+#ifndef MAX_SUPPORTED_PROCESSES
+#define	MAX_SUPPORTED_PROCESSES	255
+#endif
+
 #ifdef UNITTEST
 #define ITC_NR_INTERNAL_USED_MBOXES 0 // Unittest for local trans so sock and sysvmq not used yet
 #else
@@ -36,9 +41,6 @@ extern "C" {
 #define CONVERT_TO_MESSAGE(msg) (struct itc_message*)((unsigned long)msg - ITC_HEADER_SIZE) // See itc_message in README
 
 #define CONVERT_TO_MSG(message) (union itc_msg*)(&message->msgno)
-/*****************************************************************************\/
-*****                          VARIABLE MACROS                             *****
-*******************************************************************************/
 
 
 
@@ -51,10 +53,6 @@ extern "C" {
 #define ITC_FLAGS_FORCE_REINIT  0x00000100
 // Indicate a message are in a rx queue of some mailbox.
 #define ITC_FLAGS_MSG_INRXQUEUE 0x0001
-/*****************************************************************************\/
-*****                          FLAG DEFINITIONS                            *****
-*******************************************************************************/
-
 
 
 /*****************************************************************************\/
@@ -73,7 +71,8 @@ typedef enum {
 	ITC_NOT_DEL_ALL_MBOX	=	0b100000000,		/* Not deleting all user mailboxes before itc_exit() */
 	ITC_DEL_IN_WRONG_STATE	=	0b1000000000,		/* Delete a mailbox when it's not created yet */
 	ITC_FREE_NULL_PTR	=	0b10000000000,		/* Attempts to remove null qitem */
-	ITC_INVALID_MAX_MSGSIZE	=	0b100000000000		/* Max_mallocsize < 0 or requested itc_msg size > max_mallocsize */
+	ITC_INVALID_MAX_MSGSIZE	=	0b100000000000,		/* Max_mallocsize < 0 or requested itc_msg size > max_mallocsize */
+	ITC_SYSCALL_ERROR	=	0b1000000000000		/* System call return error: pthread, sysv message queue,... */
 
 } result_code_e;
 
@@ -86,10 +85,6 @@ typedef enum {
 	MBOX_INUSE,
 	MBOX_NUM_STATES
 } mbox_state;
-
-/*****************************************************************************\/
-*****                            RETURN CODE                               *****
-*******************************************************************************/
 
 
 /*****************************************************************************\/
@@ -139,9 +134,6 @@ struct rxqueue {
         struct llqueue_item*	tail;
         struct llqueue_item*	find;
 };
-/*****************************************************************************\/
-*****                         TYPE DEFINITIONS                             *****
-*******************************************************************************/
 
 
 #ifdef __cplusplus

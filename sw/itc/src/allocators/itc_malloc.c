@@ -18,9 +18,6 @@
    What we should do is that we will choose which trans functions should be used depending on message size.
 */
 static int max_mallocsize = 0;
-/*****************************************************************************\/
-*****                  INTERNAL VARIABLES IN MALLOC-ATOR                   *****
-*******************************************************************************/
 
 
 
@@ -40,9 +37,6 @@ struct itci_alloc_apis malloc_apis = {
         malloc_free,
         malloc_getinfo
 };
-/*****************************************************************************\/
-*****                   ALLOC INTERFACE IMPLEMENTATION                     *****
-*******************************************************************************/
 
 
 
@@ -133,6 +127,3 @@ static struct itc_alloc_info malloc_getinfo(struct result_code* rc)
                                                                 
         return info;
 }
-/*****************************************************************************\/
-*****                        FUNCTION DEFINITIONS                          *****
-*******************************************************************************/

@@ -49,10 +49,6 @@ struct local_instance {
         struct local_mbox_data  *localmbx_data;
 };
 
-/*****************************************************************************\/
-*****                    INTERNAL TYPES IN LOCAL-ATOR                      *****
-*******************************************************************************/
-
 
 
 /*****************************************************************************\/
@@ -60,9 +56,6 @@ struct local_instance {
 *******************************************************************************/
 static struct local_instance local_inst; // One instance per a process, multiple threads all use this one.
 
-/*****************************************************************************\/
-*****                  INTERNAL VARIABLES IN LOCAL-ATOR                    *****
-*******************************************************************************/
 
 
 /*****************************************************************************\/
@@ -82,11 +75,6 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 static struct itc_message* remove_message_fromqueue(struct result_code* rc, struct rxqueue* q, struct itc_message* message);
 static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_message* message);
 static void remove_qitem(struct result_code* rc, struct llqueue_item** qitem);
-
-
-/*****************************************************************************\/
-*****                   INTERNAL FUNCTIONS PROTOTYPES                      *****
-*******************************************************************************/
 
 
 
@@ -118,9 +106,6 @@ struct itci_transport_apis local_trans_apis = { NULL,
                                             	local_receive,
                                             	local_remove,
                                             	NULL };
-/*****************************************************************************\/
-*****                   TRANS INTERFACE IMPLEMENTATION                     *****
-*******************************************************************************/
 
 
 
@@ -360,11 +345,6 @@ static struct itc_message *local_remove(struct result_code* rc, struct itc_mailb
 
 
 
-/*****************************************************************************\/
-*****                        FUNCTION DEFINITIONS                          *****
-*******************************************************************************/
-
-
 
 /*****************************************************************************\/
 *****                  INTERNAL FUNCTIONS IMPLEMENTATION                   *****
@@ -581,7 +561,7 @@ static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_mess
 	ret_qitem = (struct llqueue_item*)malloc(sizeof(struct llqueue_item));
 	if(ret_qitem == NULL)
 	{
-		// Print out a ERROR trace here is needed.
+		// Print out an ERROR trace here is needed.
 		rc->flags |= ITC_OUT_OF_MEM;
 		return NULL;
 	}
@@ -604,8 +584,4 @@ static void remove_qitem(struct result_code* rc, struct llqueue_item** qitem)
 	free(*qitem);
 	*qitem = NULL;
 }
-
-/*****************************************************************************\/
-*****                  INTERNAL FUNCTIONS IMPLEMENTATION                   *****
-*******************************************************************************/
 
