@@ -1,6 +1,5 @@
 
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,6 +10,7 @@
 #include <sys/prctl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
+#include <sys/stat.h>
 
 #include <errno.h>
 #include <search.h>
@@ -23,6 +23,13 @@
 /*****************************************************************************\/
 *****                    INTERNAL TYPES IN SYSV-ATOR                       *****
 *******************************************************************************/
+#ifndef ITC_SYSVMSQ_PATH
+#define ITC_SYSVMSQ_PATH "/tmp/itc/sysvmsq/"
+#endif
+
+#ifndef ITC_SYSVMSQ_FILENAME
+#define ITC_SYSVMSQ_FILENAME "/tmp/itc/sysvmsq/sysvmsq_file"
+#endif
 
 struct sysvmq_contactlist {
 	itc_mbox_id_t	mbox_id_in_itccoord;
@@ -41,11 +48,9 @@ struct sysvmq_instance {
 	pthread_mutex_t			thread_mtx;
 	pthread_key_t			destruct_key;
 
+	int				is_initialized;
 	int				is_terminated;
 	int				max_msgsize;
-
-	char*				var_rundir_path; // /var/run/itccoord_locator
-	char*				sysvmq_file;
 	char*				rx_buffer;
 
 	struct sysvmq_contactlist	sysvmq_cl[MAX_SUPPORTED_PROCESSES];
@@ -65,6 +70,7 @@ static struct sysvmq_instance sysvmq_inst; // One instance per a process, multip
 *****                   INTERNAL FUNCTIONS PROTOTYPES                      *****
 *******************************************************************************/
 static void release_sysvmq_resources(struct result_code* rc);
+static void generate_msqfile(struct result_code* rc);
 
 
 
@@ -107,7 +113,7 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 {
 	(void)nr_mboxes;
 
-	if(sysvmq_inst.sysvmq_file_path != NULL)
+	if(sysvmq_inst.is_initialized != 0)
 	{
 		if(flags & ITC_FLAGS_FORCE_REINIT)
 		{
@@ -124,7 +130,42 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 		}
 	}
 
-	sysvmq_inst.sysvmq_file_path = itc_get_varrundir();
+	generate_msqfile(rc);
+	if(rc->flags != ITC_OK)
+	{
+		return;
+	}
+
+	// Calculate itccoord_shift value
+	int tmp_shift, tmp_mask;
+	tmp_shift = 0;
+	tmp_mask = itccoord_mask;
+	while(!(tmp_mask & 0x1))
+	{
+		tmp_mask = tmp_mask >> 1;
+		tmp_shift = tmp_shift++; // Should be 20 currently
+	}
+
+	sysvmq_inst.my_sysvmq_id		= -1; // Will be only specified when rx thread starts
+	sysvmq_inst.pid				= getpid();
+	sysvmq_inst.itccoord_mask 		= itccoord_mask;
+	sysvmq_inst.itccoord_shift		= tmp_shift;
+	sysvmq_inst.my_mbox_id_in_itccoord	= my_mbox_id_in_itccoord;
+
+	// Create key for thread-specific data (mbox_id)
+	if(pthread_key_create(&sysvmq_inst.destruct_key, rxthread_destructor) != 0)
+	{
+		rc->flags |= ITC_SYSCALL_ERROR;
+		return;
+	}
+
+	if(pthread_mutex_init(&sysvmq_inst.thread_mtx, NULL) != 0)
+	{
+		rc->flags |= ITC_SYSCALL_ERROR;
+		return;
+	}
+
+	
 }
 
 static int sysvmq_maxmsgsize(struct result_code* rc)
@@ -166,4 +207,43 @@ static void release_sysvmq_resources(struct result_code* rc)
 	}
 
 	memset(&sysvmq_inst, 0, sizeof(struct sysvmq_instance));
+}
+
+static int generate_msqfile(struct result_code* rc)
+{
+	FILE* fd;
+	int res;
+
+	res = mkdir(ITC_SYSVMSQ_PATH, 0777);
+
+	if(res < 0 && errno != EEXIST)
+	{
+		rc->flags |= ITC_SYSCALL_ERROR;
+		return;
+	}
+
+	if(errno != EEXIST)
+	{
+		res = chmod(ITC_SYSVMSQ_PATH, 0777);
+		if(res < 0)
+		{
+			rc->flags |= ITC_SYSCALL_ERROR;
+			return;
+		}
+
+		fd = fopen(ITC_SYSVMSQ_FILENAME, "w");
+		if(fd == NULL)
+		{
+			rc->flags |= ITC_SYSCALL_ERROR;
+			return;
+		}
+
+		if(fclose(fd) != 0)
+		{
+			rc->flags |= ITC_SYSCALL_ERROR;
+			return;
+		}
+	}
+
+	sysvmq_inst.is_initialized = 1;
 }

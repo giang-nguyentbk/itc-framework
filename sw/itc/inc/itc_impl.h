@@ -42,7 +42,23 @@ extern "C" {
 
 #define CONVERT_TO_MSG(message) (union itc_msg*)(&message->msgno)
 
+#define MUTEX_LOCK(rc, lock)					\
+	do							\
+	{							\
+		if(pthread_mutex_lock(lock) != 0)		\
+		{						\
+			rc->flags |= ITC_SYSCALL_ERROR;		\
+		}						\
+	} while(0)
 
+#define MUTEX_UNLOCK(rc, lock)					\
+	do							\
+	{							\
+		if(pthread_mutex_unlock(lock) != 0)		\
+		{						\
+			rc->flags |= ITC_SYSCALL_ERROR;		\
+		}						\
+	} while(0)
 
 /*****************************************************************************\/
 *****                          FLAG DEFINITIONS                            *****
@@ -53,26 +69,28 @@ extern "C" {
 #define ITC_FLAGS_FORCE_REINIT  0x00000100
 // Indicate a message are in a rx queue of some mailbox.
 #define ITC_FLAGS_MSG_INRXQUEUE 0x0001
-
+// Normally, Linux allows us to have Real-time Processes's priority in range of 1-99, but it should be only 40. That's enough!
+#define ITC_HIGH_PRIORITY	40
 
 /*****************************************************************************\/
 *****                            RETURN CODE                               *****
 *******************************************************************************/
 typedef enum {
-	ITC_OK 			= 	0b0,			/* Everything good */
-	ITC_ALREADY_USED  	= 	0b1,			/* The mailbox id already used by someone */
-	ITC_ALREADY_INIT  	= 	0b10,			/* Already calling local_init() */
-	ITC_NOT_INIT_YET  	=	0b100,			/* Not calling local_init() yet */
-	ITC_OUT_OF_MEM    	=	0b1000,			/* Malloc return NULL due to not enough memory in heap */
-	ITC_RX_QUEUE_NULL 	=	0b10000,		/* Not calling local_create_mailbox yet */
-	ITC_RX_QUEUE_EMPTY	=	0b100000,		/* This is not really a problem at all */
-	ITC_NOT_THIS_PROC	=	0b1000000,		/* 3 highest hexes of mailbox id != my_mbox_id_in_itccoord */
-	ITC_OUT_OF_RANGE	=	0b10000000,		/* Local_mb_id > nr_localmbx_datas */
-	ITC_NOT_DEL_ALL_MBOX	=	0b100000000,		/* Not deleting all user mailboxes before itc_exit() */
-	ITC_DEL_IN_WRONG_STATE	=	0b1000000000,		/* Delete a mailbox when it's not created yet */
-	ITC_FREE_NULL_PTR	=	0b10000000000,		/* Attempts to remove null qitem */
-	ITC_INVALID_MAX_MSGSIZE	=	0b100000000000,		/* Max_mallocsize < 0 or requested itc_msg size > max_mallocsize */
-	ITC_SYSCALL_ERROR	=	0b1000000000000		/* System call return error: pthread, sysv message queue,... */
+	ITC_OK 				= 	0b0,			/* 0	- Everything good */
+	ITC_ALREADY_USED  		= 	0b1,			/* 1	- The mailbox id already used by someone */
+	ITC_ALREADY_INIT  		= 	0b10,			/* 2	- Already calling local_init() */
+	ITC_NOT_INIT_YET  		=	0b100,			/* 4	- Not calling local_init() yet */
+	ITC_OUT_OF_MEM    		=	0b1000,			/* 8	- Malloc return NULL due to not enough memory in heap */
+	ITC_RX_QUEUE_NULL 		=	0b10000,		/* 16	- Not calling local_create_mailbox yet */
+	ITC_RX_QUEUE_EMPTY		=	0b100000,		/* 32	- This is not really a problem at all */
+	ITC_NOT_THIS_PROC		=	0b1000000,		/* 64	- Three highest hexes of mailbox id != my_mbox_id_in_itccoord */
+	ITC_OUT_OF_RANGE		=	0b10000000,		/* 128	- Local_mb_id > nr_localmbx_datas */
+	ITC_NOT_DEL_ALL_MBOX		=	0b100000000,		/* 256	- Not deleting all user mailboxes before itc_exit() */
+	ITC_DEL_IN_WRONG_STATE		=	0b1000000000,		/* 512	- Delete a mailbox when it's not created yet */
+	ITC_FREE_NULL_PTR		=	0b10000000000,		/* 1024	- Attempts to remove null qitem */
+	ITC_INVALID_MAX_MSGSIZE		=	0b100000000000,		/* 2048	- Max_mallocsize < 0 or requested itc_msg size > max_mallocsize */
+	ITC_SYSCALL_ERROR		=	0b1000000000000,	/* 4096	- System call return error: pthread, sysv message queue,... */
+	ITC_INVALID_SCHED_PARAMS	=	0b10000000000000	/* 8192	- Invalid scheduling params */
 
 } result_code_e;
 
