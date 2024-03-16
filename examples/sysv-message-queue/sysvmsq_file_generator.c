@@ -4,14 +4,14 @@
 
 #include <sys/stat.h>
 
-#define SERVER_KEY_PATHNAME	"/tmp/itccoord/sysvmsq"
+#define SERVER_KEY_PATHNAME	"/tmp/sysvmsq/sysvmsq_file"
 
 int main(void)
 {
 	FILE* fd;
 	int res;
 
-	res = mkdir("/tmp/itccoord/", 0777);
+	res = mkdir("/tmp/sysvmsq/", 0777);
 	if(res < 0 && errno != EEXIST)
 	{
 		perror ("mkdir");
@@ -20,7 +20,7 @@ int main(void)
 
 	if(errno != EEXIST)
 	{
-		res = chmod("/tmp/itccoord/", 0777);
+		res = chmod("/tmp/sysvmsq/", 0777);
 		if(res < 0)
 		{
 			perror ("chmod");

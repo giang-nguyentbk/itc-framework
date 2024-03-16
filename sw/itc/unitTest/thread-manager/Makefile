@@ -1,13 +1,14 @@
-TARGET = itc_malloc_test
-BIN = ../bin
-CFLAGS= -g -Wall -Wextra
+TARGET = itc_threadmanager_test
+BIN = ./bin
+CFLAGS = -g -Wall -Wextra
+CC = gcc
 
 INCLUDE_DIR =
-INCLUDE_DIR += -I ../../../if
-INCLUDE_DIR += -I ../../../inc
+INCLUDE_DIR += -I ../../if
+INCLUDE_DIR += -I ../../inc
 
 SRC_DIR =
-SRC_DIR += -I ../../../src/allocators
+SRC_DIR += -I ../../src/threadmanager
 SRC_DIR += -I ./
 
 #SIG_DIR =
@@ -24,13 +25,13 @@ all: create_bin $(TARGET)
 create_bin:
 	@mkdir -p $(BIN)
 
-$(TARGET): $(BIN)/itc_malloc.o $(BIN)/itc_malloc_test.o
+$(TARGET): $(BIN)/itc_threadmanager.o $(BIN)/itc_threadmanager_test.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET)
 
-$(BIN)/itc_malloc.o: itc_malloc.c itc.h itc_impl.h itci_alloc.h
+$(BIN)/itc_threadmanager.o: itc_threadmanager.c itc_impl.h itc_threadmanager.h
 	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
-$(BIN)/itc_malloc_test.o: itc_malloc_test.c itc.h itci_alloc.h itc_impl.h
+$(BIN)/itc_threadmanager_test.o: itc_threadmanager_test.c itc_impl.h itc_threadmanager.h
 	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 run:

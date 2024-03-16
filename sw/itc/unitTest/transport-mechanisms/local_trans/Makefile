@@ -19,7 +19,10 @@ vpath %.sig 	$(SIG_DIR)
 
 .PHONY: all
 
-all: $(TARGET)
+all: create_bin $(TARGET)
+
+create_bin:
+	@mkdir -p $(BIN)
 
 $(TARGET): $(BIN)/itc_local.o $(BIN)/itc_local_test.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET)
