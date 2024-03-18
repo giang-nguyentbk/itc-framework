@@ -88,10 +88,8 @@ typedef enum {
 	ITC_NOT_DEL_ALL_MBOX		=	0b100000000,		/* 256	- Not deleting all user mailboxes before itc_exit() */
 	ITC_DEL_IN_WRONG_STATE		=	0b1000000000,		/* 512	- Delete a mailbox when it's not created yet */
 	ITC_FREE_NULL_PTR		=	0b10000000000,		/* 1024	- Attempts to remove null qitem */
-	ITC_INVALID_MAX_MSGSIZE		=	0b100000000000,		/* 2048	- Max_mallocsize < 0 or requested itc_msg size > max_mallocsize */
-	ITC_SYSCALL_ERROR		=	0b1000000000000,	/* 4096	- System call return error: pthread, sysv message queue,... */
-	ITC_INVALID_SCHED_PARAMS	=	0b10000000000000	/* 8192	- Invalid scheduling params */
-
+	ITC_INVALID_ARGUMENTS		=	0b100000000000,		/* 2048	- Validation of function parameters is invalid */
+	ITC_SYSCALL_ERROR		=	0b1000000000000		/* 4096	- System call return error: pthread, sysv message queue,... */
 } result_code_e;
 
 struct result_code {
@@ -120,15 +118,16 @@ struct itc_mailbox {
 struct itc_message {
 /* itc_message is only used for controlling itc system through below admin information,
 do not access user data via itc_message but use itc_msg instead */
-        uint16_t                    flags;
+	// long			sysvmq_type; // This is used for sysv message queue only
+        uint16_t               	flags;
 
         /* DO NOT change anything in the remainder - this is a core part - to avoid breaking the whole ITC system. */
-        itc_mbox_id_t               receiver;
-        itc_mbox_id_t               sender;
-        int32_t                     size;   // Size of the itc_msg that user gives to allocate itc_message
+        itc_mbox_id_t          	receiver;
+        itc_mbox_id_t          	sender;
+        int32_t                	size;   // Size of the itc_msg that user gives to allocate itc_message
 
         /* This is the itc_msg part users can see and use it */
-        uint32_t                    msgno;
+        uint32_t               	msgno;
         /* Starting of user data, optional */
         /* ...                             */
 

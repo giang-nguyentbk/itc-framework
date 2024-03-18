@@ -31,7 +31,9 @@ extern "C" {
 
 // If you make sure your mailbox's names you set later will be unique across the entire universe, you can use this flag
 // for itc_init() call
-#define ITC_NO_NAMESPACE NULL
+#define ITC_NO_NAMESPACE	0x00000100
+
+#define ITC_MSG_BASE		0x01001000  // 0x1000 is reserved for internal usage in the future
 
 
 /*****************************************************************************\/

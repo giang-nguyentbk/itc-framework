@@ -48,7 +48,7 @@ void set_sched_params(struct result_code* rc, int policy, int selflimit_prio, in
 	}
 }
 
-extern void add_itcthread(struct result_code* rc, void* (*worker)(void*), void* arg, bool use_highest_prio, pthread_mutex_t* start_mtx)
+void add_itcthread(struct result_code* rc, void* (*worker)(void*), void* arg, bool use_highest_prio, pthread_mutex_t* start_mtx)
 {
 	struct itc_threads* thr;
 
@@ -70,13 +70,15 @@ extern void add_itcthread(struct result_code* rc, void* (*worker)(void*), void* 
 	MUTEX_UNLOCK(rc, &thrman_inst.thrlist_mtx);
 }
 
-extern void start_itcthreads(struct result_code* rc)
+void start_itcthreads(struct result_code* rc)
 {
 	struct itc_threads* thr;
-	struct result_code rc_tmp;
+	struct result_code* rc_tmp;
 	
 	MUTEX_LOCK(rc, &thrman_inst.thrlist_mtx);
 	thr = thrman_inst.thread_list; // Go through the thread lists and try to start them all
+
+	rc_tmp = (struct result_code*)malloc(sizeof(struct result_code));
 
 	while(thr != NULL)
 	{
@@ -85,12 +87,12 @@ extern void start_itcthreads(struct result_code* rc)
 			MUTEX_LOCK(rc, thr->start_mtx);
 		}
 
-		rc_tmp.flags = ITC_OK;
-		config_itcthread(&rc_tmp, thr->worker, thr->arg, &thr->tid, m_sched_policy, \
+		rc_tmp->flags = ITC_OK;
+		config_itcthread(rc_tmp, thr->worker, thr->arg, &thr->tid, m_sched_policy, \
 			(thr->use_highest_prio ? m_sched_selflimit_prio : m_sched_priority));
-		if(rc_tmp.flags != ITC_OK)
+		if(rc_tmp->flags != ITC_OK)
 		{
-			rc->flags |= rc_tmp.flags;
+			rc->flags |= rc_tmp->flags;
 			break; // Failed to start some thread, stop here.
 		}
 
@@ -111,9 +113,11 @@ extern void start_itcthreads(struct result_code* rc)
 	}
 
 	MUTEX_UNLOCK(rc, &thrman_inst.thrlist_mtx);
+
+	free(rc_tmp);
 }
 
-extern void terminate_itcthreads(struct result_code* rc)
+void terminate_itcthreads(struct result_code* rc)
 {
 	struct itc_threads* thr, *thrtmp;
 
@@ -152,7 +156,7 @@ static void check_sched_params(struct result_code* rc, int policy, int selflimit
 
 	if(priority < min_prio || priority > max_prio || selflimit_prio < min_prio || selflimit_prio > max_prio)
 	{
-		rc->flags |= ITC_INVALID_SCHED_PARAMS;
+		rc->flags |= ITC_INVALID_ARGUMENTS;
 		return;
 	}
 }

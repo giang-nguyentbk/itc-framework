@@ -2,7 +2,7 @@
 ```bash
 How many lines of code in this repo?
 $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
--> Total: 2114 lines
+-> Total: 3007 lines (updated 17/3/2024)
 ```
 
 ## Fundamental knowledge:

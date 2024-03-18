@@ -52,7 +52,7 @@ static void malloc_init(struct result_code* rc, union itc_scheme *scheme_params,
 
 	if(max_msgsize < 0)
 	{
-		rc->flags |= ITC_INVALID_MAX_MSGSIZE;
+		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return;
 	}
 
@@ -73,7 +73,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         {
                 // Requested itc message's length is too large or itc_init() hasn't been called yet.
                 // Should implement tracing/logging later for debugging purposes.
-		rc->flags |= ITC_INVALID_MAX_MSGSIZE;
+		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return NULL;
         }
 
