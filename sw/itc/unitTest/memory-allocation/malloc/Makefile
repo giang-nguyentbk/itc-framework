@@ -1,5 +1,5 @@
 TARGET = itc_malloc_test
-BIN = ../bin
+BIN = ./bin
 CFLAGS= -g -Wall -Wextra
 
 INCLUDE_DIR =

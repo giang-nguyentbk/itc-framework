@@ -259,7 +259,6 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 		   which is not good design. Luckily, itc_free() actually simple does call free() of stdlib.h,
 		   so we can just call it here to simulate deallocating itc messages */
 		free(message);
-		message = NULL;
 		(void)msg; // Avoid gcc compiler warning unused of msg in UNITTEST scenario.
 #else
 		msg = CONVERT_TO_MSG(message);
@@ -372,7 +371,6 @@ static void release_localmbx_resources(struct result_code* rc)
                 {
 #ifdef UNITTEST
 		free(message);
-		message = NULL;
 		(void)msg; // Avoid gcc compiler warning unused of msg in UNITTEST scenario.
 #else
 		msg = CONVERT_TO_MSG(message);

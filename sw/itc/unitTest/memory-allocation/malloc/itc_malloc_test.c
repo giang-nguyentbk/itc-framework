@@ -31,9 +31,9 @@ int main(int argc, char* argv[])
 {
 /* TEST EXPECTATION:
 ------------------------------------------------------------------------------------------
-test_malloc_init	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_MAX_MSGSIZE
+test_malloc_init	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_ARGUMENTS
 test_malloc_init	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_malloc_alloc	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_MAX_MSGSIZE
+test_malloc_alloc	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_ARGUMENTS
 ------------------------------------------------------------------------------------------
 test_malloc_alloc	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 test_malloc_free	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
@@ -52,11 +52,11 @@ test_malloc_exit	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	printf("--------------------------------------------------------------------------------------" \
 		"-----------------------------\n");
 
-	// Test malloc_init invalid max_msgsize 					ITC_INVALID_MAX_MSGSIZE
+	// Test malloc_init invalid max_msgsize 					ITC_INVALID_ARGUMENTS
         test_malloc_init(NULL, -1024);
         // Test malloc_init valid max_msgsize 						ITC_OK
         test_malloc_init(NULL, 1024);
-	// Test malloc_alloc with too large msgsize					ITC_INVALID_MAX_MSGSIZE
+	// Test malloc_alloc with too large msgsize					ITC_INVALID_ARGUMENTS
         message = test_malloc_alloc((size_t)1500);
 
 	printf("--------------------------------------------------------------------------------------" \
