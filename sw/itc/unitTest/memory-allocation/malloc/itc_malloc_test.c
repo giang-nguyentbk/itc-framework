@@ -30,18 +30,16 @@ void test_malloc_getinfo(void);
 int main(int argc, char* argv[])
 {
 /* TEST EXPECTATION:
-------------------------------------------------------------------------------------------
-test_malloc_init	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_ARGUMENTS
-test_malloc_init	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_malloc_alloc	-> EXPECT: FAILED	rc = 2048	-> ITC_INVALID_ARGUMENTS
-------------------------------------------------------------------------------------------
-test_malloc_alloc	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_malloc_free	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_malloc_free	-> EXPECT: FAILED	rc = 1024	-> ITC_FREE_NULL_PTR
-------------------------------------------------------------------------------------------
-test_malloc_getinfo	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_malloc_exit	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+[FAILED]:       <test_malloc_init>               Failed to malloc_init(),                        rc = 2048!
+[SUCCESS]:      <test_malloc_init>               Calling malloc_init() successful                rc = 0!
+[FAILED]:       <test_malloc_alloc>              Failed to malloc_alloc(),                       rc = 2048!
+[SUCCESS]:      <test_malloc_alloc>              Calling malloc_alloc() successful               rc = 0!
+[SUCCESS]:      <test_malloc_free>               Calling malloc_free() successful                rc = 0!
+[FAILED]:       <test_malloc_free>               Failed to malloc_free(),                        rc = 1024!
+[SUCCESS]:      <test_malloc_getinfo>            Calling malloc_getinfo() successful             rc = 0!
+[SUCCESS]:      <test_malloc_exit>               Calling malloc_exit() successful                rc = 0!
+-------------------------------------------------------------------------------------------------------------------
 */
 
 	(void)argc; // Avoid compiler warning unused variables
@@ -59,8 +57,6 @@ test_malloc_exit	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	// Test malloc_alloc with too large msgsize					ITC_INVALID_ARGUMENTS
         message = test_malloc_alloc((size_t)1500);
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
         // Test malloc_alloc with valid msgsize						ITC_OK
         message = test_malloc_alloc((size_t)100);
@@ -69,8 +65,6 @@ test_malloc_exit	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	// Test malloc_free free nullptr, or double free due to previous call		ITC_FREE_NULL_PTR
 	test_malloc_free(&message);
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
         // Test malloc_getinfo								ITC_OK
         test_malloc_getinfo();

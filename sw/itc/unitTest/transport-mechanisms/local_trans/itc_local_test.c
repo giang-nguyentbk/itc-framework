@@ -44,37 +44,30 @@ struct itc_message* test_local_remove(struct itc_mailbox *mbox, struct itc_messa
 int main(int argc, char* argv[])
 {
 /* TEST EXPECTATION:
------------------------------------------------------------------------------------
-test_local_create_mbox	-> EXPECT: FAILED	rc = 4		-> ITC_NOT_INIT_YET
-test_local_receive	-> EXPECT: FAILED	rc = 4		-> ITC_NOT_INIT_YET
-test_local_send		-> EXPECT: FAILED	rc = 4		-> ITC_NOT_INIT_YET
------------------------------------------------------------------------------------
-test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_local_init		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_local_init		-> EXPECT: FAILED	rc = 2		-> ITC_ALREADY_INIT
------------------------------------------------------------------------------------
-test_local_init		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_local_send		-> EXPECT: FAILED	rc = 128	-> ITC_OUT_OF_RANGE
-test_local_create_mbox	-> EXPECT: FAILED	rc = 128	-> ITC_OUT_OF_RANGE
------------------------------------------------------------------------------------
-test_local_remove	-> EXPECT: FAILED	rc = 16		-> ITC_RX_QUEUE_NULL
-test_local_delete_mbox	-> EXPECT: FAILED	rc = 16		-> ITC_RX_QUEUE_NULL
-test_local_create_mbox	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
------------------------------------------------------------------------------------
-test_local_create_mbox	-> EXPECT: FAILED	rc = 1		-> ITC_ALREADY_USED
-test_local_send		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_local_receive	-> EXPECT: FAILED	rc = 64		-> ITC_NOT_THIS_PROC
------------------------------------------------------------------------------------
-test_local_receive	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_local_remove	-> EXPECT: FAILED	rc = 32		-> ITC_RX_QUEUE_EMPTY
-test_local_send		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
------------------------------------------------------------------------------------
-test_local_remove	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
-test_local_exit		-> EXPECT: FAILED	rc = 256	-> ITC_NOT_DEL_ALL_MBOX
-test_local_delete_mbox	-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
------------------------------------------------------------------------------------
-test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+[FAILED]:               <test_local_create_mbox>         Failed to itci_trans_create_mbox(),             rc = 4!
+[FAILED]:               <test_local_receive>             Failed to itci_trans_receive(),                 rc = 4!
+[FAILED]:               <test_local_send>                Failed to itci_trans_send(),                    rc = 4!
+[SUCCESS]:              <test_local_exit>                Calling local_exit() successfully,              rc = 0!
+[SUCCESS]:              <test_local_init>                Calling local_init() successfully,              rc = 0!
+[FAILED]:               <test_local_init>                Failed to itci_trans_init(),                    rc = 2!
+[SUCCESS]:              <test_local_init>                Calling local_init() successfully,              rc = 0!
+[FAILED]:               <test_local_send>                Failed to itci_trans_send(),                    rc = 128!
+[FAILED]:               <test_local_create_mbox>         Failed to itci_trans_create_mbox(),             rc = 128!
+[FAILED]:               <test_local_remove>              Failed to itci_trans_remove(),                  rc = 16!
+[FAILED]:               <test_local_delete_mbox>         Failed to itci_trans_delete_mbox(),             rc = 16!
+[SUCCESS]:              <test_local_create_mbox>         Calling local_create_mbox() successfully,       rc = 0!
+[FAILED]:               <test_local_create_mbox>         Failed to itci_trans_create_mbox(),             rc = 1!
+[SUCCESS]:              <test_local_send>                Calling local_send() successfully,              rc = 0!
+[FAILED]:               <test_local_receive>             Failed to itci_trans_receive(),                 rc = 64!
+[SUCCESS]:              <test_local_receive>             Calling local_receive() successfully,           rc = 0!
+[FAILED]:               <test_local_remove>              Failed to itci_trans_remove(),                  rc = 32!
+[SUCCESS]:              <test_local_send>                Calling local_send() successfully,              rc = 0!
+[SUCCESS]:              <test_local_remove>              Calling local_remove() successfully,            rc = 0!
+[FAILED]:               <test_local_exit>                Failed to itci_trans_exit(),                    rc = 256!
+[SUCCESS]:              <test_local_delete_mbox>         Calling local_delete_mbox() successfully,       rc = 0!
+[SUCCESS]:              <test_local_exit>                Calling local_exit() successfully,              rc = 0!
+-------------------------------------------------------------------------------------------------------------------
 */
 
 	(void)argc; // Avoid compiler warning unused variables
@@ -97,8 +90,6 @@ test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	message->msgno = 111;
 	test_local_send(message, (itc_mbox_id_t)(0x00500000 | 10));
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
 	// Test exit when not init yet								-> EXPECT: FAILED
 	test_local_exit();
@@ -107,8 +98,6 @@ test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	// Test ITC_ALREADY_INIT								-> EXPECT: FAILED
 	test_local_init((itc_mbox_id_t)0x00500000, (itc_mbox_id_t)0xFFF00000, (int)100, (uint32_t)0);
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
 	// Test ITC_FLAGS_FORCE_REINIT								-> EXPECT: FAILED
 	test_local_init((itc_mbox_id_t)0x00500000, (itc_mbox_id_t)0xFFF00000, (int)5, (uint32_t)ITC_FLAGS_FORCE_REINIT);
@@ -118,8 +107,6 @@ test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	mbox_1->mbox_id = 0x00500000 | 100;
 	test_local_create_mbox(mbox_1, 0);
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
 	// Test remove message in rx queue which is NULL					-> EXPECT: FAILED
 	mbox_1->mbox_id = 0x00500000 | 3; // Mailbox_id 3 is not created yet
@@ -130,8 +117,6 @@ test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	mbox_1->mbox_id = 0x00500000 | 5;
 	test_local_create_mbox(mbox_1, 0);
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
 	// Test create mailbox with a mailbox id already used					-> EXPECT: FAILED
 	struct itc_mailbox* mbox_2;
@@ -144,8 +129,6 @@ test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	mbox_2->mbox_id = 0x00600000 | 5; // Expected is 0x00500000 | 5
 	test_local_receive(mbox_2);
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
 	// Test receive a ITC message successfully						-> EXPECT: SUCCESS
 	test_local_receive(mbox_1);
@@ -154,8 +137,6 @@ test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	// This is served for next test_local_remove()						-> EXPECT: SUCCESS
 	test_local_send(message, (itc_mbox_id_t)(0x00500000 | 5));
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
 	// Test remove message in rx queue which has been enqueued above by local_send()	-> EXPECT: SUCCESS
 	test_local_remove(mbox_1, message);
@@ -165,8 +146,6 @@ test_local_exit		-> EXPECT: SUCCESS	rc = 0		-> ITC_OK
 	// Test delete mailbox successfully		 					-> EXPECT: SUCCESS
 	test_local_delete_mbox(mbox_1);
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
 
 	// Test exit successfully								-> EXPECT: FAILED
 	test_local_exit();
