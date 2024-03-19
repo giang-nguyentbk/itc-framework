@@ -29,6 +29,18 @@ void test_terminate_itcthreads(void);
 /* Expect main call:    ./itc_threadmanager_test */
 int main(int argc, char* argv[])
 {
+/* TEST EXPECTATION:
+-------------------------------------------------------------------------------------------------------------------
+[FAILED]:       <test_set_sched_params>          Failed to set_sched_params(),                   rc = 2048!
+[SUCCESS]:      <test_set_sched_params>          Calling set_sched_params() successful           rc = 0!
+[SUCCESS]:      <test_set_sched_params>          Calling set_sched_params() successful           rc = 0!
+[SUCCESS]:      <test_set_sched_params>          Calling set_sched_params() successful           rc = 0!
+[SUCCESS]:      <test_add_itcthread>             Calling add_itcthread() successful              rc = 0!
+[SUCCESS]:      <test_start_itcthreads>          Calling start_itcthreads() successful           rc = 0!
+[SUCCESS]:      <test_terminate_itcthreads>      Calling terminate_itcthreads() successful       rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+*/
+
 	(void)argc; // Avoid compiler warning unused variables
 	(void)argv; // Avoid compiler warning unused variables
 
@@ -36,6 +48,9 @@ int main(int argc, char* argv[])
 	pthread_mutex_init(&worker_1.start_mtx, NULL);
 	pthread_key_create(&worker_1.destructor_key, thread_destructor);
 	
+	printf("--------------------------------------------------------------------------------------" \
+		"-----------------------------\n");
+
 	test_set_sched_params(SCHED_FIFO, ITC_HIGH_PRIORITY, 100); // NOK
 	test_set_sched_params(SCHED_FIFO, ITC_HIGH_PRIORITY, 15); // OK
 	test_set_sched_params(SCHED_RR, ITC_HIGH_PRIORITY, 15); // OK
@@ -45,6 +60,9 @@ int main(int argc, char* argv[])
 
 	test_start_itcthreads(); // OK
 	test_terminate_itcthreads(); // OK
+
+	printf("--------------------------------------------------------------------------------------" \
+		"-----------------------------\n");
 
 	pthread_mutex_destroy(&worker_1.start_mtx);
 	pthread_key_delete(worker_1.destructor_key);

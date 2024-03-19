@@ -65,8 +65,6 @@ struct sysvmq_instance {
 	int				max_msgsize;
 	char*				rx_buffer;
 
-	char*				sysvmq_file;
-
 	struct sysvmq_contactlist	sysvmq_cl[MAX_SUPPORTED_PROCESSES];
 };
 
@@ -174,14 +172,14 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 	// Create key for thread-specific data (mbox_id)
 	if(pthread_key_create(&sysvmq_inst.destruct_key, rxthread_destructor) != 0)
 	{
-		perror("pthread_key_create");
+		// perror("pthread_key_create");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
 	if(pthread_mutex_init(&sysvmq_inst.thread_mtx, NULL) != 0)
 	{
-		perror("pthread_mutex_init");
+		// perror("pthread_mutex_init");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -191,16 +189,22 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 
 static void sysvmq_exit(struct result_code* rc)
 {
-	free(sysvmq_inst.sysvmq_file);
+	if(!sysvmq_inst.is_initialized)
+	{
+		rc->flags |= ITC_NOT_INIT_YET;
+		return;
+	}
 
 	if(pthread_mutex_destroy(&sysvmq_inst.thread_mtx) != 0)
 	{
+		// perror("pthread_mutex_destroy");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
 	if(pthread_key_delete(sysvmq_inst.destruct_key) != 0)
 	{
+		// perror("pthread_key_delete");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -221,7 +225,7 @@ static int sysvmq_maxmsgsize(struct result_code* rc)
 	if(msgctl(0, IPC_INFO, (struct msqid_ds*)&info) == -1)
 	{
 		// ERROR tracing is needed only, no need to set result code
-		perror("sysvmq_maxmsgsize");
+		// perror("sysvmq_maxmsgsize - msgctl");
 		rc->flags |= ITC_SYSCALL_ERROR;
 	}
 
@@ -237,9 +241,18 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 	int size;
 	long* txmsg;
 
+	if(!sysvmq_inst.is_initialized)
+	{
+		rc->flags |= ITC_NOT_INIT_YET;
+		return;
+	}
+
 	cl = get_sysvmq_cl(rc, to);
 	if(cl == NULL || cl->mbox_id_in_itccoord == 0)
 	{
+		rc->flags &= ~ITC_SYSCALL_ERROR; // The receiver side has not initialised message queue yet
+		rc->flags |= ITC_RX_QUEUE_NULL; // So remove unecessary syscall error, return an ITC_RX_QUEUE_NULL warning instead. This is not an ERROR at all!
+		/* If send failed, users have to self-free the message. ITC system only free messages when send successfully */
 		return;
 	}
 
@@ -250,7 +263,7 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 	*txmsg = ITC_SYSV_TX_MSG;
 	memcpy((void*)(txmsg + 1), message, size);
 
-	while(msgsnd(cl->sysvmq_id, txmsg, (size - sizeof(long)), MSG_NOERROR) == -1)
+	while(msgsnd(cl->sysvmq_id, (void*)txmsg, size, MSG_NOERROR) == -1)
 	{
 		if(errno == EINTR)
 		{
@@ -266,6 +279,7 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 		} else
 		{
 			// ERROR trace is needed here
+			// perror("msgsnd");
 			rc->flags |= ITC_SYSCALL_ERROR; // Will not return here
 		}
 	}
@@ -317,7 +331,7 @@ static void* sysvmq_rx_thread(void *data)
 	}
 
 	proj_id = (sysvmq_inst.my_mbox_id_in_itccoord >> sysvmq_inst.itccoord_shift);
-	key = ftok(sysvmq_inst.sysvmq_file, proj_id);
+	key = ftok(ITC_SYSVMSQ_FILENAME, proj_id);
 	if(key == -1)
 	{
 		// ERROR trace is needed here
@@ -396,8 +410,6 @@ static void* sysvmq_rx_thread(void *data)
 		forward_sysvmq_msg(&rc_tmp_stack, sysvmq_inst.rx_buffer, rx_len + sizeof(long), sysvmq_inst.my_sysvmq_id);
 		repeat = 0;
 	}
-
-	printf("DEBUG: I'm here!\n");
 	
 	return NULL;
 }
@@ -407,11 +419,9 @@ static void* sysvmq_rx_thread(void *data)
 *******************************************************************************/
 static void release_sysvmq_resources(struct result_code* rc)
 {
-	free(sysvmq_inst.sysvmq_file);
-
 	if(pthread_key_delete(sysvmq_inst.destruct_key) != 0)
 	{
-		perror("release_sysvmq_resources");
+		// perror("release_sysvmq_resources - pthread_key_delete");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -429,7 +439,7 @@ static void generate_msqfile(struct result_code* rc)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		perror("mkdir");
+		// perror("mkdir 1");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -438,7 +448,7 @@ static void generate_msqfile(struct result_code* rc)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		perror("mkdir");
+		// perror("mkdir 2");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -448,7 +458,7 @@ static void generate_msqfile(struct result_code* rc)
 		res = chmod(ITC_SYSVMSQ_FOLDER, 0777);
 		if(res < 0)
 		{
-			perror("chmod");
+			// perror("chmod");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -456,14 +466,14 @@ static void generate_msqfile(struct result_code* rc)
 		fd = fopen(ITC_SYSVMSQ_FILENAME, "w");
 		if(fd == NULL)
 		{
-			perror("fopen");
+			// perror("fopen");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
 
 		if(fclose(fd) != 0)
 		{
-			perror("fclose");
+			// perror("fclose");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -526,17 +536,20 @@ static int get_sysvmq_id(struct result_code* rc, itc_mbox_id_t mbox_id)
 	new_mbx_id = mbox_id & sysvmq_inst.itccoord_mask;
 	proj_id = (new_mbx_id >> sysvmq_inst.itccoord_shift);
 
-	key = ftok(sysvmq_inst.sysvmq_file, proj_id);
+	key = ftok(ITC_SYSVMSQ_FILENAME, proj_id);
 
 	if(key == -1)
 	{
+		// perror("get_sysvmq_id - ftok");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		// Don't need to return here?
 	}
 
-	msqid = msgget(key, 0); // Use 0 to get the previously created msqid or create a new one, just to avoid unecessary EEXIST 
+	msqid = msgget(key, 0); // Use 0 to get the previously created msqid or create a new one, just to avoid unecessary EEXIST
+
 	if(msqid == -1)
 	{
+		// perror("get_sysvmq_id - msgget");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		if(errno == ENOENT)
 		{
@@ -570,7 +583,7 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 	union itc_msg* msg;
 	uint16_t flags;
 
-	rxmsg = (struct itc_message*)buffer;
+	rxmsg = (struct itc_message*)(buffer + 8);
 
 #ifdef UNITTEST
 	struct itc_message* tmp_message;
@@ -592,6 +605,7 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 #ifdef UNITTEST
 	// Simulate that everything is ok at this point. Do nothing in unit test.
 	// API itc_send is an external interface, so do not care about it if everything we pass into it is all correct.
+	free(tmp_message);
 #else
 	itc_send(&msg, message->receiver, message->sender);
 #endif

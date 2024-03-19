@@ -24,7 +24,7 @@ extern "C" {
 *****                     VARIABLE/FUNCTIONS MACROS                        *****
 *******************************************************************************/
 #define ENDPOINT (char)0xAA
-#define ITC_HEADER_SIZE 14 // itc_message: flags + receiver + sender + size. Also is the offset between
+#define ITC_HEADER_SIZE 16 // itc_message: flags + receiver + sender + size. Also is the offset between
                                 // the starting of itc_message and the starting of itc_msg.
 
 #ifndef MAX_SUPPORTED_PROCESSES
@@ -118,8 +118,7 @@ struct itc_mailbox {
 struct itc_message {
 /* itc_message is only used for controlling itc system through below admin information,
 do not access user data via itc_message but use itc_msg instead */
-	// long			sysvmq_type; // This is used for sysv message queue only
-        uint16_t               	flags;
+        uint32_t               	flags;
 
         /* DO NOT change anything in the remainder - this is a core part - to avoid breaking the whole ITC system. */
         itc_mbox_id_t          	receiver;
