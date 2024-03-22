@@ -26,12 +26,8 @@
 /*****************************************************************************\/
 *****                    INTERNAL TYPES IN SYSV-ATOR                       *****
 *******************************************************************************/
-#define ITC_SYSV_MSG_NO_BASE	(ITC_MSG_BASE + 0x100)
-#define ITC_SYSV_TX_MSG		(ITC_SYSV_MSG_NO_BASE + 1)
-
-#ifndef ITC_SYSVMSQ_PATH
-#define ITC_SYSVMSQ_PATH "/tmp/itc/"
-#endif
+#define ITC_SYSV_MSG_BASE	(ITC_MSG_BASE + 0x100)
+#define ITC_SYSV_MSQ_TX_MSG	(ITC_SYSV_MSG_BASE + 1)
 
 #ifndef ITC_SYSVMSQ_FOLDER
 #define ITC_SYSVMSQ_FOLDER "/tmp/itc/sysvmsq/"
@@ -98,7 +94,7 @@ static void rxthread_destructor(void* data);
 *****                   TRANS INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
 static void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      int nr_mboxes, uint32_t flags);
+		      	int nr_mboxes, uint32_t flags);
 
 static void sysvmq_exit(struct result_code* rc);
 
@@ -256,11 +252,9 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 		return;
 	}
 
-	// message->sysvmq_type = ITC_SYSV_TX_MSG;
-
 	size = message->size + ITC_HEADER_SIZE; // We need not to send ENDPOINT
 	txmsg = (long*)malloc(sizeof(long) + size);
-	*txmsg = ITC_SYSV_TX_MSG;
+	*txmsg = ITC_SYSV_MSQ_TX_MSG;
 	memcpy((void*)(txmsg + 1), message, size);
 
 	while(msgsnd(cl->sysvmq_id, (void*)txmsg, size, MSG_NOERROR) == -1)
@@ -434,8 +428,7 @@ static void generate_msqfile(struct result_code* rc)
 	FILE* fd;
 	int res;
 
-
-	res = mkdir(ITC_SYSVMSQ_PATH, 0777);
+	res = mkdir(ITC_BASE_PATH, 0777);
 
 	if(res < 0 && errno != EEXIST)
 	{
