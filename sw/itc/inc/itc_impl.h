@@ -31,6 +31,18 @@ extern "C" {
 #define	MAX_SUPPORTED_PROCESSES	255
 #endif
 
+#ifndef ITC_BASE_PATH
+#define ITC_BASE_PATH "/tmp/itc/"
+#endif
+
+#ifndef ITC_ITCCOORD_FOLDER
+#define ITC_ITCCOORD_FOLDER "/tmp/itc/itccoord/"
+#endif
+
+#ifndef ITC_ITCCOORD_FILENAME
+#define ITC_ITCCOORD_FILENAME "/tmp/itc/itccoord/itc_coordinator"
+#endif
+
 #ifdef UNITTEST
 #define ITC_NR_INTERNAL_USED_MBOXES 0 // Unittest for local trans so sock and sysvmq not used yet
 #else
@@ -76,20 +88,22 @@ extern "C" {
 *****                            RETURN CODE                               *****
 *******************************************************************************/
 typedef enum {
-	ITC_OK 				= 	0b0,			/* 0	- Everything good */
-	ITC_ALREADY_USED  		= 	0b1,			/* 1	- The mailbox id already used by someone */
-	ITC_ALREADY_INIT  		= 	0b10,			/* 2	- Already calling local_init() */
-	ITC_NOT_INIT_YET  		=	0b100,			/* 4	- Not calling local_init() yet */
-	ITC_OUT_OF_MEM    		=	0b1000,			/* 8	- Malloc return NULL due to not enough memory in heap */
-	ITC_RX_QUEUE_NULL 		=	0b10000,		/* 16	- Not calling local_create_mailbox yet */
-	ITC_RX_QUEUE_EMPTY		=	0b100000,		/* 32	- This is not really a problem at all */
-	ITC_NOT_THIS_PROC		=	0b1000000,		/* 64	- Three highest hexes of mailbox id != my_mbox_id_in_itccoord */
-	ITC_OUT_OF_RANGE		=	0b10000000,		/* 128	- Local_mb_id > nr_localmbx_datas */
-	ITC_NOT_DEL_ALL_MBOX		=	0b100000000,		/* 256	- Not deleting all user mailboxes before itc_exit() */
-	ITC_DEL_IN_WRONG_STATE		=	0b1000000000,		/* 512	- Delete a mailbox when it's not created yet */
-	ITC_FREE_NULL_PTR		=	0b10000000000,		/* 1024	- Attempts to remove null qitem */
-	ITC_INVALID_ARGUMENTS		=	0b100000000000,		/* 2048	- Validation of function parameters is invalid */
-	ITC_SYSCALL_ERROR		=	0b1000000000000		/* 4096	- System call return error: pthread, sysv message queue,... */
+	ITC_OK 				= 	0b0,			/* 0		- Everything good */
+	ITC_ALREADY_USED  		= 	0b1,			/* 1		- The mailbox id already used by someone */
+	ITC_ALREADY_INIT  		= 	0b10,			/* 2		- Already calling local_init() */
+	ITC_NOT_INIT_YET  		=	0b100,			/* 4		- Not calling local_init() yet */
+	ITC_OUT_OF_MEM    		=	0b1000,			/* 8		- Malloc return NULL due to not enough memory in heap */
+	ITC_RX_QUEUE_NULL 		=	0b10000,		/* 16		- Not calling local_create_mailbox yet */
+	ITC_RX_QUEUE_EMPTY		=	0b100000,		/* 32		- This is not really a problem at all */
+	ITC_NOT_THIS_PROC		=	0b1000000,		/* 64		- Three highest hexes of mailbox id != my_mbox_id_in_itccoord */
+	ITC_OUT_OF_RANGE		=	0b10000000,		/* 128		- Local_mb_id > nr_localmbx_datas */
+	ITC_NOT_DEL_ALL_MBOX		=	0b100000000,		/* 256		- Not deleting all user mailboxes before itc_exit() */
+	ITC_DEL_IN_WRONG_STATE		=	0b1000000000,		/* 512		- Delete a mailbox when it's not created yet */
+	ITC_FREE_NULL_PTR		=	0b10000000000,		/* 1024		- Attempts to remove null qitem */
+	ITC_INVALID_ARGUMENTS		=	0b100000000000,		/* 2048		- Validation of function parameters is invalid */
+	ITC_SYSCALL_ERROR		=	0b1000000000000,	/* 4096		- System call return error: pthread, sysv message queue,... */
+	ITC_INVALID_MSG_SIZE		=	0b10000000000000,	/* 8192		- Message length received too large or short */
+	ITC_INVALID_RESPONSE		=	0b100000000000000	/* 16384 	- Received an invalid response */
 } result_code_e;
 
 struct result_code {
