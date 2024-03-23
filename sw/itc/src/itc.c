@@ -60,12 +60,12 @@ static struct itci_transport_apis trans_mechanisms[ITC_NUM_TRANS];
 static struct itci_alloc_apis	alloc_mechanisms;
 
 /* When a thread requests for creating a mailbox, there is a itc_mailbox pointer to their mailbox and only it owns its pointer */
-static __thread struct itc_mailbox*	my_threadlocal_mbox[ITC_MAX_MAILBOXES_PER_THREAD] = NULL;
+static __thread struct itc_mailbox*	my_threadlocal_mbox[ITC_MAX_MAILBOXES_PER_THREAD];
 static __thread uint32_t		my_threadlocal_nr_mboxes = 0;
 
-extern struct itci_alloc_apis local_trans_apis;
-extern struct itci_alloc_apis sysvmq_trans_apis;
-extern struct itci_alloc_apis lsock_trans_apis;
+extern struct itci_transport_apis local_trans_apis;
+extern struct itci_transport_apis sysvmq_trans_apis;
+extern struct itci_transport_apis lsock_trans_apis;
 
 extern struct itci_alloc_apis malloc_apis;
 
@@ -75,7 +75,7 @@ extern struct itci_alloc_apis malloc_apis;
 static void release_all_itc_resources(void);
 static void mailbox_destructor_at_thread_exit(void* data);
 static struct itc_mailbox* find_mbox(itc_mbox_id_t mbox_id);
-static void calc_time(struct timespec* ts, unsigned long tmo);
+static void calc_abs_time(struct timespec* ts, unsigned long tmo);
 
 
 /*****************************************************************************\/
@@ -120,6 +120,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 
 	if(pthread_mutex_init(&itc_inst.thread_list_mtx, NULL) != 0)
 	{
+		perror("itc_init_zz - pthread_mutex_init");
 		free(rc);
 		return false;
 	}
@@ -135,7 +136,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		alloc_mechanisms = malloc_apis;
 	} // else if ... for memory pooling,...
 
-	for(int i = 0; i < ITC_NUM_TRANS; i++)
+	for(uint32_t i = 0; i < ITC_NUM_TRANS; i++)
 	{
 		if(trans_mechanisms[i].itci_trans_maxmsgsize != NULL)
 		{
@@ -163,7 +164,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		itc_inst.my_mbox_id_in_itccoord = (1 << ITC_COORD_SHIFT) | 1;
 	} else
 	{
-		int i = 0;
+		uint32_t i = 0;
 		for(; i < ITC_NUM_TRANS; i++)
 		{
 			if(trans_mechanisms[i].itci_trans_locate_itccoord != NULL && \
@@ -176,27 +177,29 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		/* Failed to locate itccoord which is not acceptable! */
 		if(i == ITC_NUM_TRANS)
 		{
+			printf("DEBUG: Failed to locate itccoord!\n");
 			free(rc);
 			return false;
 		}
 	}
 
-	itc_inst.mboxes = (struct itc_mailbox*)malloc(nr_mboxes*sizeof(itc_mailbox));
+	itc_inst.mboxes = (struct itc_mailbox*)malloc(nr_mboxes*sizeof(struct itc_mailbox));
 	if(itc_inst.mboxes == NULL)
 	{
+		perror("itc_init_zz - malloc");
 		free(rc);
 		return false;
 	}
-	memset(itc_inst.mboxes, 0, nr_mboxes*sizeof(itc_mailbox));
+	memset(itc_inst.mboxes, 0, nr_mboxes*sizeof(struct itc_mailbox));
 
 	itc_inst.local_mbox_mask = 0xFFFFFFFF >> CLZ(nr_mboxes);
 	itc_inst.nr_mboxes = nr_mboxes;
 
 	struct itc_mailbox* mbox_iter;
 	pthread_condattr_t condattr;
-	for(int i=0; i < itc_inst.nr_mboxes; i++)
+	for(uint32_t i=0; i < itc_inst.nr_mboxes; i++)
 	{
-		mbox_iter = itc_inst.mboxes[i];
+		mbox_iter = &itc_inst.mboxes[i];
 		mbox_iter->mbox_id = itc_inst.my_mbox_id_in_itccoord | i;
 
 		if(pthread_mutexattr_init(&(mbox_iter->rxq_info.rxq_attr)) != 0)
@@ -245,7 +248,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		
 		if(i == 0)
 		{
-			itc_inst.free_mboxes_queue = q_init();
+			itc_inst.free_mboxes_queue = q_init(rc);
 		}
 		q_enqueue(rc, itc_inst.free_mboxes_queue, mbox_iter);
 	}
@@ -257,7 +260,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		return false;
 	}
 
-	for(int i = 0; i < ITC_NUM_TRANS; i++)
+	for(uint32_t i = 0; i < ITC_NUM_TRANS; i++)
 	{
 		if(trans_mechanisms[i].itci_trans_init != NULL)
 		{
@@ -304,17 +307,13 @@ bool itc_exit_zz()
 	{
 		// Not initialized yet
 		// ERROR trace is needed
-		if(itc_inst.thread_list_mtx != NULL)
-		{
-			pthread_mutex_destroy(&itc_inst.thread_list_mtx);
-		}
 		free(rc);
 		return false;
 	}
 
-	for(int i = 0; i < itc_inst.nr_mboxes; i++)
+	for(uint32_t i = 0; i < itc_inst.nr_mboxes; i++)
 	{
-		mbox = itc_inst.mboxes[i];
+		mbox = &itc_inst.mboxes[i];
 		
 		MUTEX_LOCK(rc, &mbox->rxq_info.rxq_mtx);
 
@@ -342,9 +341,9 @@ bool itc_exit_zz()
 		return false;
 	}
 
-	for(int i = 0; i < itc_inst.nr_mboxes; i++)
+	for(uint32_t i = 0; i < itc_inst.nr_mboxes; i++)
 	{
-		mbox = itc_inst.mboxes[i];
+		mbox = &itc_inst.mboxes[i];
 
 		if(pthread_cond_destroy(&(mbox->rxq_info.rxq_cond)) != 0)
 		{
@@ -353,7 +352,7 @@ bool itc_exit_zz()
 			return false;
 		}
 
-		if(pthread_mutex_destroy(&(mbox->rxq_info.rxq_mtx)) != o)
+		if(pthread_mutex_destroy(&(mbox->rxq_info.rxq_mtx)) != 0)
 		{
 			// ERROR trace is needed here
 			free(rc);
@@ -368,7 +367,7 @@ bool itc_exit_zz()
 		}
 	}
 
-	for(int i = 0; i < ITC_NUM_TRANS; i++)
+	for(uint32_t i = 0; i < ITC_NUM_TRANS; i++)
 	{
 		if(trans_mechanisms[i].itci_trans_exit != NULL)
 		{
@@ -437,7 +436,7 @@ union itc_msg *itc_alloc_zz(size_t size, uint32_t msgno)
 		return NULL;
 	}
 
-	message = alloc_mechanisms.itci_alloc_alloc(size + ITC_HEADER_SIZE + 1);
+	message = alloc_mechanisms.itci_alloc_alloc(rc, size + ITC_HEADER_SIZE + 1);
 	if(message == NULL)
 	{
 		free(rc);
@@ -533,7 +532,7 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 		return ITC_NO_MBOX_ID;
 	}
 
-	new_mbox = q_dequeue(itc_inst.free_mboxes_queue);
+	new_mbox = q_dequeue(rc, itc_inst.free_mboxes_queue);
 	if(new_mbox == NULL)
 	{
 		free(rc);
@@ -557,7 +556,7 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 	new_mbox->mbox_state		= MBOX_INUSE;
 	new_mbox->tid			= (pid_t)syscall(SYS_gettid);
 
-	for(int i = 0; i < ITC_NUM_TRANS; i++)
+	for(uint32_t i = 0; i < ITC_NUM_TRANS; i++)
 	{
 		if(trans_mechanisms[i].itci_trans_create_mbox != NULL)
 		{
@@ -604,7 +603,6 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 	struct itc_mailbox* mbox;
 	union itc_msg* msg;
 	pthread_mutex_t* rxq_mtx;
-	mbox_state_e mbox_state;
 
 	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
 	if(rc != NULL)
@@ -623,13 +621,13 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 		return false;
 	}
 
-	for(int i = 0; i < my_threadlocal_nr_mboxes; i++)
+	for(uint32_t i = 0; i < my_threadlocal_nr_mboxes; i++)
 	{
 		if(mbox_id == my_threadlocal_mbox[i]->mbox_id)
 		{
 			mbox = my_threadlocal_mbox[i];
 			
-			for(int j = i; j < my_threadlocal_nr_mboxes; j++)
+			for(uint32_t j = i; j < my_threadlocal_nr_mboxes; j++)
 			{
 				my_threadlocal_mbox[j] = my_threadlocal_mbox[j+1];
 			}
@@ -653,8 +651,6 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 		free(rc);
 		return false;
 	}
-
-	mbox_state = mbox->mbox_state;
 
 	mbox->mbox_state = MBOX_UNUSED;
 
@@ -680,7 +676,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 		itc_send(&msg, itc_inst.itccoord_mbox_id, mbox->mbox_id);
 	}
 
-	for(int i = 0; i < ITC_NUM_TRANS; i++)
+	for(uint32_t i = 0; i < ITC_NUM_TRANS; i++)
 	{
 		if(trans_mechanisms[i].itci_trans_delete_mbox != NULL)
 		{
@@ -733,7 +729,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 		return false;
 	}
 
-	for(int i = 0; i < my_threadlocal_nr_mboxes; i++)
+	for(uint32_t i = 0; i < my_threadlocal_nr_mboxes; i++)
 	{
 		if(from == my_threadlocal_mbox[i]->mbox_id)
 		{
@@ -777,7 +773,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 	{
 		if(trans_mechanisms[idx].itci_trans_send != NULL)
 		{
-			rc->flags = iTC_OK;
+			rc->flags = ITC_OK;
 			trans_mechanisms[idx].itci_trans_send(rc, message, to);
 			if(rc->flags != ITC_OK)
 			{
@@ -833,7 +829,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 	return true;
 }
 
-union itc_msg *itc_receive_zz(uint32_t tmo, itc_mbox_id_t from)
+union itc_msg *itc_receive_zz(int32_t tmo, itc_mbox_id_t from)
 {
 	struct itc_message* message = NULL;
 	struct itc_mailbox* from_mbox;
@@ -856,7 +852,7 @@ union itc_msg *itc_receive_zz(uint32_t tmo, itc_mbox_id_t from)
 		return NULL;
 	}
 
-	for(int i = 0; i < my_threadlocal_nr_mboxes; i++)
+	for(uint32_t i = 0; i < my_threadlocal_nr_mboxes; i++)
 	{
 		if(from == my_threadlocal_mbox[i]->mbox_id)
 		{
@@ -874,7 +870,7 @@ union itc_msg *itc_receive_zz(uint32_t tmo, itc_mbox_id_t from)
 
 	if(tmo != ITC_NO_TMO && tmo > 0)
 	{
-		calc_time(&ts, tmo);
+		calc_abs_time(&ts, tmo);
 	}
 
 	do
@@ -883,7 +879,7 @@ union itc_msg *itc_receive_zz(uint32_t tmo, itc_mbox_id_t from)
 
 		from_mbox->p_rxq_info->is_in_rx = true;
 		
-		for(int i = 0; i < ITC_NUM_TRANS; i++)
+		for(uint32_t i = 0; i < ITC_NUM_TRANS; i++)
 		{
 			if(trans_mechanisms[i].itci_trans_receive != NULL)
 			{
@@ -975,10 +971,10 @@ size_t itc_size_zz(union itc_msg *msg)
 
 itc_mbox_id_t* itc_current_mboxes_zz()
 {
-	static __thread itc_mbox_id_t mbox_id_arr[my_threadlocal_nr_mboxes + 1];
+	static __thread itc_mbox_id_t mbox_id_arr[ITC_MAX_MAILBOXES_PER_THREAD + 1];
 
 	mbox_id_arr[0] = my_threadlocal_nr_mboxes;
-	for(int i = 1; i <= my_threadlocal_nr_mboxes; i++)
+	for(uint32_t i = 1; i <= my_threadlocal_nr_mboxes; i++)
 	{
 		mbox_id_arr[i] = my_threadlocal_mbox[i-1]->mbox_id;
 	}
@@ -1007,7 +1003,7 @@ int itc_get_fd_zz(itc_mbox_id_t mbox_id)
 		return -1;
 	}
 
-	for(int i = 0; i < my_threadlocal_nr_mboxes; i++)
+	for(uint32_t i = 0; i < my_threadlocal_nr_mboxes; i++)
 	{
 		if(mbox_id == my_threadlocal_mbox[i]->mbox_id)
 		{
@@ -1028,7 +1024,7 @@ int itc_get_fd_zz(itc_mbox_id_t mbox_id)
 	uint64_t one = 1;
 	if(!mbox->p_rxq_info->is_fd_created)
 	{
-		mbox->p_rxq_info->rxq_fd eventfd(0, 0);
+		mbox->p_rxq_info->rxq_fd = eventfd(0, 0);
 		if(mbox->p_rxq_info->rxq_fd == -1)
 		{
 			MUTEX_UNLOCK(rc, &(mbox->p_rxq_info->rxq_mtx));
@@ -1073,7 +1069,7 @@ bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name)
 		return false;
 	}
 
-	for(int i = 0; i < my_threadlocal_nr_mboxes; i++)
+	for(uint32_t i = 0; i < my_threadlocal_nr_mboxes; i++)
 	{
 		if(mbox_id == my_threadlocal_mbox[i]->mbox_id)
 		{
@@ -1108,15 +1104,15 @@ static void release_all_itc_resources()
 		return;
 	}
 
-	if(itc_inst.name_space)
-	{
-		free(itc_inst.name_space);
-	}
+	// if(itc_inst.name_space)
+	// {
+	// 	free(itc_inst.name_space);
+	// }
 
 	free(itc_inst.mboxes);
 	memset(&itc_inst, 0, sizeof(struct itc_instance));
 
-	for(int i = 0; i < my_threadlocal_nr_mboxes; i++)
+	for(uint32_t i = 0; i < my_threadlocal_nr_mboxes; i++)
 	{
 		my_threadlocal_mbox[i] = NULL;
 	}
@@ -1132,7 +1128,7 @@ static void mailbox_destructor_at_thread_exit(void* data)
 
 	if(itc_inst.mboxes != NULL && mbox->mbox_state == MBOX_INUSE)
 	{
-		for(int i = 0; i < my_threadlocal_nr_mboxes; i++)
+		for(uint32_t i = 0; i < my_threadlocal_nr_mboxes; i++)
 		{
 			if(my_threadlocal_mbox[i] == mbox)
 			{
@@ -1142,7 +1138,7 @@ static void mailbox_destructor_at_thread_exit(void* data)
 	}
 }
 
-static itc_mailbox* find_mbox(itc_mbox_id_t mbox_id)
+static struct itc_mailbox* find_mbox(itc_mbox_id_t mbox_id)
 {
 	/* This mailbox belongs to this process or not */
 	if((mbox_id & itc_inst.itccoord_mask) == itc_inst.my_mbox_id_in_itccoord)
@@ -1150,19 +1146,19 @@ static itc_mailbox* find_mbox(itc_mbox_id_t mbox_id)
 		uint32_t mbox_index = (uint32_t)(mbox_id & itc_inst.local_mbox_mask);
 		if(mbox_index < (uint32_t)itc_inst.nr_mboxes)
 		{
-			return itc_inst.mboxes[mbox_index];
+			return &itc_inst.mboxes[mbox_index];
 		}
 	}
 
 	return NULL;
 }
 
-static void calc_time(struct timespec* ts, unsigned long tmo)
+static void calc_abs_time(struct timespec* ts, unsigned long tmo)
 {
 	clock_gettime(CLOCK_MONOTONIC, ts);
 
 	ts->tv_sec	+= tmo / 1000;
-	ts->tv_nsec	+= (tmp % 1000) * 1000000;
+	ts->tv_nsec	+= (tmo % 1000) * 1000000;
 
 	if(ts->tv_nsec >= 1000000000)
 	{

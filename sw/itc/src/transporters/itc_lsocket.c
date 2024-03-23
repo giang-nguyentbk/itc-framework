@@ -4,13 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <errno.h>
+#include <sys/stat.h>
 
-#include "pthread.h"
-#include "search.h"
+#include <pthread.h>
+#include <search.h>
 
 #include "itc.h"
 #include "itc_impl.h"
@@ -93,7 +94,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 
 	memset(&coord_addr, 0, sizeof(struct sockaddr_un));
 	coord_addr.sun_family = AF_LOCAL;
-	coord_addr.sun_path = ITC_ITCCOORD_FILENAME;
+	strcpy(coord_addr.sun_path, ITC_ITCCOORD_FILENAME);
 
 	res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(coord_addr));
 	if(res < 0)
@@ -141,7 +142,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	close(sd);
 
 	/* Done communication, start analyzing the response */
-	if(lreply->msgno == ITC_LOCATE_COORD_REPLY && )
+	if(lreply->msgno == ITC_LOCATE_COORD_REPLY && lreply->my_mbox_id_in_itccoord != ITC_NO_MBOX_ID)
 	{
 		if(lreply->my_mbox_id_in_itccoord != ITC_NO_MBOX_ID)
 		{
@@ -256,7 +257,6 @@ static void lsock_exit(struct result_code* rc)
 *******************************************************************************/
 static void generate_lsockpath(struct result_code* rc)
 {
-	FILE* fd;
 	int res;
 
 	res = mkdir(ITC_BASE_PATH, 0777);
