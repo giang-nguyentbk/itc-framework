@@ -72,6 +72,9 @@ extern "C" {
 		}						\
 	} while(0)
 
+#define MIN(x, y)	((x) < (y)) ? (x) : (y)
+#define MAX(x, y)	((x) > (y)) ? (x) : (y)
+
 /*****************************************************************************\/
 *****                          FLAG DEFINITIONS                            *****
 *******************************************************************************/
@@ -92,18 +95,17 @@ typedef enum {
 	ITC_ALREADY_USED  		= 	0b1,			/* 1		- The mailbox id already used by someone */
 	ITC_ALREADY_INIT  		= 	0b10,			/* 2		- Already calling local_init() */
 	ITC_NOT_INIT_YET  		=	0b100,			/* 4		- Not calling local_init() yet */
-	ITC_OUT_OF_MEM    		=	0b1000,			/* 8		- Malloc return NULL due to not enough memory in heap */
-	ITC_RX_QUEUE_NULL 		=	0b10000,		/* 16		- Not calling local_create_mailbox yet */
-	ITC_RX_QUEUE_EMPTY		=	0b100000,		/* 32		- This is not really a problem at all */
-	ITC_NOT_THIS_PROC		=	0b1000000,		/* 64		- Three highest hexes of mailbox id != my_mbox_id_in_itccoord */
-	ITC_OUT_OF_RANGE		=	0b10000000,		/* 128		- Local_mb_id > nr_localmbx_datas */
-	ITC_NOT_DEL_ALL_MBOX		=	0b100000000,		/* 256		- Not deleting all user mailboxes before itc_exit() */
-	ITC_DEL_IN_WRONG_STATE		=	0b1000000000,		/* 512		- Delete a mailbox when it's not created yet */
-	ITC_FREE_NULL_PTR		=	0b10000000000,		/* 1024		- Attempts to remove null qitem */
-	ITC_INVALID_ARGUMENTS		=	0b100000000000,		/* 2048		- Validation of function parameters is invalid */
-	ITC_SYSCALL_ERROR		=	0b1000000000000,	/* 4096		- System call return error: pthread, sysv message queue,... */
-	ITC_INVALID_MSG_SIZE		=	0b10000000000000,	/* 8192		- Message length received too large or short */
-	ITC_INVALID_RESPONSE		=	0b100000000000000	/* 16384 	- Received an invalid response */
+	ITC_QUEUE_NULL 			=	0b1000,			/* 8		- Not calling local_create_mailbox yet */
+	ITC_QUEUE_EMPTY			=	0b10000,		/* 16		- This is not really a problem at all */
+	ITC_NOT_THIS_PROC		=	0b100000,		/* 32		- Three highest hexes of mailbox id != my_mbox_id_in_itccoord */
+	ITC_OUT_OF_RANGE		=	0b1000000,		/* 64		- Local_mb_id > nr_localmbx_datas */
+	ITC_NOT_DEL_ALL_MBOX		=	0b10000000,		/* 128		- Not deleting all user mailboxes before itc_exit() */
+	ITC_DEL_IN_WRONG_STATE		=	0b100000000,		/* 256		- Delete a mailbox when it's not created yet */
+	ITC_FREE_NULL_PTR		=	0b1000000000,		/* 512		- Attempts to remove null qitem */
+	ITC_INVALID_ARGUMENTS		=	0b10000000000,		/* 1024		- Validation of function parameters is invalid */
+	ITC_SYSCALL_ERROR		=	0b100000000000,		/* 2048		- System call return error: pthread, sysv message queue,... */
+	ITC_INVALID_MSG_SIZE		=	0b1000000000000,	/* 4096		- Message length received too large or short */
+	ITC_INVALID_RESPONSE		=	0b10000000000000	/* 8192 	- Received an invalid response */
 } result_code_e;
 
 struct result_code {
@@ -120,13 +122,25 @@ typedef enum {
 /*****************************************************************************\/
 *****                         TYPE DEFINITIONS                             *****
 *******************************************************************************/
-struct itc_mailbox {
-        struct itc_mailbox          *next;
-        uint32_t                    flags;
+struct mbox_rxq_info {
+	pthread_mutexattr_t		rxq_attr;
+	pthread_mutex_t			rxq_mtx;
+	pthread_cond_t			rxq_cond;
 
-        uint32_t                    mbox_id;
-        pid_t                       tid;
-        char                        name[ITC_NAME_MAXLEN];
+	int				rxq_fd;
+	bool				is_fd_created;
+	long				rxq_len;
+	bool				is_in_rx;
+};
+
+struct itc_mailbox {
+        uint32_t                    	flags;
+	struct mbox_rxq_info		rxq_info;
+	struct mbox_rxq_info*		p_rxq_info;
+
+        uint32_t                    	mbox_id;
+        pid_t                       	tid;
+        char                        	name[ITC_NAME_MAXLEN];
 };
 
 struct itc_message {
@@ -149,6 +163,8 @@ do not access user data via itc_message but use itc_msg instead */
         /* Why it's 0xAA, because 0xAA = 1010 1010. Most efficient way to confirm the itc message correctness */
         /* char                     endpoint; */
 };
+
+
 
 struct llqueue_item {
 	struct llqueue_item*	next;

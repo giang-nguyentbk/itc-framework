@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "itc_threadmanager.h"
 #include "itc_impl.h"
@@ -55,7 +56,8 @@ void add_itcthread(struct result_code* rc, void* (*worker)(void*), void* arg, bo
 	thr = (struct itc_threads*)malloc(sizeof(struct itc_threads));
 	if(thr == NULL)
 	{
-		rc->flags |= ITC_OUT_OF_MEM;
+		perror("add_itcthread - malloc");
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 

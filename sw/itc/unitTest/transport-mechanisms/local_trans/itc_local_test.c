@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 	// Test remove message in rx queue which is NULL					-> EXPECT: FAILED
 	mbox_1->mbox_id = 0x00500000 | 3; // Mailbox_id 3 is not created yet
 	test_local_remove(mbox_1, message);
-	// Test delete mailbox which has not been created ITC_RX_QUEUE_NULL			-> EXPECT: FAILED
+	// Test delete mailbox which has not been created ITC_QUEUE_NULL			-> EXPECT: FAILED
 	test_local_delete_mbox(mbox_1);
 	// Test create mailbox with a mailbox id in range successfully				-> EXPECT: SUCCESS
 	mbox_1->mbox_id = 0x00500000 | 5;
