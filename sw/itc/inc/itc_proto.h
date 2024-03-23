@@ -33,6 +33,14 @@ struct itc_locate_coord_reply {
 	itc_mbox_id_t	itccoord_mbox_id;
 };
 
+#define ITC_NOTIFY_COORD_ADD_MBOX	(ITC_PROTO_MSG_BASE + 0x3)
+#define ITC_NOTIFY_COORD_RMV_MBOX	(ITC_PROTO_MSG_BASE + 0x4)
+struct itc_notify_coord_add_rmv_mbox {
+	uint32_t	msgno;
+	itc_mbox_id_t	mbox_id;
+	char		mbox_name[1];
+};
+
 #ifdef __cplusplus
 }
 #endif

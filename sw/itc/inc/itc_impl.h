@@ -26,6 +26,10 @@ extern "C" {
 #define ENDPOINT (char)0xAA
 #define ITC_HEADER_SIZE 16 // itc_message: flags + receiver + sender + size. Also is the offset between
                                 // the starting of itc_message and the starting of itc_msg.
+#define ITC_MAX_MSGSIZE	(1024*1024)
+
+#define ITC_COORD_MASK		0xFFF00000
+#define ITC_COORD_SHIFT		20
 
 #ifndef MAX_SUPPORTED_PROCESSES
 #define	MAX_SUPPORTED_PROCESSES	255
@@ -46,7 +50,7 @@ extern "C" {
 #ifdef UNITTEST
 #define ITC_NR_INTERNAL_USED_MBOXES 0 // Unittest for local trans so sock and sysvmq not used yet
 #else
-#define ITC_NR_INTERNAL_USED_MBOXES 2 // One for socket and one for sysvmq transports
+#define ITC_NR_INTERNAL_USED_MBOXES 1 // For sysvmq_rx_thread
 #endif
 
 #define CLZ(val) __builtin_clz(val)
@@ -79,7 +83,7 @@ extern "C" {
 *****                          FLAG DEFINITIONS                            *****
 *******************************************************************************/
 // Flags to see if you're itc_coordinator or not (used by itc_init() call)
-#define ITC_FLAGS_I_AM_ITC_COOR 0x00000001
+#define ITC_FLAGS_I_AM_ITC_COORD 0x00000001
 // Force to redo itc_init() for a process
 #define ITC_FLAGS_FORCE_REINIT  0x00000100
 // Indicate a message are in a rx queue of some mailbox.
@@ -109,15 +113,47 @@ typedef enum {
 } result_code_e;
 
 struct result_code {
-	int32_t flags;
+	uint32_t flags;
 };
 
 typedef enum {
 	MBOX_UNUSED,
 	MBOX_INUSE,
 	MBOX_NUM_STATES
-} mbox_state;
+} mbox_state_e;
 
+typedef	enum {
+	ITC_INVALID_TRANS = -1,
+	ITC_TRANS_LOCAL	= 0,
+	ITC_TRANS_SYSVMQ,
+	ITC_TRANS_LSOCK,
+	ITC_NUM_TRANS
+} itc_transport_e;
+
+// Because currently allocation scheme using malloc does not need any special parameters for allocation. We will reserve it for future usages.
+struct itc_malloc_scheme {
+        unsigned int reserved;
+};
+
+union itc_scheme {
+        struct itc_malloc_scheme        malloc_scheme;
+};
+
+struct itc_malloc_info {
+        long    max_msgsize;    // Give users information regarding max size of itc_msg can be used
+                                // for the current malloc allocator, users can consider to optimize itc_msg
+                                // or some other ways if their itc_msg's length is too large.
+};
+
+struct itc_alloc_info {
+        itc_alloc_scheme scheme;
+
+        union {
+                struct itc_malloc_info          malloc_info;
+                // struct itc_pool_info            pool_info;
+                // struct itc_poolflex_info        poolflex_info;
+        } info;
+};
 
 /*****************************************************************************\/
 *****                         TYPE DEFINITIONS                             *****
@@ -139,8 +175,9 @@ struct itc_mailbox {
 	struct mbox_rxq_info*		p_rxq_info;
 
         uint32_t                    	mbox_id;
+	mbox_state_e			mbox_state;
         pid_t                       	tid;
-        char                        	name[ITC_NAME_MAXLEN];
+        char                        	name[ITC_MAX_MBOX_NAME_LENGTH];
 };
 
 struct itc_message {

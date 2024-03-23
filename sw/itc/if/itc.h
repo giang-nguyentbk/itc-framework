@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <sys/types.h>
 
@@ -26,13 +27,16 @@ extern "C" {
 /*****************************************************************************\/
 *****                          VARIABLE MACROS                             *****
 *******************************************************************************/
-#define ITC_NAME_MAXLEN 	255
-#define ITC_MAX_MAILBOXES	65534
+#define ITC_MAX_MBOX_NAME_LENGTH 	255
+#define ITC_MAX_MAILBOXES		65534
+#define ITC_MAX_MAILBOXES_PER_THREAD	255
 
 // If you make sure your mailbox's names you set later will be unique across the entire universe, you can use this flag
 // for itc_init() call
 #define ITC_NO_NAMESPACE	0x00000100
 #define ITC_NO_MBOX_ID		0xFFFFFFFF
+#define ITC_NO_TMO		-1
+// #define ITC_MY_MBOX_ID		0xFFF00000
 
 /* Currently,
 + 0x90000100 - 0x90000500: For SYSV Message Queue
@@ -45,39 +49,11 @@ extern "C" {
 *******************************************************************************/
 typedef uint32_t itc_mbox_id_t;
 
-// Because currently allocation scheme using malloc does not need any special parameters for allocation.
-// We will reserve it for future usages.
-struct itc_malloc_scheme {
-        unsigned int reserved;
-};
-
-union itc_scheme {
-        struct itc_malloc_scheme        malloc_scheme;
-};
-
 typedef enum {
         ITC_INVALID_SCHEME = -1,
         ITC_MALLOC = 0,
-        ITC_POOL = 1,
         ITC_NUM_SCHEMES
 } itc_alloc_scheme;
-
-struct itc_malloc_info {
-        long    max_msgsize;    // Give users information regarding max size of itc_msg can be used
-                                // for the current malloc allocator, users can consider to optimize itc_msg
-                                // or some other ways if their itc_msg's length is too large.
-};
-
-struct itc_alloc_info {
-        itc_alloc_scheme scheme;
-
-        union {
-                struct itc_malloc_info          malloc_info;
-                // struct itc_pool_info            pool_info;
-                // struct itc_poolflex_info        poolflex_info;
-        } info;
-};
-
 
 /*****************************************************************************\/
 *****                        CORE API DECLARATIONS                         *****
@@ -89,9 +65,7 @@ struct itc_alloc_info {
 *  (aligned with 16-byte, same as malloc work).
 *  3. When user call itc_create_mailbox(), take an mailbox available from a block and give it to user.
 */
-extern int itc_init(int32_t nr_mboxes,
-                    itc_alloc_scheme alloc_scheme,
-                    union itc_scheme *scheme_params,
+extern bool itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, \
                     char *namespace, // Will be implemented later
                     uint32_t init_flags); // First usage is to see if itc_coord or not,
                                             // this is reserved for future usages.
@@ -101,7 +75,7 @@ extern int itc_init(int32_t nr_mboxes,
 *  This is only allowed if there is no active mailboxes being used by threads. This means that all used mailboxes
 *  should be deleted by itc_delete_mailbox() first.
 */
-extern void itc_exit(void);
+extern bool itc_exit(void);
 
 /*
 *  Allocate an itc_msg 
@@ -111,7 +85,7 @@ extern union itc_msg *itc_alloc(size_t size, uint32_t msgno);
 /*
 *  Deallocate an itc_msg 
 */
-extern void itc_free(union itc_msg **msg);
+extern bool itc_free(union itc_msg **msg);
 
 /*
 *  Create a mailbox for the current thread.
@@ -121,12 +95,12 @@ extern itc_mbox_id_t itc_create_mailbox(const char *name, uint32_t flags);
 /*
 *  Delete a mailbox for the current thread. You're only allowed to delete your own mailboxes in your thread.
 */
-extern void itc_delete_mailbox(itc_mbox_id_t mbox_id);
+extern bool itc_delete_mailbox(itc_mbox_id_t mbox_id);
 
 /*
 *  Send an itc_msg
 */
-extern void itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
+extern bool itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 
 /*
 *  Receive an itc_msg.
@@ -138,14 +112,14 @@ extern void itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
                 ...
         2. You can set timeout in miliseconds to let your thread be blocked to wait for messages.
         ITC_NO_TMO means wait forever until receiving any message and 0 means check the rx queue and return
-        immediately no matter if there are messages or not.
+        immediately no matter if there are messages or not. (in milisecond)
         3. You may want to get messages from someone only, or get from all mailboxes via ITC_FROM_ALL.
 
 	Note that: 1 and 3 will be implemented in ITC V2.
 */
-// extern union itc_msg *itc_receive(const uint32_t *filter, uint32_t tmo,itc_mbox_id_t from);
-extern union itc_msg *itc_receive(uint32_t tmo); // By default ITC V1 receiving the 1st message in the rx queue
-						 // no matter from who it came.
+// extern union itc_msg *itc_receive(const uint32_t *filter, uint32_t tmo, itc_mbox_id_t from);
+extern union itc_msg *itc_receive(uint32_t tmo, itc_mbox_id_t from); // By default ITC V1 receiving the 1st message in the rx queue
+						 			// no matter from who it came.
 
 
 
@@ -155,7 +129,8 @@ extern union itc_msg *itc_receive(uint32_t tmo); // By default ITC V1 receiving 
 extern itc_mbox_id_t itc_sender(union itc_msg *msg);
 extern itc_mbox_id_t itc_receiver(union itc_msg *msg);
 extern size_t itc_size(union itc_msg *msg);
-extern itc_mbox_id_t itc_current_mbox(void);
+/* The first element of returned array is the number of active mailboxes in this thread, following elements respectively are those mailbox ids */
+extern itc_mbox_id_t* itc_current_mboxes(void);
 
 /*
 *  Locate a mailbox across the entire universe.
@@ -170,7 +145,7 @@ extern itc_mbox_id_t itc_current_mbox(void);
 *       Improvement: add one more input, let's say, uint32_t wheretofind. You're be able to select where to find
 *       the target mailbox. Locally, or over processes, or even over hosts???
 */
-extern itc_mbox_id_t itc_locate_sync(const char *name, uint32_t wheretofind);
+// extern itc_mbox_id_t itc_locate_sync(const char *name, uint32_t wheretofind);
 
 /*
 *  NOT IMPLEMENTED YET
@@ -190,9 +165,9 @@ extern itc_mbox_id_t itc_locate_sync(const char *name, uint32_t wheretofind);
 *       has been sent to it. This is async mechanism for notification. Additionally, Pthread condition variable is
 *       for sync mechanism instead.
 */
-extern int itc_get_fd(void);
+extern int itc_get_fd(itc_mbox_id_t mbox_id);
 
-extern int32_t itc_get_name(itc_mbox_id_t mbox_id, char *name, uint32_t name_len);
+extern bool itc_get_name(itc_mbox_id_t mbox_id, char *name);
 
 /*
 *  NOT IMPLEMENTED YET
@@ -210,35 +185,29 @@ extern int32_t itc_get_name(itc_mbox_id_t mbox_id, char *name, uint32_t name_len
 /*****************************************************************************\/
 *****                    MAP TO BACKEND IMPLEMENTATION                     *****
 *******************************************************************************/
-extern int itc_init_zz(int32_t nr_mboxes,
-                    itc_alloc_scheme alloc_scheme,
-                    union itc_scheme *scheme_params,
-                    char *namespace,
-                    uint32_t init_flags);
-#define itc_init(nr_mboxes, alloc_scheme, scheme_params, namespace, init_flags) \
-                itc_init_zz((nr_mboxes), (alloc_scheme), (scheme_params), (namespace), (init_flags))
+extern bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags);
+#define itc_init(nr_mboxes, alloc_scheme, namespace, init_flags) itc_init_zz((nr_mboxes), (alloc_scheme), (namespace), (init_flags))
 
-
-extern void itc_exit_zz(void);
+extern bool itc_exit_zz(void);
 #define itc_exit() itc_exit_zz()
 
 extern union itc_msg *itc_alloc_zz(size_t size, uint32_t msgno);
 #define itc_alloc(size, msgno) itc_alloc_zz((size), (msgno))
 
-extern void itc_free_zz(union itc_msg **msg);
+extern bool itc_free_zz(union itc_msg **msg);
 #define itc_free(msg) itc_free_zz((msg))
 
 extern itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags);
 #define itc_create_mailbox(name, flags) itc_create_mailbox_zz((name), (flags))
 
-extern void itc_delete_mailbox_zz(itc_mbox_id_t mbox_id);
+extern bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id);
 #define itc_delete_mailbox(mbox_id) itc_delete_mailbox_zz((mbox_id))
 
-extern void itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
+extern bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 #define itc_send(msg, to, from) itc_send_zz((msg), (to), (from))
 
-extern union itc_msg *itc_receive_zz(uint32_t tmo);
-#define itc_receive(tmo) itc_receive_zz(tmo)
+extern union itc_msg *itc_receive_zz(uint32_t tmo, itc_mbox_id_t from);
+#define itc_receive(tmo, from) itc_receive_zz((tmo), (from))
 
 extern itc_mbox_id_t itc_sender_zz(union itc_msg *msg);
 #define itc_sender(msg) itc_sender_zz((msg))
@@ -249,17 +218,17 @@ extern itc_mbox_id_t itc_receiver_zz(union itc_msg *msg);
 extern size_t itc_size_zz(union itc_msg *msg);
 #define itc_size(msg) itc_size_zz((msg))
 
-extern itc_mbox_id_t itc_current_mbox_zz(void);
-#define itc_current_mbox() itc_current_mbox_zz()
+extern itc_mbox_id_t* itc_current_mboxes_zz(void);
+#define itc_current_mboxes() itc_current_mboxes_zz()
 
-extern itc_mbox_id_t itc_locate_sync_zz(const char *name, uint32_t wheretofind);
-#define itc_locate_sync(name, wheretofind) itc_locate_sync_zz((name), (wheretofind))
+// extern itc_mbox_id_t itc_locate_sync_zz(const char *name, uint32_t wheretofind);
+// #define itc_locate_sync(name, wheretofind) itc_locate_sync_zz((name), (wheretofind))
 
-extern int itc_get_fd_zz(void);
-#define itc_get_fd() itc_get_fd_zz()
+extern int itc_get_fd_zz(itc_mbox_id_t mbox_id);
+#define itc_get_fd(mbox_id) itc_get_fd_zz(mbox_id)
 
-extern int32_t itc_get_name_zz(itc_mbox_id_t mbox_id, char *name, uint32_t name_len);
-#define itc_get_name(mbox_id, name, name_len) itc_get_name_zz((mbox_id), (name), (name_len))
+extern bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name);
+#define itc_get_name(mbox_id, name) itc_get_name_zz((mbox_id), (name))
 
 
 #ifdef __cplusplus

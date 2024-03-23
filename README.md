@@ -149,6 +149,11 @@ messages in queue which is not dequeued for a long time,...
 
 	+ We may want to get messages from someone only, or get from all mailboxes via ITC_FROM_ALL.
 
+4. In the future, itc.c will manage all active/non-active mailboxes via a red-black tree that is easier for a mailbox to locate another one. Each node in the tree will contain the data of a mailbox such as name, mailbox id, fd,...
+
+5. Namespace will be implemeted later
+
+
 ----> All improvements will be soon committed in ITC V2.
 ```
 

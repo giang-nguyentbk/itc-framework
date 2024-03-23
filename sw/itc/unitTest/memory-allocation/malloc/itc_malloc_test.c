@@ -19,7 +19,7 @@
 static struct itci_alloc_apis allocator;
 extern struct itci_alloc_apis malloc_apis;
 
-void test_malloc_init(union itc_scheme *scheme_params, int max_msgsize);
+void test_malloc_init(int max_msgsize);
 void test_malloc_exit(void);
 struct itc_message* test_malloc_alloc(size_t size);
 void test_malloc_free(struct itc_message** message);
@@ -51,9 +51,9 @@ int main(int argc, char* argv[])
 		"-----------------------------\n");
 
 	// Test malloc_init invalid max_msgsize 					ITC_INVALID_ARGUMENTS
-        test_malloc_init(NULL, -1024);
+        test_malloc_init(-1024);
         // Test malloc_init valid max_msgsize 						ITC_OK
-        test_malloc_init(NULL, 1024);
+        test_malloc_init(1024);
 	// Test malloc_alloc with too large msgsize					ITC_INVALID_ARGUMENTS
         message = test_malloc_alloc((size_t)1500);
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 
 
 
-void test_malloc_init(union itc_scheme *scheme_params, int max_msgsize)
+void test_malloc_init(int max_msgsize)
 {
         struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
 	if(rc != NULL)
@@ -95,7 +95,7 @@ void test_malloc_init(union itc_scheme *scheme_params, int max_msgsize)
 
         if(allocator.itci_alloc_init != NULL)
         {
-                allocator.itci_alloc_init(rc, scheme_params, max_msgsize);
+                allocator.itci_alloc_init(rc, max_msgsize);
                 if(rc->flags != ITC_OK)
                 {
                         printf("[FAILED]:\t<test_malloc_init>\t\t Failed to malloc_init(),\t\t\t rc = %d!\n", \
