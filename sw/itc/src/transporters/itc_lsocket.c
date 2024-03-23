@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -52,7 +53,7 @@ static void generate_lsockpath(struct result_code* rc);
 /*****************************************************************************\/
 *****                   TRANS INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
-static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id_in_itccoord, \
+static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id_in_itccoord, \
 			itc_mbox_id_t* itccoord_mask, itc_mbox_id_t* itccoord_mbox_id);
 
 static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
@@ -60,21 +61,21 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 
 static void lsock_exit(struct result_code* rc);
 
-struct itci_transport_apis lsock_trans_apis = = {	lsock_locate_coord,
-							lsock_init,
-							lsock_exit,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL };
+struct itci_transport_apis lsock_trans_apis = {	lsock_locate_coord,
+						lsock_init,
+						lsock_exit,
+						NULL,
+						NULL,
+						NULL,
+						NULL,
+						NULL,
+						NULL };
 
 
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
-static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id_in_itccoord, \
+static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id_in_itccoord, \
 			itc_mbox_id_t* itccoord_mask, itc_mbox_id_t* itccoord_mbox_id)
 {
 	int sd, res, rx_len;
@@ -87,7 +88,7 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	{
 		perror("lsock_locate_coord - socket");
 		rc->flags |= ITC_SYSCALL_ERROR;
-		return;
+		return false;
 	}
 
 	memset(&coord_addr, 0, sizeof(struct sockaddr_un));
@@ -99,7 +100,7 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	{
 		perror("lsock_locate_coord - connect");
 		rc->flags |= ITC_SYSCALL_ERROR;
-		return;
+		return false;
 	}
 
 	lrequest = (struct itc_locate_coord_request*)malloc(sizeof(struct itc_locate_coord_request));
@@ -107,7 +108,7 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	{
 		perror("lsock_locate_coord - malloc");
 		rc->flags |= ITC_SYSCALL_ERROR;
-		return;
+		return false;
 	}
 
 	lrequest->msgno		= ITC_LOCATE_COORD_REQUEST;
@@ -119,7 +120,7 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	{
 		perror("lsock_locate_coord - send");
 		rc->flags |= ITC_SYSCALL_ERROR;
-		return;
+		return false;
 	}
 
 	lreply = (struct itc_locate_coord_reply*)malloc(RXBUF_LEN);
@@ -127,7 +128,7 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	{
 		perror("lsock_locate_coord - malloc");
 		rc->flags |= ITC_SYSCALL_ERROR;
-		return;
+		return false;
 	}
 
 	rx_len = recv(sd, lreply, RXBUF_LEN, 0);
@@ -135,7 +136,7 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	{
 		free(lreply);
 		rc->flags |= ITC_INVALID_MSG_SIZE;
-		return;
+		return false;
 	}
 	close(sd);
 
@@ -153,7 +154,7 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 			/* Indicate that no more process can be added, limited number of processes 255 has been reached */
 			rc->flags |= ITC_OUT_OF_RANGE;
 			free(lreply);
-			return;
+			return false;
 		}
 		
 	} else
@@ -161,10 +162,11 @@ static void lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 		/* Indicate that we have received a strange message type in response */
 			rc->flags |= ITC_INVALID_ARGUMENTS;
 			free(lreply);
-			return;
+			return false;
 	}
 
 	free(lreply);
+	return true;
 }
 
 static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \

@@ -25,18 +25,17 @@ static int max_mallocsize = 0;
 /*****************************************************************************\/
 *****                   ALLOC INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
-static void malloc_init(struct result_code* rc, union itc_scheme *scheme_params, int max_msgsize);
+static void malloc_init(struct result_code* rc, int max_msgsize);
 static void malloc_exit(struct result_code* rc);
 static struct itc_message* malloc_alloc(struct result_code* rc, size_t size);
 static void malloc_free(struct result_code* rc, struct itc_message** message);
 static struct itc_alloc_info malloc_getinfo(struct result_code* rc);
 
-struct itci_alloc_apis malloc_apis = {
-        malloc_init,
-        malloc_exit,
-        malloc_alloc,
-        malloc_free,
-        malloc_getinfo
+struct itci_alloc_apis malloc_apis = {  malloc_init,
+					malloc_exit,
+					malloc_alloc,
+					malloc_free,
+					malloc_getinfo
 };
 
 
@@ -44,11 +43,10 @@ struct itci_alloc_apis malloc_apis = {
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
-static void malloc_init(struct result_code* rc, union itc_scheme *scheme_params, int max_msgsize)
+static void malloc_init(struct result_code* rc, int max_msgsize)
 {
         // Because malloc allocator does not need any special scheme_params, see struct itc_malloc_scheme.
         // So we will ignore scheme_params here, users can just input nullptr for this argument.
-        (void)scheme_params;
 	(void)rc;
 
 	if(max_msgsize < 0)
