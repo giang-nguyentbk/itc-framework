@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "itc.h"
 #include "itc_impl.h"
@@ -81,7 +82,8 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         if(retmessage == NULL)
         {
                 // Logging malloc() failed to allocate memory needed.
-		rc->flags |= ITC_OUT_OF_MEM;
+		perror("malloc_alloc - malloc");
+		rc->flags |= ITC_SYSCALL_ERROR;
                 return NULL;
         }
 

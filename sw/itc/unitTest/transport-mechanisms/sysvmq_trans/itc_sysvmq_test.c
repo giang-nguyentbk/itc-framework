@@ -172,7 +172,7 @@ void test_sysvmq_send(struct itc_message *message, itc_mbox_id_t to)
 
 	if(rc->flags != ITC_OK)
 	{
-		if(rc->flags == ITC_RX_QUEUE_NULL)
+		if(rc->flags == ITC_QUEUE_NULL)
 		{
 			printf("[ABN]:\t\t\t<test_sysvmq_send>\t\t Receiver side has not init msg queue yet!,\t rc = %d!\n", rc->flags);
 			// Because sending failed, user need to self-free the message

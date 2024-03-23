@@ -27,6 +27,8 @@ Which functions to be done:
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+
 #include "itc.h"
 #include "itc_impl.h"
 #include "itci_trans.h"
@@ -148,7 +150,8 @@ static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
         if(local_inst.localmbx_data == NULL)
         {
                 // Print a trace malloc() failed to allocate memory needed.
-		rc->flags |= ITC_OUT_OF_MEM;
+		perror("local_init - malloc");
+		rc->flags |= ITC_SYSCALL_ERROR;
                 return;
         }
         memset(local_inst.localmbx_data, 0, (nr_localmb_data*sizeof(struct local_mbox_data)));
@@ -245,7 +248,7 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	if(lc_mb_data->rxq == NULL)
 	{
 		// Deleting a local mailbox data in wrong state
-		rc->flags |= ITC_RX_QUEUE_NULL;
+		rc->flags |= ITC_QUEUE_NULL;
 		return;
 	}
 
@@ -266,9 +269,9 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 #endif
 	}
 
-	// Delete a mailbox with empty rx queue is not a problem, so remove flag ITC_RX_QUEUE_EMPTY
+	// Delete a mailbox with empty rx queue is not a problem, so remove flag ITC_QUEUE_EMPTY
 	// after dequeue_message()
-	rc->flags &= ~ITC_RX_QUEUE_EMPTY;
+	rc->flags &= ~ITC_QUEUE_EMPTY;
 
 	free(lc_mb_data->rxq);
 	lc_mb_data->rxq = NULL;
@@ -291,7 +294,7 @@ static void local_send(struct result_code* rc, struct itc_message *message, itc_
 	if(to_lc_mb_data->rxq == NULL)
 	{
 		// If q is NULL, that means the queue has not been initialized yet by init_queue()
-		rc->flags |= ITC_RX_QUEUE_NULL;
+		rc->flags |= ITC_QUEUE_NULL;
 		return;
 	}
 
@@ -311,7 +314,7 @@ static struct itc_message *local_receive(struct result_code* rc, struct itc_mail
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		rc->flags |= ITC_RX_QUEUE_NULL;
+		rc->flags |= ITC_QUEUE_NULL;
 		return NULL;
 	}
 
@@ -333,7 +336,7 @@ static struct itc_message *local_remove(struct result_code* rc, struct itc_mailb
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		rc->flags |= ITC_RX_QUEUE_NULL;
+		rc->flags |= ITC_QUEUE_NULL;
 		return NULL;
 	}
 
@@ -425,7 +428,8 @@ static struct rxqueue* init_queue(struct result_code* rc)
 	if(retq == NULL)
 	{
 		// Print out a ERROR trace here is needed.
-		rc->flags |= ITC_OUT_OF_MEM;
+		perror("init_queue - malloc");
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
 
@@ -471,7 +475,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 	// queue empty
 	if(q->head == NULL)
 	{
-		rc->flags |= ITC_RX_QUEUE_EMPTY;
+		rc->flags |= ITC_QUEUE_EMPTY;
 		return NULL;
 	}
 
@@ -546,7 +550,7 @@ static struct itc_message* remove_message_fromqueue(struct result_code* rc, stru
 		return ret;
 	}
 	
-	rc->flags |= ITC_RX_QUEUE_EMPTY;
+	rc->flags |= ITC_QUEUE_EMPTY;
 
 	/* If not found ret = NULL */
 	return NULL;
@@ -560,7 +564,8 @@ static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_mess
 	if(ret_qitem == NULL)
 	{
 		// Print out an ERROR trace here is needed.
-		rc->flags |= ITC_OUT_OF_MEM;
+		perror("create_qitem - malloc");
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
 

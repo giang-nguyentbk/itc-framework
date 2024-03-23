@@ -37,8 +37,6 @@
 #define ITC_SYSVMSQ_FILENAME "/tmp/itc/sysvmsq/sysvmsq_file"
 #endif
 
-#define MIN(x, y)	x < y ? x : y
-
 struct sysvmq_contactlist {
 	itc_mbox_id_t	mbox_id_in_itccoord;
 	int		sysvmq_id;
@@ -247,7 +245,7 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 	if(cl == NULL || cl->mbox_id_in_itccoord == 0)
 	{
 		rc->flags &= ~ITC_SYSCALL_ERROR; // The receiver side has not initialised message queue yet
-		rc->flags |= ITC_RX_QUEUE_NULL; // So remove unecessary syscall error, return an ITC_RX_QUEUE_NULL warning instead. This is not an ERROR at all!
+		rc->flags |= ITC_QUEUE_NULL; // So remove unecessary syscall error, return an ITC_QUEUE_NULL warning instead. This is not an ERROR at all!
 		/* If send failed, users have to self-free the message. ITC system only free messages when send successfully */
 		return;
 	}

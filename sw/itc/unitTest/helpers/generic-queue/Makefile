@@ -1,14 +1,16 @@
-TARGET = itc_threadmanager_test
+TARGET = itc_queue_test
 BIN = ./bin
 CFLAGS = -g -Wall -Wextra
 CC = gcc
 
 INCLUDE_DIR =
-INCLUDE_DIR += -I ../../if
-INCLUDE_DIR += -I ../../inc
+INCLUDE_DIR += -I ../../../if
+INCLUDE_DIR += -I ../../../inc
 
 SRC_DIR =
-SRC_DIR += -I ../../src/threadmanager
+SRC_DIR += -I ../../../src/allocators
+SRC_DIR += -I ../../../src/helpers
+SRC_DIR += -I ../../../src/transporters
 SRC_DIR += -I ./
 
 #SIG_DIR =
@@ -25,13 +27,13 @@ all: create_bin $(TARGET)
 create_bin:
 	@mkdir -p $(BIN)
 
-$(TARGET): $(BIN)/itc_threadmanager.o $(BIN)/itc_threadmanager_test.o
+$(TARGET): $(BIN)/itc_queue.o $(BIN)/itc_queue_test.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET)
 
-$(BIN)/itc_threadmanager.o: itc_threadmanager.c itc_impl.h itc_threadmanager.h
+$(BIN)/itc_queue.o: itc_queue.c itc_impl.h itc_queue.h
 	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
-$(BIN)/itc_threadmanager_test.o: itc_threadmanager_test.c itc_impl.h itc_threadmanager.h
+$(BIN)/itc_queue_test.o: itc_queue_test.c itc_impl.h itc_queue.h
 	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 run:
