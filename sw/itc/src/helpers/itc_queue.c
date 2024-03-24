@@ -36,7 +36,7 @@ struct itc_queue* q_init(struct result_code* rc)
 	if(q == NULL)
 	{
 		// Print out a ERROR trace here is needed.
-		perror("q_init - malloc");
+		perror("\tDEBUG: q_init - malloc");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -44,12 +44,13 @@ struct itc_queue* q_init(struct result_code* rc)
 	q->head = NULL;
 	q->tail = NULL;
 	q->search = NULL;
+	q->size = 0;
 
 	q->q_mtx = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
 	if(q->q_mtx == NULL)
 	{
 		free(q);
-		perror("q_init - malloc - q_mtx");
+		perror("\tDEBUG: q_init - malloc - q_mtx");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -58,7 +59,7 @@ struct itc_queue* q_init(struct result_code* rc)
 	{
 		free(q->q_mtx);
 		free(q);
-		perror("q_init - pthread_mutex_init");
+		perror("\tDEBUG: q_init - pthread_mutex_init");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -72,15 +73,20 @@ void q_exit(struct result_code* rc, struct itc_queue* q)
 
 	if(q == NULL)
 	{
+		printf("\tDEBUG: q_exit - Queue null!\n");
 		rc->flags |= ITC_QUEUE_NULL;
 		return;
 	}
 
-	// Go through and discard all data pointed to by all nodes in the queue
-	while((data = q_dequeue(rc, q)) != NULL)
+	if(q->size > 0)
 	{
-		// Queue is not allowed to free() user data by itself, just free() the pointer to user data on each node.
-		// free(node->p_data);
+		printf("\tDEBUG: q_exit - Queue still has items, removing them!\n");
+		// Go through and discard all data pointed to by all nodes in the queue
+		while((data = q_dequeue(rc, q)) != NULL)
+		{
+			// Queue is not allowed to free() user data by itself, just free() the pointer to user data on each node.
+			// free(node->p_data);
+		}
 	}
 
 	rc->flags &= ~ITC_QUEUE_EMPTY; // After discard all nodes, it automatically returns a queue_empty error code but it should not, so ignore
@@ -89,7 +95,7 @@ void q_exit(struct result_code* rc, struct itc_queue* q)
 	{
 		if(pthread_mutex_destroy(q->q_mtx) != 0)
 		{
-			perror("q_exit - pthread_mutex_destroy");
+			perror("\tDEBUG: q_exit - pthread_mutex_destroy");
 			rc->flags |= ITC_SYSCALL_ERROR;
 		}
 		free(q->q_mtx);
@@ -107,6 +113,7 @@ void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data)
 	if(rc->flags != ITC_OK)
 	{
 		// q_createnode() failed due to out of memory
+		printf("\tDEBUG: q_enqueue - q_createnode failed, rc = %d!\n", rc->flags);
 		return;
 	}
 
@@ -117,6 +124,7 @@ void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data)
 	// If not, just update the last item to point to new item and move q->tail to new item as well. 
 	if(q->tail == NULL)
 	{
+		printf("\tDEBUG: q_enqueue - Queue now is empty, add the first node!\n");
 		q->head = new_node;
 		q->tail = new_node;
 	} else
@@ -126,6 +134,7 @@ void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data)
 		q->tail = new_node;
 	}
 
+	q->size++;
 	MUTEX_UNLOCK(rc, q->q_mtx);
 }
 
@@ -138,6 +147,7 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 	// Queue empty
 	if(q->head == NULL)
 	{
+		printf("\tDEBUG: q_dequeue - Queue empty!\n");
 		rc->flags |= ITC_QUEUE_EMPTY;
 		MUTEX_UNLOCK(rc, q->q_mtx);
 		return NULL;
@@ -148,18 +158,27 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 	// In case queue has only one item
 	if(q->head == q->tail)
 	{
+		printf("\tDEBUG: q_dequeue - Queue has only one item!\n");
 		q_removenode(rc, &q->head);
 		// Both head and tail should be moved to NULL
 		q->head = NULL;
 		q->tail = NULL;
+
+		// Sanity check
+		if(q->size > 1)
+		{
+			printf("\tDEBUG: q_dequeue - Queue got messed up, q->size = %d!\n", q->size);
+		}
 	} else
 	{
 		// In case queue has more than one items, move head to the 2nd item and remove the 1st item via prev
 		// pointer of the 2nd.
+		printf("\tDEBUG: q_dequeue - Queue currently has %d items!\n", q->size);
 		q->head = q->head->next;
 		q_removenode(rc, &q->head->prev);
 	}
 
+	q->size--;
 	MUTEX_UNLOCK(rc, q->q_mtx);
 
 	return data;
@@ -176,7 +195,7 @@ static struct itcq_node* q_createnode(struct result_code* rc, void* data)
 	if(retnode == NULL)
 	{
 		// Print out an ERROR trace here is needed.
-		perror("create_qitem - malloc");
+		perror("\tDEBUG: q_createnode - malloc");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}

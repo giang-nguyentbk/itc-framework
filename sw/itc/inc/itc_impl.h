@@ -47,7 +47,7 @@ extern "C" {
 #define ITC_ITCCOORD_FILENAME "/tmp/itc/itccoord/itc_coordinator"
 #endif
 
-#ifdef UNITTEST
+#ifdef LOCAL_TRANS_UNITTEST
 #define ITC_NR_INTERNAL_USED_MBOXES 0 // Unittest for local trans so sock and sysvmq not used yet
 #else
 #define ITC_NR_INTERNAL_USED_MBOXES 1 // For sysvmq_rx_thread
@@ -188,7 +188,7 @@ do not access user data via itc_message but use itc_msg instead */
         /* DO NOT change anything in the remainder - this is a core part - to avoid breaking the whole ITC system. */
         itc_mbox_id_t          	receiver;
         itc_mbox_id_t          	sender;
-        int32_t                	size;   // Size of the itc_msg that user gives to allocate itc_message
+        uint32_t                size;   // Size of the itc_msg that user gives to allocate itc_message
 
         /* This is the itc_msg part users can see and use it */
         uint32_t               	msgno;
@@ -198,7 +198,13 @@ do not access user data via itc_message but use itc_msg instead */
         /* There is one byte called endpoint which should be always 0xAA,
         if not, then there is something wrong with your itc message */
         /* Why it's 0xAA, because 0xAA = 1010 1010. Most efficient way to confirm the itc message correctness */
-        /* char                     endpoint; */
+        char                     payload_startpoint[1]; // Actual user data will start from this byte address
+
+	/* Payload in bytes
+	*  ....
+	*  Payload in bytes */
+
+	/* char			endpoint; // Will be 0xAA */
 };
 
 

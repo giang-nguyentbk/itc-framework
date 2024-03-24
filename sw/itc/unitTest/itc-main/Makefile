@@ -14,12 +14,12 @@ SRC_DIR += -I ../../src/helpers
 SRC_DIR += -I ../../src/transporters
 SRC_DIR += -I ./
 
-#SIG_DIR =
-#SIG_DIR += -I ../../../unitTest
+SIG_DIR =
+SIG_DIR += -I ../../unitTest
 
 vpath %.h 	$(INCLUDE_DIR)
 vpath %.c 	$(SRC_DIR)
-#vpath %.sig 	$(SIG_DIR)
+vpath %.sig 	$(SIG_DIR)
 
 .PHONY: all
 
@@ -35,8 +35,8 @@ $(TARGET): $(BIN)/itc.o $(BIN)/itc_test.o $(BIN)/itc_threadmanager.o $(BIN)/itc_
 $(BIN)/itc.o: itc.c itc_impl.h itc.h itci_alloc.h itci_trans.h itc_threadmanager.h itc_proto.h itc_queue.h
 	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
-$(BIN)/itc_test.o: itc_test.c itc_impl.h itc.h itc_threadmanager.h
-	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+$(BIN)/itc_test.o: itc_test.c itc_impl.h itc.h itc_threadmanager.h moduleXyz.sig
+	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $(SIG_DIR) $<
 
 $(BIN)/itc_threadmanager.o: itc_threadmanager.c itc_impl.h
 	$(CC) -c -DUNITTEST $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<

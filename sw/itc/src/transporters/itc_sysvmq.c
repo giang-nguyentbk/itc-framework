@@ -128,14 +128,17 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 	{
 		if(flags & ITC_FLAGS_FORCE_REINIT)
 		{
+			printf("\tDEBUG: sysvmq_init -Force re-initializing!\n");
 			release_sysvmq_resources(rc);
 			if(rc != ITC_OK)
 			{
+				printf("\tDEBUG: sysvmq_init - Failed to release_sysvmq_resources!\n");
 				return;
 			}
 			(void)sysvmq_maxmsgsize(rc);
 		} else
 		{
+			printf("\tDEBUG: sysvmq_init - Already initialized!\n");
 			rc->flags |= ITC_ALREADY_INIT;
 			return;
 		}
@@ -144,6 +147,7 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 	generate_msqfile(rc);
 	if(rc->flags != ITC_OK)
 	{
+		printf("\tDEBUG: sysvmq_init - Failed to generate msqfile!\n");
 		return;
 	}
 
@@ -166,14 +170,14 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 	// Create key for thread-specific data (mbox_id)
 	if(pthread_key_create(&sysvmq_inst.destruct_key, rxthread_destructor) != 0)
 	{
-		// perror("pthread_key_create");
+		perror("\tDEBUG: sysvmq_init - pthread_key_create");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
 	if(pthread_mutex_init(&sysvmq_inst.thread_mtx, NULL) != 0)
 	{
-		// perror("pthread_mutex_init");
+		perror("\tDEBUG: sysvmq_init - pthread_mutex_init");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -185,20 +189,21 @@ static void sysvmq_exit(struct result_code* rc)
 {
 	if(!sysvmq_inst.is_initialized)
 	{
+		printf("\tDEBUG: sysvmq_exit - Not initialized yet!\n");
 		rc->flags |= ITC_NOT_INIT_YET;
 		return;
 	}
 
 	if(pthread_mutex_destroy(&sysvmq_inst.thread_mtx) != 0)
 	{
-		// perror("pthread_mutex_destroy");
+		perror("\tDEBUG: sysvmq_exit - pthread_mutex_destroy");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
 	if(pthread_key_delete(sysvmq_inst.destruct_key) != 0)
 	{
-		// perror("pthread_key_delete");
+		perror("\tDEBUG: sysvmq_exit - pthread_key_delete");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -213,13 +218,14 @@ static int sysvmq_maxmsgsize(struct result_code* rc)
 
 	if(sysvmq_inst.max_msgsize > 0)
 	{
+		printf("\tDEBUG: sysvmq_maxmsgsize - Get max msg size successfully, max_msgsize = %u!\n", sysvmq_inst.max_msgsize);
 		return sysvmq_inst.max_msgsize;
 	}
 
 	if(msgctl(0, IPC_INFO, (struct msqid_ds*)&info) == -1)
 	{
 		// ERROR tracing is needed only, no need to set result code
-		// perror("sysvmq_maxmsgsize - msgctl");
+		perror("\tDEBUG: sysvmq_maxmsgsize - msgctl");
 		rc->flags |= ITC_SYSCALL_ERROR;
 	}
 
@@ -237,6 +243,7 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 
 	if(!sysvmq_inst.is_initialized)
 	{
+		printf("\tDEBUG: sysvmq_send - Already initialized!\n");
 		rc->flags |= ITC_NOT_INIT_YET;
 		return;
 	}
@@ -244,6 +251,7 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 	cl = get_sysvmq_cl(rc, to);
 	if(cl == NULL || cl->mbox_id_in_itccoord == 0)
 	{
+		printf("\tDEBUG: sysvmq_send - Receiver side not initialised message queue yet!\n");
 		rc->flags &= ~ITC_SYSCALL_ERROR; // The receiver side has not initialised message queue yet
 		rc->flags |= ITC_QUEUE_NULL; // So remove unecessary syscall error, return an ITC_QUEUE_NULL warning instead. This is not an ERROR at all!
 		/* If send failed, users have to self-free the message. ITC system only free messages when send successfully */
@@ -262,16 +270,18 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 			continue;
 		} else if(errno == EINVAL || errno == EIDRM)
 		{
+			printf("\tDEBUG: sysvmq_send - MSG queue of receiver has corrupted and just re-created, add contact list and resend msg again!\n");
 			remove_sysvmq_cl(rc, to);
 			add_sysvmq_cl(rc, cl, to);
 			if(cl->mbox_id_in_itccoord == 0)
 			{
+				printf("\tDEBUG: sysvmq_send - Add contact list again failed due to msq_key = -1!\n");
 				break;
 			}
 		} else
 		{
 			// ERROR trace is needed here
-			// perror("msgsnd");
+			perror("\tDEBUG: sysvmq_send - msgsnd");
 			rc->flags |= ITC_SYSCALL_ERROR; // Will not return here
 		}
 	}
@@ -302,6 +312,7 @@ static void* sysvmq_rx_thread(void *data)
 	if(prctl(PR_SET_NAME, "itc_rx_sysvmq", 0, 0, 0) == -1)
 	{
 		// ERROR trace is needed here
+		perror("\tDEBUG: sysvmq_rx_thread - prctl");
 		return NULL;
 	}
 
@@ -319,6 +330,7 @@ static void* sysvmq_rx_thread(void *data)
 	if(pthread_setspecific(sysvmq_inst.destruct_key, (void*)(unsigned long)sysvmq_inst.my_mbox_id) != 0)
 	{
 		// ERROR trace is needed here
+		perror("\tDEBUG: sysvmq_rx_thread - pthread_setspecific");
 		return NULL;
 	}
 
@@ -328,6 +340,7 @@ static void* sysvmq_rx_thread(void *data)
 	{
 		// ERROR trace is needed here
 		// Will not return
+		perror("\tDEBUG: sysvmq_rx_thread - ftok");
 	}
 
 	sysvmq_inst.my_sysvmq_id = msgget(key, IPC_CREAT | 0666);
@@ -335,12 +348,14 @@ static void* sysvmq_rx_thread(void *data)
 	{
 		// ERROR trace is needed here
 		// Will not return
+		perror("\tDEBUG: sysvmq_rx_thread - msgget");
 	}
 
 	if(msgctl(sysvmq_inst.my_sysvmq_id, IPC_STAT, &msqinfo) == -1)
 	{
 		// ERROR trace is needed here
 		// Will not return
+		perror("\tDEBUG: sysvmq_rx_thread - msgctl");
 	}
 
 	if(msqinfo.msg_qnum != 0)
@@ -350,6 +365,7 @@ static void* sysvmq_rx_thread(void *data)
 		{
 			// ERROR trace is needed here
 			// Will not return
+			perror("\tDEBUG: sysvmq_rx_thread - msgctl (Recreate queue)");
 		}
 
 		sysvmq_inst.my_sysvmq_id = msgget(key, IPC_CREAT | 0666);
@@ -357,6 +373,7 @@ static void* sysvmq_rx_thread(void *data)
 		{
 			// ERROR trace is needed here
 			// Will not return
+			perror("\tDEBUG: sysvmq_rx_thread - msgget (Recreate queue)");
 		}
 	}
 
@@ -366,6 +383,7 @@ static void* sysvmq_rx_thread(void *data)
 	if(sysvmq_inst.rx_buffer == NULL)
 	{
 		// ERROR trace is needed here
+		perror("\tDEBUG: sysvmq_rx_thread - malloc");
 		free(rc_tmp);
 		return NULL;
 	}
@@ -379,6 +397,7 @@ static void* sysvmq_rx_thread(void *data)
 		rx_len = msgrcv(sysvmq_inst.my_sysvmq_id, sysvmq_inst.rx_buffer, sysvmq_inst.max_msgsize - sizeof(long), 0, 0);
 		if(sysvmq_inst.is_terminated)
 		{
+			printf("\tDEBUG: sysvmq_rx_thread - Terminating sysvmq rx thread!\n");
 			break;
 		}
 
@@ -387,6 +406,7 @@ static void* sysvmq_rx_thread(void *data)
 			if((errno == EIDRM || errno == EINVAL) && !repeat)
 			{
 				/* Give it one more retry after 10ms, if problem still persists, ERROR trace is needed */
+				printf("\tDEBUG: sysvmq_rx_thread - Retry one more time!\n");
 				usleep(10000);
 				repeat = 1;
 				continue;
@@ -396,6 +416,7 @@ static void* sysvmq_rx_thread(void *data)
 			}
 
 			// ERROR trace is needed here
+			printf("\tDEBUG: sysvmq_rx_thread - Negative rx message length, rx_len = %u!\n", rx_len);
 		}
 
 		
@@ -413,7 +434,8 @@ static void release_sysvmq_resources(struct result_code* rc)
 {
 	if(pthread_key_delete(sysvmq_inst.destruct_key) != 0)
 	{
-		// perror("release_sysvmq_resources - pthread_key_delete");
+		// perror("\tDEBUG: release_sysvmq_resources - pthread_key_delete");
+		perror("\tDEBUG: release_sysvmq_resources - pthread_key_delete");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -430,7 +452,7 @@ static void generate_msqfile(struct result_code* rc)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		// perror("mkdir 1");
+		perror("\tDEBUG: generate_msqfile - mkdir /tmp/itc/");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -439,7 +461,7 @@ static void generate_msqfile(struct result_code* rc)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		// perror("mkdir 2");
+		perror("\tDEBUG: generate_msqfile - mkdir /tmp/itc/sysvmq/");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -449,7 +471,7 @@ static void generate_msqfile(struct result_code* rc)
 		res = chmod(ITC_SYSVMSQ_FOLDER, 0777);
 		if(res < 0)
 		{
-			// perror("chmod");
+			perror("\tDEBUG: generate_msqfile - chmod");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -457,14 +479,14 @@ static void generate_msqfile(struct result_code* rc)
 		fd = fopen(ITC_SYSVMSQ_FILENAME, "w");
 		if(fd == NULL)
 		{
-			// perror("fopen");
+			perror("\tDEBUG: generate_msqfile - fopen");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
 
 		if(fclose(fd) != 0)
 		{
-			// perror("fclose");
+			perror("\tDEBUG: generate_msqfile - fclose");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -480,11 +502,13 @@ static struct sysvmq_contactlist* get_sysvmq_cl(struct result_code* rc, itc_mbox
 	cl = find_cl(rc, mbox_id);
 	if(cl == NULL)
 	{
+		printf("\tDEBUG: get_sysvmq_cl - Contact list not found!\n");
 		return NULL;
 	}
 
 	if(cl->mbox_id_in_itccoord == 0)
 	{
+		printf("\tDEBUG: get_sysvmq_cl - Add contact list!\n");
 		add_sysvmq_cl(rc, cl, mbox_id);
 	}
 
@@ -498,6 +522,7 @@ static struct sysvmq_contactlist* find_cl(struct result_code* rc, itc_mbox_id_t 
 	pid = (mbox_id & sysvmq_inst.itccoord_mask) >> sysvmq_inst.itccoord_shift;
 	if(pid == 0 || pid >= MAX_SUPPORTED_PROCESSES)
 	{
+		printf("\tDEBUG: get_sysvmq_cl - Invalid contact list's process id!\n");
 		rc->flags |= ITC_INVALID_ARGUMENTS;
 		return NULL;
 	}
@@ -512,6 +537,7 @@ static void add_sysvmq_cl(struct result_code* rc, struct sysvmq_contactlist* cl,
 	sysv_msqid = get_sysvmq_id(rc, mbox_id);
 	if(sysv_msqid != -1)
 	{
+		printf("\tDEBUG: add_sysvmq_cl - sysv_msqid != -1!\n");
 		cl->mbox_id_in_itccoord = (mbox_id & sysvmq_inst.itccoord_mask);
 		cl->sysvmq_id = sysv_msqid;
 	}
@@ -531,7 +557,7 @@ static int get_sysvmq_id(struct result_code* rc, itc_mbox_id_t mbox_id)
 
 	if(key == -1)
 	{
-		// perror("get_sysvmq_id - ftok");
+		perror("\tDEBUG: get_sysvmq_id - ftok");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		// Don't need to return here?
 	}
@@ -540,14 +566,12 @@ static int get_sysvmq_id(struct result_code* rc, itc_mbox_id_t mbox_id)
 
 	if(msqid == -1)
 	{
-		// perror("get_sysvmq_id - msgget");
+		perror("\tDEBUG: get_sysvmq_id - msgget");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		if(errno == ENOENT)
 		{
 			return -1;
 		}
-
-		// ERROR trace here is needed
 	}
 
 	return msqid;
@@ -600,6 +624,8 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 #else
 	itc_send(&msg, message->receiver, message->sender);
 #endif
+
+	printf("\tDEBUG: forward_sysvmq_msg - Forward an itc message to local mailbox successfully from sysvmq!\n");
 }
 
 static void rxthread_destructor(void* data)
@@ -612,6 +638,7 @@ static void rxthread_destructor(void* data)
 		if(msgctl(sysvmq_inst.my_sysvmq_id, IPC_RMID, NULL) == -1)
 		{
 			// ERROR trace is needed here
+			perror("\tDEBUG: rxthread_destructor - msgctl");
 		}
 		sysvmq_inst.my_sysvmq_id = -1;
 	}
