@@ -51,6 +51,7 @@ static void malloc_init(struct result_code* rc, int max_msgsize)
 
 	if(max_msgsize < 0)
 	{
+		printf("\tDEBUG: malloc_init - Negative max_msgsize = %d!\n", max_msgsize);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return;
 	}
@@ -72,6 +73,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         {
                 // Requested itc message's length is too large or itc_init() hasn't been called yet.
                 // Should implement tracing/logging later for debugging purposes.
+		printf("\tDEBUG: malloc_alloc - Requested msg size too large!\n");
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return NULL;
         }
@@ -80,7 +82,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         if(retmessage == NULL)
         {
                 // Logging malloc() failed to allocate memory needed.
-		perror("malloc_alloc - malloc");
+		perror("\tDEBUG: malloc_alloc - malloc");
 		rc->flags |= ITC_SYSCALL_ERROR;
                 return NULL;
         }
@@ -92,6 +94,7 @@ static void malloc_free(struct result_code* rc, struct itc_message** message)
 {
 	if(message == NULL || *message == NULL)
 	{
+		printf("\tDEBUG: malloc_free - Double free!\n");
 		rc->flags |= ITC_FREE_NULL_PTR;
 		return;
 	}

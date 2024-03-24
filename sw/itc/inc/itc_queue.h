@@ -21,6 +21,7 @@ struct itc_queue {
 	struct itcq_node*	tail;
 	struct itcq_node*	search;
 
+	uint32_t		size;
 	pthread_mutex_t*	q_mtx;
 };
 

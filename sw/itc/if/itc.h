@@ -117,8 +117,8 @@ extern bool itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 
 	Note that: 1 and 3 will be implemented in ITC V2.
 */
-// extern union itc_msg *itc_receive(const uint32_t *filter, uint32_t tmo, itc_mbox_id_t from);
-extern union itc_msg *itc_receive(uint32_t tmo, itc_mbox_id_t from); // By default ITC V1 receiving the 1st message in the rx queue
+// extern union itc_msg *itc_receive(const uint32_t *filter, int32_t tmo, itc_mbox_id_t from);
+extern union itc_msg *itc_receive(int32_t tmo, itc_mbox_id_t from); // By default ITC V1 receiving the 1st message in the rx queue
 						 			// no matter from who it came.
 
 
@@ -206,7 +206,7 @@ extern bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id);
 extern bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 #define itc_send(msg, to, from) itc_send_zz((msg), (to), (from))
 
-extern union itc_msg *itc_receive_zz(uint32_t tmo, itc_mbox_id_t from);
+extern union itc_msg *itc_receive_zz(int32_t tmo, itc_mbox_id_t from);
 #define itc_receive(tmo, from) itc_receive_zz((tmo), (from))
 
 extern itc_mbox_id_t itc_sender_zz(union itc_msg *msg);

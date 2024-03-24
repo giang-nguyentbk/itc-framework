@@ -7,6 +7,18 @@
 #include "itc_impl.h"
 #include "itc_threadmanager.h"
 
+#define PRINT_DASH_START					\
+	do							\
+	{							\
+		printf("\n-------------------------------------------------------------------------------------------------------------------\n");	\
+	} while(0)
+
+#define PRINT_DASH_END						\
+	do							\
+	{							\
+		printf("-------------------------------------------------------------------------------------------------------------------\n\n");	\
+	} while(0)
+
 static struct itci_transport_apis transporter;
 extern struct itci_transport_apis sysvmq_trans_apis;
 
@@ -26,11 +38,44 @@ int main(int argc, char* argv[])
 /* TEST EXPECTATION:
 -------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:              <test_sysvmq_maxmsgsize>         sysvmq_maxmsgsize() successfully = 8192 bytes,  rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: sysvmq_send - Already initialized!
+
+-------------------------------------------------------------------------------------------------------------------
 [FAILED]:               <test_sysvmq_send>               Failed to itci_trans_send(),                    rc = 4!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: sysvmq_exit - Not initialized yet!
+
+-------------------------------------------------------------------------------------------------------------------
 [FAILED]:               <test_sysvmq_exit>               Failed to itci_trans_exit(),                    rc = 4!
+-------------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:              <test_sysvmq_init>               Calling sysvmq_init() successfully,             rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: sysvmq_init - Already initialized!
+
+-------------------------------------------------------------------------------------------------------------------
 [FAILED]:               <test_sysvmq_init>               Failed to itci_trans_init(),                    rc = 2!
-[ABN]:                  <test_sysvmq_send>               Receiver side has not init msg queue yet!,      rc = 16!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: sysvmq_maxmsgsize - Get max msg size successfully, max_msgsize = 8192!
+        DEBUG: start_itcthreads - Starting a thread!
+        DEBUG: get_sysvmq_cl - Add contact list!
+        DEBUG: get_sysvmq_id - msgget: No such file or directory
+        DEBUG: sysvmq_send - Receiver side not initialised message queue yet!
+
+-------------------------------------------------------------------------------------------------------------------
+[ABN]:                  <test_sysvmq_send>               Receiver side has not init msg queue yet!,      rc = 8!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: terminate_itcthreads - Terminating a thread!
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:              <test_sysvmq_exit>               Calling sysvmq_exit() successfully,             rc = 0!
 -------------------------------------------------------------------------------------------------------------------
 */
@@ -51,28 +96,34 @@ int main(int argc, char* argv[])
 	message->sender = 0x00500000 | 10;
 	message->size = 4;
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
+	PRINT_DASH_END;
 
-	(void)test_sysvmq_maxmsgsize();
+	// Test get sysvmq system-wide max message queue length in bytes successfully
+	(void)test_sysvmq_maxmsgsize();								//	-> EXPECT: SUCCESS
+	
+	// Test send a message when not init yet
 	test_sysvmq_send(message, mbox_1->mbox_id);						//	-> EXPECT: FAILED
+	
+	// Test exit when not init yet
 	test_sysvmq_exit();									//	-> EXPECT: FAILED
 
 	// First time init, ITC_OK									-> EXPECT: SUCCESS
 	test_sysvmq_init((itc_mbox_id_t)0x00500000, (itc_mbox_id_t)0xFFF00000, (int)100, (uint32_t)0);
+	
 	// Test ITC_ALREADY_INIT									-> EXPECT: FAILED
 	test_sysvmq_init((itc_mbox_id_t)0x00500000, (itc_mbox_id_t)0xFFF00000, (int)100, (uint32_t)0);
 	
 	start_itcthreads_helper();
 
+	// Test send message successfully
 	test_sysvmq_send(message, mbox_1->mbox_id);						//	-> EXPECT: SUCCESS
 
 	terminate_itcthreads_helper();
 
+	// Test exit message successfully
 	test_sysvmq_exit();									//	-> EXPECT: SUCCESS
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
+	PRINT_DASH_START;
 
 	free(mbox_1);
 	/* Users do not need to free the sending message when transferring over processes.
@@ -90,8 +141,10 @@ void test_sysvmq_init(itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoo
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<test_sysvmq_init>\t\t Failed to allocate result_code!\n");
-                return;
+                PRINT_DASH_END;
+		return;
 	}
 
 	if(transporter.itci_trans_init != NULL)
@@ -99,19 +152,25 @@ void test_sysvmq_init(itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoo
 		transporter.itci_trans_init(rc, my_mbox_id_in_itccoord, itccoord_mask, nr_mboxes, flags);
 	} else
         {
+		PRINT_DASH_START;
                 printf("[FAILED]:\t<test_sysvmq_init>\t\t itci_trans_init = NULL!\n");
+		PRINT_DASH_END;
 		free(rc);
                 return;
         }
 
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<test_sysvmq_init>\t\t Failed to itci_trans_init(),\t\t\t rc = %d!\n", rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
+	PRINT_DASH_START;
 	printf("[SUCCESS]:\t\t<test_sysvmq_init>\t\t Calling sysvmq_init() successfully,\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 }
 
@@ -123,8 +182,10 @@ void test_sysvmq_exit()
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<test_sysvmq_exit>\t\t Failed to allocate result_code!\n");
-                return;
+                PRINT_DASH_END;
+		return;
 	}
 
 	if(transporter.itci_trans_exit != NULL)
@@ -132,19 +193,25 @@ void test_sysvmq_exit()
 		transporter.itci_trans_exit(rc);
 	} else
         {
+		PRINT_DASH_START;
                 printf("[FAILED]:\t<test_sysvmq_exit>\t\t itci_trans_exit = NULL!\n");
+		PRINT_DASH_END;
 		free(rc);
                 return;
         }
 
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<test_sysvmq_exit>\t\t Failed to itci_trans_exit(),\t\t\t rc = %d!\n", rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
+	PRINT_DASH_START;
 	printf("[SUCCESS]:\t\t<test_sysvmq_exit>\t\t Calling sysvmq_exit() successfully,\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 }
 
@@ -156,7 +223,9 @@ void test_sysvmq_send(struct itc_message *message, itc_mbox_id_t to)
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<test_sysvmq_send>\t\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return;
 	}
 
@@ -165,7 +234,9 @@ void test_sysvmq_send(struct itc_message *message, itc_mbox_id_t to)
 		transporter.itci_trans_send(rc, message, to);
 	} else
         {
+		PRINT_DASH_START;
                 printf("[FAILED]:\t<test_sysvmq_send>\t\t itci_trans_send = NULL!\n");
+		PRINT_DASH_END;
 		free(rc);
                 return;
         }
@@ -174,12 +245,16 @@ void test_sysvmq_send(struct itc_message *message, itc_mbox_id_t to)
 	{
 		if(rc->flags == ITC_QUEUE_NULL)
 		{
+			PRINT_DASH_START;
 			printf("[ABN]:\t\t\t<test_sysvmq_send>\t\t Receiver side has not init msg queue yet!,\t rc = %d!\n", rc->flags);
+			PRINT_DASH_END;
 			// Because sending failed, user need to self-free the message
 			free(message);
 		} else
 		{
+			PRINT_DASH_START;
 			printf("[FAILED]:\t\t<test_sysvmq_send>\t\t Failed to itci_trans_send(),\t\t\t rc = %d!\n", rc->flags);
+			PRINT_DASH_END;
 			// Not free the message here due to other causes of sending failures, keep the message for subsequential sends
 		}
 
@@ -187,7 +262,9 @@ void test_sysvmq_send(struct itc_message *message, itc_mbox_id_t to)
 		return;
 	}
 
+	PRINT_DASH_START;
 	printf("[SUCCESS]:\t\t<test_sysvmq_send>\t\t Calling sysvmq_send() successfully,\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 }
 
@@ -200,7 +277,9 @@ int test_sysvmq_maxmsgsize(void)
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<test_sysvmq_maxmsgsize>\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return res;
 	}
 
@@ -209,24 +288,34 @@ int test_sysvmq_maxmsgsize(void)
 		res = transporter.itci_trans_maxmsgsize(rc);
 	} else
         {
+		PRINT_DASH_START;
                 printf("[FAILED]:\t<test_sysvmq_maxmsgsize>\t itci_trans_maxmsgsize = NULL!\n");
+		PRINT_DASH_END;
 		free(rc);
                 return res;
         }
 
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<test_sysvmq_maxmsgsize>\t Failed to itci_trans_maxmsgsize(),\t\t rc = %d!\n", rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return res;
 	}
 
 	if(res == 0)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_sysvmq_maxmsgsize>\t itci_trans_maxmsgsize() return wrong value!\n");
+		PRINT_DASH_END;
+		free(rc);
+		return res;
 	}
 
+	PRINT_DASH_START;
 	printf("[SUCCESS]:\t\t<test_sysvmq_maxmsgsize>\t sysvmq_maxmsgsize() successfully = %d bytes,\t rc = %d!\n", res, rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 	return res;
 }
@@ -239,14 +328,18 @@ void start_itcthreads_helper()
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<start_itcthreads_helper>\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return;
 	}
 
 	start_itcthreads(rc);
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<start_itcthreads_helper>\t Failed to start_itcthreads!\n");
+		PRINT_DASH_END;
 	}
 
 	free(rc);
@@ -260,14 +353,18 @@ void terminate_itcthreads_helper()
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<terminate_itcthreads_helper>\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return;
 	}
 
 	terminate_itcthreads(rc);
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t\t<terminate_itcthreads_helper>\t Failed to start_itcthreads!\n");
+		PRINT_DASH_END;
 	}
 
 	free(rc);

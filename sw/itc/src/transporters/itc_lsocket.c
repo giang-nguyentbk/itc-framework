@@ -4,13 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <errno.h>
+#include <sys/stat.h>
 
-#include "pthread.h"
-#include "search.h"
+#include <pthread.h>
+#include <search.h>
 
 #include "itc.h"
 #include "itc_impl.h"
@@ -86,19 +87,19 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	sd = socket(AF_LOCAL, SOCK_STREAM, 0);
 	if(sd < 0)
 	{
-		perror("lsock_locate_coord - socket");
+		perror("\tDEBUG: lsock_locate_coord - socket");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
 
 	memset(&coord_addr, 0, sizeof(struct sockaddr_un));
 	coord_addr.sun_family = AF_LOCAL;
-	coord_addr.sun_path = ITC_ITCCOORD_FILENAME;
+	strcpy(coord_addr.sun_path, ITC_ITCCOORD_FILENAME);
 
 	res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(coord_addr));
 	if(res < 0)
 	{
-		perror("lsock_locate_coord - connect");
+		perror("\tDEBUG: lsock_locate_coord - connect");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -106,7 +107,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	lrequest = (struct itc_locate_coord_request*)malloc(sizeof(struct itc_locate_coord_request));
 	if(lrequest == NULL)
 	{
-		perror("lsock_locate_coord - malloc");
+		perror("\tDEBUG: lsock_locate_coord - malloc");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -118,7 +119,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	free(lrequest);
 	if(res < 0)
 	{
-		perror("lsock_locate_coord - send");
+		perror("\tDEBUG: lsock_locate_coord - send");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -126,7 +127,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	lreply = (struct itc_locate_coord_reply*)malloc(RXBUF_LEN);
 	if(lreply == NULL)
 	{
-		perror("lsock_locate_coord - malloc");
+		perror("\tDEBUG: lsock_locate_coord - malloc");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -134,6 +135,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	rx_len = recv(sd, lreply, RXBUF_LEN, 0);
 	if(rx_len < (int)sizeof(struct itc_locate_coord_reply))
 	{
+		printf("\tDEBUG: lsock_locate_coord - Message received to small, rx_len = %u!\n", rx_len);
 		free(lreply);
 		rc->flags |= ITC_INVALID_MSG_SIZE;
 		return false;
@@ -141,7 +143,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	close(sd);
 
 	/* Done communication, start analyzing the response */
-	if(lreply->msgno == ITC_LOCATE_COORD_REPLY && )
+	if(lreply->msgno == ITC_LOCATE_COORD_REPLY && lreply->my_mbox_id_in_itccoord != ITC_NO_MBOX_ID)
 	{
 		if(lreply->my_mbox_id_in_itccoord != ITC_NO_MBOX_ID)
 		{
@@ -152,6 +154,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 		} else
 		{
 			/* Indicate that no more process can be added, limited number of processes 255 has been reached */
+			printf("\tDEBUG: lsock_locate_coord - No more process can be added by itccoord!\n");
 			rc->flags |= ITC_OUT_OF_RANGE;
 			free(lreply);
 			return false;
@@ -160,9 +163,10 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	} else
 	{
 		/* Indicate that we have received a strange message type in response */
-			rc->flags |= ITC_INVALID_ARGUMENTS;
-			free(lreply);
-			return false;
+		printf("\tDEBUG: lsock_locate_coord - Unknown message received!\n");
+		rc->flags |= ITC_INVALID_ARGUMENTS;
+		free(lreply);
+		return false;
 	}
 
 	free(lreply);
@@ -187,6 +191,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 			generate_lsockpath(rc);
 			if(rc->flags != ITC_OK)
 			{
+				printf("\tDEBUG: lsock_init - Failed to generate lsockpath!\n");
 				return;
 			}
 		}	
@@ -194,7 +199,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		sd = socket(AF_LOCAL, SOCK_STREAM, 0);
 		if(sd < 0)
 		{
-			perror("lsock_init - socket");
+			perror("\tDEBUG: lsock_init - socket");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -206,7 +211,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(struct sockaddr));
 		if(res < 0)
 		{
-			perror("lsock_init - connect");
+			perror("\tDEBUG: lsock_init - connect");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -220,7 +225,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		
 		if(rx_len < 0)
 		{
-			perror("lsock_init - recv");
+			printf("\tDEBUG: lsock_init - ACK from itccoord not received, rx_len = %u!\n", rx_len);
 			rc->flags |= ITC_SYSCALL_ERROR;
 		} else if(rx_len != 4 && strcmp("ack", str_ack) != 0)
 		{
@@ -240,7 +245,7 @@ static void lsock_exit(struct result_code* rc)
 		res = close(lsock_inst.sd);
 		if(res < 0)
 		{
-			perror("lsock_exit - close");
+			perror("\tDEBUG: lsock_exit - close");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -256,14 +261,13 @@ static void lsock_exit(struct result_code* rc)
 *******************************************************************************/
 static void generate_lsockpath(struct result_code* rc)
 {
-	FILE* fd;
 	int res;
 
 	res = mkdir(ITC_BASE_PATH, 0777);
 
 	if(res < 0 && errno != EEXIST)
 	{
-		perror("mkdir 1");
+		perror("\tDEBUG: mkdir 1");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -272,7 +276,7 @@ static void generate_lsockpath(struct result_code* rc)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		perror("mkdir 2");
+		perror("\tDEBUG: mkdir 2");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}

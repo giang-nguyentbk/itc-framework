@@ -8,6 +8,19 @@
 #include "itc_queue.h"
 #include "itc_impl.h"
 
+#define PRINT_DASH_START					\
+	do							\
+	{							\
+		printf("\n-------------------------------------------------------------------------------------------------------------------\n");	\
+	} while(0)
+
+#define PRINT_DASH_END						\
+	do							\
+	{							\
+		printf("-------------------------------------------------------------------------------------------------------------------\n\n");	\
+	} while(0)
+
+
 struct itc_queue* test_q_init(void);
 void test_q_exit(struct itc_queue* q);
 void test_q_enqueue(struct itc_queue*q, void* data);
@@ -21,14 +34,55 @@ int main(int argc, char* argv[])
 /* TEST EXPECTATION:
 -------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_init>            Calling q_init() successful,                            rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: q_enqueue - Queue now is empty, add the first node!
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_enqueue>         Calling q_enqueue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_enqueue>         Calling q_enqueue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_enqueue>         Calling q_enqueue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_enqueue>         Calling q_enqueue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: q_dequeue - Queue currently has 4 items!
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_dequeue_int>     Calling q_dequeue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: q_dequeue - Queue currently has 3 items!
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_dequeue_int>     Calling q_dequeue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: q_dequeue - Queue currently has 2 items!
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_dequeue_float>   Calling q_dequeue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: q_dequeue - Queue has only one item!
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_dequeue_float>   Calling q_dequeue() successful,                         rc = 0!
+-------------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_q_exit>            Calling q_exit() successful,                            rc = 0!
 -------------------------------------------------------------------------------------------------------------------
 */
@@ -46,8 +100,7 @@ int main(int argc, char* argv[])
 	fdata[0] = 1.5;
 	fdata[1] = 2.5;
 	
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
+	PRINT_DASH_END;
 
 	q = test_q_init(); 			// OK
 
@@ -63,8 +116,7 @@ int main(int argc, char* argv[])
 
 	test_q_exit(q);				// OK
 
-	printf("--------------------------------------------------------------------------------------" \
-		"-----------------------------\n");
+	PRINT_DASH_START;
 
 	free(data);
 	free(fdata);
@@ -80,7 +132,9 @@ struct itc_queue* test_q_init()
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_init>\t\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return NULL;
 	}
 
@@ -88,13 +142,17 @@ struct itc_queue* test_q_init()
 	q = q_init(rc);
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_init>\t\t Failed to q_init(),\t\t\t rc = %d!\n", \
 			rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return NULL;
 	}
 
+	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_q_init>\t\t Calling q_init() successful,\t\t\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 
 	return q;
@@ -108,20 +166,26 @@ void test_q_exit(struct itc_queue* q)
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_exit>\t\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return;
 	}
 
 	q_exit(rc, q);
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_exit>\t\t Failed to q_exit(),\t\t\t rc = %d!\n", \
 			rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
+	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_q_exit>\t\t Calling q_exit() successful,\t\t\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 }
 
@@ -133,20 +197,26 @@ void test_q_enqueue(struct itc_queue*q, void* data)
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_enqueue>\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return;
 	}
 
 	q_enqueue(rc, q, data);
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_enqueue>\t Failed to q_enqueue(),\t\t\t rc = %d!\n", \
 			rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
+	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_q_enqueue>\t Calling q_enqueue() successful,\t\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 }
 
@@ -158,7 +228,9 @@ void test_q_dequeue_int(struct itc_queue*q, int data_to_compare)
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_dequeue_int>\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return;
 	}
 
@@ -166,21 +238,27 @@ void test_q_dequeue_int(struct itc_queue*q, int data_to_compare)
 	data = q_dequeue(rc, q);
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_dequeue_int>\t Failed to q_dequeue(),\t\t\t rc = %d!\n", \
 			rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
 	if(*(int*)data != data_to_compare)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_dequeue_int>\t Data after dequeueing not equal!,\t\t\t data = %d, data_to_compare = %d!\n", \
 			*(int*)data, data_to_compare);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
+	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_q_dequeue_int>\t Calling q_dequeue() successful,\t\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 }
 
@@ -192,7 +270,9 @@ void test_q_dequeue_float(struct itc_queue*q, float data_to_compare)
 		rc->flags = ITC_OK;
 	} else
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_dequeue_float>\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
                 return;
 	}
 
@@ -200,20 +280,26 @@ void test_q_dequeue_float(struct itc_queue*q, float data_to_compare)
 	data = q_dequeue(rc, q);
 	if(rc->flags != ITC_OK)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_dequeue_float>\t Failed to q_dequeue(),\t\t\t rc = %d!\n", \
 			rc->flags);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
 	if(*(float*)data != data_to_compare)
 	{
+		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_q_dequeue_float>\t Data after dequeueing not equal!,\t\t\t data = %f, data_to_compare = %f!\n", \
 			*(float*)data, data_to_compare);
+		PRINT_DASH_END;
 		free(rc);
 		return;
 	}
 
+	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_q_dequeue_float>\t Calling q_dequeue() successful,\t\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
 	free(rc);
 }
