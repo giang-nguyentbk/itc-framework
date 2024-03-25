@@ -132,16 +132,18 @@ void terminate_itcthreads(struct result_code* rc)
 	while(thr != NULL)
 	{
 		/* To let the created thread trigger thread-specific data destructor, and clean up resources */
-		if(pthread_cancel(thr->tid) != 0)
+		int ret = pthread_cancel(thr->tid);
+		if(ret != 0)
 		{
-			perror("\tDEBUG: terminate_itcthreads - pthread_cancel");
+			printf("\tDEBUG: terminate_itcthreads - pthread_cancel error code = %d\n", ret);
 			rc->flags |= ITC_SYSCALL_ERROR;
 			break;
 		}
 
-		if(pthread_join(thr->tid, NULL) != 0)
+		ret = pthread_join(thr->tid, NULL);
+		if(ret != 0)
 		{
-			perror("\tDEBUG: terminate_itcthreads - pthread_join");
+			printf("\tDEBUG: terminate_itcthreads - pthread_join error code = %d\n", ret);
 			rc->flags |= ITC_SYSCALL_ERROR;
 			break;
 		}
@@ -177,38 +179,43 @@ static void config_itcthread(struct result_code* rc, void* (*worker)(void*), voi
 	pthread_attr_t t_attr;
 	struct sched_param sched_params;
 
-	if(pthread_attr_init(&t_attr) != 0)
+	int ret = pthread_attr_init(&t_attr);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: config_itcthread - pthread_attr_init");
+		printf("\tDEBUG: config_itcthread - pthread_attr_init error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
-	if(pthread_attr_setschedpolicy(&t_attr, policy) != 0)
+	ret = pthread_attr_setschedpolicy(&t_attr, policy);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: config_itcthread - pthread_attr_setschedpolicy");
+		printf("\tDEBUG: config_itcthread - pthread_attr_setschedpolicy error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
 	sched_params.sched_priority = priority;
-	if(pthread_attr_setschedparam(&t_attr, &sched_params) != 0)
+	ret = pthread_attr_setschedparam(&t_attr, &sched_params);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: config_itcthread - pthread_attr_setschedparam");
+		printf("\tDEBUG: config_itcthread - pthread_attr_setschedparam error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
-	if(pthread_attr_setinheritsched(&t_attr, PTHREAD_EXPLICIT_SCHED) != 0)
+	ret = pthread_attr_setinheritsched(&t_attr, PTHREAD_EXPLICIT_SCHED);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: config_itcthread - pthread_attr_setinheritsched");
+		printf("\tDEBUG: config_itcthread - pthread_attr_setinheritsched error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
-	if(pthread_create(t_id, &t_attr, worker, arg) != 0)
+	ret = pthread_create(t_id, &t_attr, worker, arg);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: config_itcthread - pthread_create");
+		printf("\tDEBUG: config_itcthread - pthread_create error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}

@@ -58,23 +58,45 @@ extern "C" {
 
 #define CONVERT_TO_MSG(message) (union itc_msg*)(&message->msgno)
 
-#define MUTEX_LOCK(rc, lock)					\
-	do							\
-	{							\
-		if(pthread_mutex_lock(lock) != 0)		\
-		{						\
-			rc->flags |= ITC_SYSCALL_ERROR;		\
-		}						\
+#ifdef MUTEX_TRACE_UNITTEST
+#define MUTEX_LOCK(rc, lock)								\
+	do										\
+	{										\
+		printf("\tDEBUG: MUTEX_LOCK\t0x%08lx!\n", (unsigned long)lock);		\
+		if(pthread_mutex_lock(lock) != 0)					\
+		{									\
+			rc->flags |= ITC_SYSCALL_ERROR;					\
+		}									\
 	} while(0)
 
-#define MUTEX_UNLOCK(rc, lock)					\
-	do							\
-	{							\
-		if(pthread_mutex_unlock(lock) != 0)		\
-		{						\
-			rc->flags |= ITC_SYSCALL_ERROR;		\
-		}						\
+#define MUTEX_UNLOCK(rc, lock)								\
+	do										\
+	{										\
+		printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx!\n", (unsigned long)lock);	\
+		if(pthread_mutex_unlock(lock) != 0)					\
+		{									\
+			rc->flags |= ITC_SYSCALL_ERROR;					\
+		}									\
 	} while(0)
+#else
+#define MUTEX_LOCK(rc, lock)								\
+	do										\
+	{										\
+		if(pthread_mutex_lock(lock) != 0)					\
+		{									\
+			rc->flags |= ITC_SYSCALL_ERROR;					\
+		}									\
+	} while(0)
+
+#define MUTEX_UNLOCK(rc, lock)								\
+	do										\
+	{										\
+		if(pthread_mutex_unlock(lock) != 0)					\
+		{									\
+			rc->flags |= ITC_SYSCALL_ERROR;					\
+		}									\
+	} while(0)
+#endif
 
 #define MIN(x, y)	((x) < (y)) ? (x) : (y)
 #define MAX(x, y)	((x) > (y)) ? (x) : (y)
