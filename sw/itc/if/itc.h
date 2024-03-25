@@ -130,7 +130,7 @@ extern itc_mbox_id_t itc_sender(union itc_msg *msg);
 extern itc_mbox_id_t itc_receiver(union itc_msg *msg);
 extern size_t itc_size(union itc_msg *msg);
 /* The first element of returned array is the number of active mailboxes in this thread, following elements respectively are those mailbox ids */
-extern itc_mbox_id_t* itc_current_mboxes(void);
+extern itc_mbox_id_t itc_current_mbox(void);
 
 /*
 *  Locate a mailbox across the entire universe.
@@ -218,8 +218,8 @@ extern itc_mbox_id_t itc_receiver_zz(union itc_msg *msg);
 extern size_t itc_size_zz(union itc_msg *msg);
 #define itc_size(msg) itc_size_zz((msg))
 
-extern itc_mbox_id_t* itc_current_mboxes_zz(void);
-#define itc_current_mboxes() itc_current_mboxes_zz()
+extern itc_mbox_id_t itc_current_mbox_zz(void);
+#define itc_current_mbox() itc_current_mbox_zz()
 
 // extern itc_mbox_id_t itc_locate_sync_zz(const char *name, uint32_t wheretofind);
 // #define itc_locate_sync(name, wheretofind) itc_locate_sync_zz((name), (wheretofind))

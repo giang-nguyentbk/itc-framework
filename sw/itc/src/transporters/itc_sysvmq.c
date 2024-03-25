@@ -168,16 +168,18 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 	sysvmq_inst.my_mbox_id_in_itccoord	= my_mbox_id_in_itccoord;
 
 	// Create key for thread-specific data (mbox_id)
-	if(pthread_key_create(&sysvmq_inst.destruct_key, rxthread_destructor) != 0)
+	int ret = pthread_key_create(&sysvmq_inst.destruct_key, rxthread_destructor);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: sysvmq_init - pthread_key_create");
+		printf("\tDEBUG: sysvmq_init - pthread_key_create error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
-	if(pthread_mutex_init(&sysvmq_inst.thread_mtx, NULL) != 0)
+	ret = pthread_mutex_init(&sysvmq_inst.thread_mtx, NULL);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: sysvmq_init - pthread_mutex_init");
+		printf("\tDEBUG: sysvmq_init - pthread_mutex_init error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -194,16 +196,18 @@ static void sysvmq_exit(struct result_code* rc)
 		return;
 	}
 
-	if(pthread_mutex_destroy(&sysvmq_inst.thread_mtx) != 0)
+	int ret = pthread_mutex_destroy(&sysvmq_inst.thread_mtx);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: sysvmq_exit - pthread_mutex_destroy");
+		printf("\tDEBUG: sysvmq_exit - pthread_mutex_destroy error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
-	if(pthread_key_delete(sysvmq_inst.destruct_key) != 0)
+	ret = pthread_key_delete(sysvmq_inst.destruct_key);
+	if(ret != 0)
 	{
-		perror("\tDEBUG: sysvmq_exit - pthread_key_delete");
+		printf("\tDEBUG: sysvmq_exit - pthread_key_delete error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -319,7 +323,7 @@ static void* sysvmq_rx_thread(void *data)
 	sprintf(itc_mbox_name, "itc_rx_sysvmq_0x%08x", sysvmq_inst.my_mbox_id_in_itccoord);
 	
 
-#ifdef UNITTEST
+#ifdef SYSVMQ_TRANS_UNITTEST
 	// Simulate that everything is ok at this point. Do nothing in unit test.
 	// API itc_create_mailbox is an external interface, so do not care about it if everything we pass into it is all correct.
 	sysvmq_inst.my_mbox_id = 1;
@@ -327,10 +331,11 @@ static void* sysvmq_rx_thread(void *data)
 	sysvmq_inst.my_mbox_id = itc_create_mailbox(itc_mbox_name, ITC_NO_NAMESPACE);
 #endif
 
-	if(pthread_setspecific(sysvmq_inst.destruct_key, (void*)(unsigned long)sysvmq_inst.my_mbox_id) != 0)
+	int ret = pthread_setspecific(sysvmq_inst.destruct_key, (void*)(unsigned long)sysvmq_inst.my_mbox_id);
+	if(ret != 0)
 	{
 		// ERROR trace is needed here
-		perror("\tDEBUG: sysvmq_rx_thread - pthread_setspecific");
+		printf("\tDEBUG: sysvmq_rx_thread - pthread_setspecific error code = %d\n", ret);
 		return NULL;
 	}
 
@@ -432,10 +437,10 @@ static void* sysvmq_rx_thread(void *data)
 *******************************************************************************/
 static void release_sysvmq_resources(struct result_code* rc)
 {
-	if(pthread_key_delete(sysvmq_inst.destruct_key) != 0)
+	int ret = pthread_key_delete(sysvmq_inst.destruct_key);
+	if(ret != 0)
 	{
-		// perror("\tDEBUG: release_sysvmq_resources - pthread_key_delete");
-		perror("\tDEBUG: release_sysvmq_resources - pthread_key_delete");
+		printf("\tDEBUG: release_sysvmq_resources - pthread_key_delete error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}

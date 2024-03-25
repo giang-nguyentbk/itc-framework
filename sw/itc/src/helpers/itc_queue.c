@@ -55,11 +55,12 @@ struct itc_queue* q_init(struct result_code* rc)
 		return NULL;
 	}
 
-	if(pthread_mutex_init(q->q_mtx, NULL) != 0)
+	int ret = pthread_mutex_init(q->q_mtx, NULL);
+	if(ret != 0)
 	{
 		free(q->q_mtx);
 		free(q);
-		perror("\tDEBUG: q_init - pthread_mutex_init");
+		printf("\tDEBUG: q_init - pthread_key_delete error code = %d\n", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -93,9 +94,10 @@ void q_exit(struct result_code* rc, struct itc_queue* q)
 
 	if(q->q_mtx != NULL)
 	{
-		if(pthread_mutex_destroy(q->q_mtx) != 0)
+		int ret = pthread_mutex_destroy(q->q_mtx);
+		if(ret != 0)
 		{
-			perror("\tDEBUG: q_exit - pthread_mutex_destroy");
+			printf("\tDEBUG: q_exit - pthread_mutex_destroy error code = %d\n", ret);
 			rc->flags |= ITC_SYSCALL_ERROR;
 		}
 		free(q->q_mtx);

@@ -28,6 +28,10 @@ void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *names
 void test_itc_exit(void);
 union itc_msg* test_itc_alloc(void);
 void test_itc_free(union itc_msg **msg);
+itc_mbox_id_t test_itc_create_mailbox(const char *name, uint32_t flags);
+void test_itc_delete_mailbox(itc_mbox_id_t mbox_id);
+void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
+union itc_msg *test_itc_receive(int32_t tmo, itc_mbox_id_t from);
 
 /* Expect main call:    ./itc_test */
 int main(int argc, char* argv[])
@@ -97,6 +101,17 @@ int main(int argc, char* argv[])
 	test_itc_init(10, ITC_MALLOC, NULL, 0);
 
 	msg = test_itc_alloc();
+
+	itc_mbox_id_t mbox_id_1 = test_itc_create_mailbox("resourceHandlerMailbox1", 0);
+
+	itc_mbox_id_t mbox_id_2 = test_itc_create_mailbox("teamServer1", 0);
+
+
+	test_itc_send(&msg, mbox_id_1, mbox_id_1);
+
+	test_itc_delete_mailbox(mbox_id_1);
+
+	test_itc_delete_mailbox(mbox_id_2);
 
 	test_itc_free(&msg);
 
@@ -171,4 +186,71 @@ void test_itc_free(union itc_msg **msg)
 	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_itc_free>\t\t Calling itc_free() successful!\n");
 	PRINT_DASH_END;
+}
+
+itc_mbox_id_t test_itc_create_mailbox(const char *name, uint32_t flags)
+{
+	itc_mbox_id_t mbox_id = itc_create_mailbox(name, flags);
+	if(mbox_id == ITC_NO_MBOX_ID)
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_itc_create_mailbox>\t Failed to itc_create_mailbox()!\n");
+		PRINT_DASH_END;
+		return ITC_NO_MBOX_ID;
+	}
+
+	PRINT_DASH_START;
+        printf("[SUCCESS]:\t<test_itc_create_mailbox>\t Calling itc_create_mailbox() successful!\n");
+	PRINT_DASH_END;
+	return mbox_id;
+}
+
+void test_itc_delete_mailbox(itc_mbox_id_t mbox_id)
+{
+	if(itc_delete_mailbox(mbox_id) == false)
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_itc_delete_mailbox>\t Failed to itc_delete_mailbox()!\n");
+		PRINT_DASH_END;
+		return;
+	}
+
+	PRINT_DASH_START;
+        printf("[SUCCESS]:\t<test_itc_delete_mailbox>\t Calling itc_delete_mailbox() successful!\n");
+	PRINT_DASH_END;
+}
+
+void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
+{
+	if(itc_send(msg, to, from) == false)
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_itc_send>\t\t Failed to itc_send()!\n");
+		PRINT_DASH_END;
+		return;
+	}
+
+	PRINT_DASH_START;
+        printf("[SUCCESS]:\t<test_itc_send>\t\t Calling itc_send() successful!\n");
+	PRINT_DASH_END;
+}
+
+union itc_msg *test_itc_receive(int32_t tmo, itc_mbox_id_t from)
+{
+	union itc_msg* msg;
+
+	msg = itc_receive(tmo, from);
+
+	if(msg == NULL)
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_itc_receive>\t Failed to itc_receive()!\n");
+		PRINT_DASH_END;
+		return NULL;
+	}
+
+	PRINT_DASH_START;
+        printf("[SUCCESS]:\t<test_itc_receive>\t Calling itc_receive() successful!\n");
+	PRINT_DASH_END;
+	return msg;
 }
