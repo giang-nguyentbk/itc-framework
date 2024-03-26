@@ -4,9 +4,11 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "itc_impl.h"
 #include "itc.h"
+#include "itc_threadmanager.h"
 #include "moduleXyz.sig"
 
 #define PRINT_DASH_START					\
@@ -22,7 +24,18 @@
 	} while(0)
 
 
-void test_function(void);
+struct worker_t {
+	void*			(*worker)(void*);
+	pthread_key_t		destructor_key;
+	pthread_mutex_t		mtx;
+	int 			isTerminated;
+};
+static struct worker_t worker_1;
+static union itc_msg* msg = NULL;
+static union itc_msg* rcv_msg = NULL;
+
+static void teamServer_thread_destructor();
+static void* teamServer_thread(void* data);
 
 void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags);
 void test_itc_exit(void);
@@ -33,7 +46,7 @@ void test_itc_delete_mailbox(itc_mbox_id_t mbox_id);
 void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
 union itc_msg *test_itc_receive(int32_t tmo, itc_mbox_id_t from);
 
-/* Expect main call:    ./itc_test */
+/* Expect main call:    ./itc_test_2 */
 int main(int argc, char* argv[])
 {
 /* TEST EXPECTATION:
@@ -92,9 +105,16 @@ int main(int argc, char* argv[])
 
 	(void)argc; // Avoid compiler warning unused variables
 	(void)argv; // Avoid compiler warning unused variables
+	
+	struct timespec t_start;
+	struct timespec t_end;
 
 	union itc_msg* msg;
-
+	pthread_t teamServer_thread_id;
+	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
+	
+	pthread_mutex_init(&worker_1.mtx, NULL);
+	pthread_key_create(&worker_1.destructor_key, teamServer_thread_destructor);
 	
 	PRINT_DASH_END;
 
@@ -104,21 +124,45 @@ int main(int argc, char* argv[])
 
 	itc_mbox_id_t mbox_id_1 = test_itc_create_mailbox("resourceHandlerMailbox1", 0);
 
-	itc_mbox_id_t mbox_id_2 = test_itc_create_mailbox("teamServer1", 0);
+	MUTEX_LOCK(&worker_1.mtx, __FILE__, __LINE__);
+	pthread_create(&teamServer_thread_id, NULL, teamServer_thread, NULL);
+	MUTEX_LOCK(&worker_1.mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&worker_1.mtx, __FILE__, __LINE__);
 
+	clock_gettime(CLOCK_REALTIME, &t_start);
 
-	test_itc_send(&msg, mbox_id_1, mbox_id_1);
+	itc_mbox_id_t mbox_id_2 = 0x00500002;
+	test_itc_send(&msg, mbox_id_2, ITC_MY_MBOX_ID);
+
+	clock_gettime(CLOCK_REALTIME, &t_end);
+	unsigned long int difftime = calc_time_diff(t_start, t_end);
+	printf("\tDEBUG: main - Time needed to send message = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
 
 	test_itc_delete_mailbox(mbox_id_1);
 
-	test_itc_delete_mailbox(mbox_id_2);
+	sleep(1); // Give teamServer_thread some time to finish receiving and handling the message
+	int ret = pthread_cancel(teamServer_thread_id);
+	if(ret != 0)
+	{
+		printf("\tDEBUG: main - ERROR pthread_cancel error code = %d\n", ret);
+	}
 
-	test_itc_free(&msg);
+	ret = pthread_join(teamServer_thread_id, NULL);
+	if(ret != 0)
+	{
+		printf("\tDEBUG: main - ERROR pthread_join error code = %d\n", ret);
+	}
+	printf("\tDEBUG: main - Terminating teamServer_thread...!\n");
+
+	(void)msg;
+	// test_itc_free(&msg); // This will be freed by receiver "teamServer"
 
 	test_itc_exit();
 
 	PRINT_DASH_START;
 
+
+	free(rc);
 
 	return 0;
 }
@@ -243,14 +287,87 @@ union itc_msg *test_itc_receive(int32_t tmo, itc_mbox_id_t from)
 
 	if(msg == NULL)
 	{
-		PRINT_DASH_START;
-		printf("[FAILED]:\t<test_itc_receive>\t Failed to itc_receive()!\n");
-		PRINT_DASH_END;
-		return NULL;
+		if(tmo == ITC_NO_WAIT)
+		{
+			return NULL;
+		} else
+		{
+			PRINT_DASH_START;
+			printf("[FAILED]:\t<test_itc_receive>\t Failed to itc_receive()!\n");
+			PRINT_DASH_END;
+			return NULL;
+		}
 	}
 
 	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_itc_receive>\t Calling itc_receive() successful!\n");
 	PRINT_DASH_END;
 	return msg;
+}
+
+
+static void* teamServer_thread(void* data)
+{
+	(void)data;
+	
+	printf("\tDEBUG: teamServer_thread - Starting teamServerThread...\n");
+
+	itc_mbox_id_t mbox_id_ts = test_itc_create_mailbox("teamServerMailbox1", 0);
+
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL); // Allow this thread can be cancelled without having any cancellation point such as sleep(), read(),...
+	pthread_setspecific(worker_1.destructor_key, &mbox_id_ts);
+
+	MUTEX_UNLOCK(&worker_1.mtx, __FILE__, __LINE__);
+
+	itc_mbox_id_t mbox_id_1 = 0x00500001; // resourceHandlerMailbox1
+	while(1)
+	{
+		if(worker_1.isTerminated)
+		{
+			break;
+		}
+
+		// teamServerMailbox1 always listens to resourceHandlerMailbox1
+		// printf("\tDEBUG: teamServerThread - Reading rx queue...!\n"); SPAM
+		// Let's test with 1000 ms waiting for responses, ITC_NO_WAIT and ITC_WAIT_FOREVER
+		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER, mbox_id_1);
+
+		if(rcv_msg != NULL)
+		{
+			switch (rcv_msg->msgNo)
+			{
+			case MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ:
+				{
+					printf("\tDEBUG: teamServerThread - Received MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ, handle it!\n");
+					test_itc_free(&rcv_msg);
+					break;
+				}
+			
+			default:
+				{
+					printf("\tDEBUG: teamServerThread - Received unknown message msgno = %u, discard it!\n", rcv_msg->msgNo);
+					test_itc_free(&rcv_msg);
+					break;
+				}
+			}
+		}
+	}
+
+	test_itc_delete_mailbox(mbox_id_ts);
+	return NULL;
+}
+
+static void teamServer_thread_destructor()
+{
+	// printf("\tDEBUG: Calling thread_destructor!\n");
+	worker_1.isTerminated = 1;
+
+	printf("\tDEBUG: teamServer_thread_destructor - rcv_msg = 0x%08lx, msg = 0x%08lx!\n", (unsigned long)rcv_msg, (unsigned long)msg);
+	if(rcv_msg != NULL)
+	{
+		test_itc_free(&rcv_msg);
+	} else if(msg != NULL)
+	{
+		test_itc_free(&msg);
+	}
 }

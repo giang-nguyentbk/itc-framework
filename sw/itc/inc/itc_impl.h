@@ -17,6 +17,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <time.h>
 
 #include "itc.h"
 
@@ -58,43 +59,86 @@ extern "C" {
 
 #define CONVERT_TO_MSG(message) (union itc_msg*)(&message->msgno)
 
-#ifdef MUTEX_TRACE_UNITTEST
-#define MUTEX_LOCK(rc, lock)								\
+
+unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end);
+
+#if defined MUTEX_TRACE_TIME_UNITTEST
+#define MUTEX_LOCK(lock, file, line)							\
 	do										\
 	{										\
-		printf("\tDEBUG: MUTEX_LOCK\t0x%08lx!\n", (unsigned long)lock);		\
-		if(pthread_mutex_lock(lock) != 0)					\
+		struct timespec t_start;						\
+		struct timespec t_end;							\
+		clock_gettime(CLOCK_MONOTONIC, &t_start);				\
+		pthread_mutex_lock(lock);						\
+		clock_gettime(CLOCK_MONOTONIC, &t_end);					\
+		unsigned long int difftime = calc_time_diff(t_start, t_end);		\
+		if(difftime/1000000 > 10)						\
 		{									\
-			rc->flags |= ITC_SYSCALL_ERROR;					\
+			printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"		\
+				"time_elapsed = %lu (ms)!\n",				\
+				(unsigned long)lock, file, line, difftime/1000000);	\
+			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_sec = %lu!\n", 	\
+				t_start.tv_sec);					\
+			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 	\
+				t_start.tv_nsec);					\
+			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 	\
+				t_end.tv_sec);						\
+			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",	\
+				t_end.tv_nsec);						\
 		}									\
+	} while(0)
+
+#define MUTEX_UNLOCK(lock, file, line)							\
+	do										\
+	{										\
+		struct timespec t_start;						\
+		struct timespec t_end;							\
+		clock_gettime(CLOCK_MONOTONIC, &t_start);				\
+		pthread_mutex_unlock(lock);						\
+		clock_gettime(CLOCK_MONOTONIC, &t_end);					\
+		unsigned long int difftime = calc_time_diff(t_start, t_end);		\
+		if(difftime/1000000 > 10)						\
+		{									\
+			printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"		\
+				"time_elapsed = %lu (ms)!\n",				\
+				(unsigned long)lock, file, line, difftime/1000000);	\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_sec = %lu!\n", 	\
+				t_start.tv_sec);					\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_nsec = %lu!\n", 	\
+				t_start.tv_nsec);					\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_sec = %lu!\n", 	\
+				t_end.tv_sec);						\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_nsec = %lu!\n",	\
+				t_end.tv_nsec);						\
+		}									\
+	} while(0)
+#elif defined MUTEX_TRACE_UNITTEST
+#define MUTEX_LOCK(lock, file, line)							\
+	do										\
+	{										\
+		printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d\n", 			\
+			(unsigned long)lock, file, line);				\
+		pthread_mutex_lock(lock);						\
 	} while(0)
 
 #define MUTEX_UNLOCK(rc, lock)								\
 	do										\
 	{										\
-		printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx!\n", (unsigned long)lock);	\
-		if(pthread_mutex_unlock(lock) != 0)					\
-		{									\
-			rc->flags |= ITC_SYSCALL_ERROR;					\
-		}									\
+		printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d\n", 			\
+			(unsigned long)lock, file, line);				\
+		pthread_mutex_unlock(lock);						\
 	} while(0)
 #else
-#define MUTEX_LOCK(rc, lock)								\
+#define MUTEX_LOCK(lock, file, line)							\
 	do										\
 	{										\
-		if(pthread_mutex_lock(lock) != 0)					\
-		{									\
-			rc->flags |= ITC_SYSCALL_ERROR;					\
-		}									\
+		pthread_mutex_lock(lock);						\
 	} while(0)
 
-#define MUTEX_UNLOCK(rc, lock)								\
+#define MUTEX_UNLOCK(lock, file, line)							\
 	do										\
 	{										\
-		if(pthread_mutex_unlock(lock) != 0)					\
-		{									\
-			rc->flags |= ITC_SYSCALL_ERROR;					\
-		}									\
+		pthread_mutex_unlock(lock);						\
 	} while(0)
 #endif
 

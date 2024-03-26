@@ -31,6 +31,7 @@ struct itc_threads {
 	pthread_t		tid;
 	bool			use_highest_prio;
 	pthread_mutex_t*	start_mtx;
+	bool			is_running;
 };
 
 struct itc_threadmanager_instance {
