@@ -66,7 +66,22 @@ int main(int argc, char* argv[])
         DEBUG: itc_init_zz - q_enqueue mailbox 8 to itc_inst.free_mbox_queue!
         DEBUG: itc_init_zz - q_enqueue mailbox 9 to itc_inst.free_mbox_queue!
         DEBUG: itc_init_zz - q_enqueue mailbox 10 to itc_inst.free_mbox_queue!
+        DEBUG: q_dequeue - Queue currently has 11 items!
+        DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 1048577!
+        DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 1048576, my_mbox_id_in_itccoord = 5242880!
+        DEBUG: local_send - Not belong to this process, mbox_id = 1048577!
+        DEBUG: get_sysvmq_cl - Add contact list!
+        DEBUG: get_sysvmq_id - msgget: No such file or directory
+        DEBUG: sysvmq_send - Receiver side not initialised message queue yet!
+        DEBUG: itc_send_zz - Failed to send message by all transport mechanisms!
+        DEBUG: itc_create_mailbox_zz - Failed to send notification to itccoord regarding ADD mailbox id = 5242880!
+        DEBUG: sysvmq_rx_thread - Starting sysvmq_rx_thread itc_rx_sysvmq_0x00500000...!
         DEBUG: sysvmq_maxmsgsize - Get max msg size successfully, max_msgsize = 8192!
+        DEBUG: MUTEX_LOCK       0x0011b418,     ../../../src/helpers/itc_threadmanager.c:114,   time_elapsed = 14 (ms)!
+        DEBUG: MUTEX_LOCK - t_start.tv_sec = 30136!
+        DEBUG: MUTEX_LOCK - t_start.tv_nsec = 970643713!
+        DEBUG: MUTEX_LOCK - t_end.tv_sec = 30136!
+        DEBUG: MUTEX_LOCK - t_end.tv_nsec = 985402251!
         DEBUG: start_itcthreads - Starting a thread!
 
 -------------------------------------------------------------------------------------------------------------------
@@ -78,11 +93,97 @@ int main(int argc, char* argv[])
 [SUCCESS]:      <test_itc_alloc>         Calling itc_alloc() successful!
 -------------------------------------------------------------------------------------------------------------------
 
+        DEBUG: q_dequeue - Queue currently has 10 items!
+        DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 1048577!
+        DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 1048576, my_mbox_id_in_itccoord = 5242880!
+        DEBUG: local_send - Not belong to this process, mbox_id = 1048577!
+        DEBUG: get_sysvmq_cl - Add contact list!
+        DEBUG: get_sysvmq_id - msgget: No such file or directory
+        DEBUG: sysvmq_send - Receiver side not initialised message queue yet!
+        DEBUG: itc_send_zz - Failed to send message by all transport mechanisms!
+        DEBUG: itc_create_mailbox_zz - Failed to send notification to itccoord regarding ADD mailbox id = 5242881!
+
+-------------------------------------------------------------------------------------------------------------------
+[SUCCESS]:      <test_itc_create_mailbox>        Calling itc_create_mailbox() successful!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: teamServer_thread - Starting teamServerThread...
+        DEBUG: q_dequeue - Queue currently has 9 items!
+        DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 1048577!
+        DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 1048576, my_mbox_id_in_itccoord = 5242880!
+        DEBUG: local_send - Not belong to this process, mbox_id = 1048577!
+        DEBUG: get_sysvmq_cl - Add contact list!
+        DEBUG: get_sysvmq_id - msgget: No such file or directory
+        DEBUG: sysvmq_send - Receiver side not initialised message queue yet!
+        DEBUG: itc_send_zz - Failed to send message by all transport mechanisms!
+        DEBUG: itc_create_mailbox_zz - Failed to send notification to itccoord regarding ADD mailbox id = 5242882!
+
+-------------------------------------------------------------------------------------------------------------------
+[SUCCESS]:      <test_itc_create_mailbox>        Calling itc_create_mailbox() successful!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: itc_receive_zz - Waiting for incoming messages...!
+        DEBUG: enqueue_message - RX queue has only one item, add a new one!
+        DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+        DEBUG: itc_send_zz - Notify receiver about sent messages!
+
+-------------------------------------------------------------------------------------------------------------------
+[SUCCESS]:      <test_itc_send>          Calling itc_send() successful!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: main - Time needed to send message = 5855299 (ns) -> 5 (ms)!
+        DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 1048577!
+        DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 1048576, my_mbox_id_in_itccoord = 5242880!
+        DEBUG: local_send - Not belong to this process, mbox_id = 1048577!
+        DEBUG: get_sysvmq_cl - Add contact list!
+        DEBUG: get_sysvmq_id - msgget: No such file or directory
+        DEBUG: sysvmq_send - Receiver side not initialised message queue yet!
+        DEBUG: itc_send_zz - Failed to send message by all transport mechanisms!
+        DEBUG: itc_delete_mailbox_zz - Failed to send notification to itccoord regarding RMV mailbox id = 5242881!
+        DEBUG: itc_delete_mailbox_zz - Deleted thread-local mailbox 5242881!
+
+-------------------------------------------------------------------------------------------------------------------
+[SUCCESS]:      <test_itc_delete_mailbox>        Calling itc_delete_mailbox() successful!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+        DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+
+-------------------------------------------------------------------------------------------------------------------
+[SUCCESS]:      <test_itc_receive>       Calling itc_receive() successful!
+-------------------------------------------------------------------------------------------------------------------
+
+        DEBUG: teamServerThread - Received MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ, handle it!
 
 -------------------------------------------------------------------------------------------------------------------
 [SUCCESS]:      <test_itc_free>          Calling itc_free() successful!
 -------------------------------------------------------------------------------------------------------------------
 
+        DEBUG: itc_receive_zz - Waiting for incoming messages...!
+        DEBUG: teamServer_thread_destructor - rcv_msg = 0x00000000, msg = 0x00000000!
+        DEBUG: mailbox_destructor_at_thread_exit - Thread-local mailbox destructor called by tid = 221858, mbox_id = 5242882!
+        DEBUG: mailbox_destructor_at_thread_exit - Deleting mailbox with mbox_id = 5242882!
+        DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 1048577!
+        DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 1048576, my_mbox_id_in_itccoord = 5242880!
+        DEBUG: local_send - Not belong to this process, mbox_id = 1048577!
+        DEBUG: get_sysvmq_cl - Add contact list!
+        DEBUG: get_sysvmq_id - msgget: No such file or directory
+        DEBUG: sysvmq_send - Receiver side not initialised message queue yet!
+        DEBUG: itc_send_zz - Failed to send message by all transport mechanisms!
+        DEBUG: itc_delete_mailbox_zz - Failed to send notification to itccoord regarding RMV mailbox id = 5242882!
+        DEBUG: itc_delete_mailbox_zz - Deleted thread-local mailbox 5242882!
+        DEBUG: main - Terminating teamServer_thread...!
+        DEBUG: mailbox_destructor_at_thread_exit - Thread-local mailbox destructor called by tid = 221857, mbox_id = 5242880!
+        DEBUG: mailbox_destructor_at_thread_exit - Deleting mailbox with mbox_id = 5242880!
+        DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 1048577!
+        DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 1048576, my_mbox_id_in_itccoord = 5242880!
+        DEBUG: local_send - Not belong to this process, mbox_id = 1048577!
+        DEBUG: get_sysvmq_cl - Add contact list!
+        DEBUG: get_sysvmq_id - msgget: No such file or directory
+        DEBUG: sysvmq_send - Receiver side not initialised message queue yet!
+        DEBUG: itc_send_zz - Failed to send message by all transport mechanisms!
+        DEBUG: itc_delete_mailbox_zz - Failed to send notification to itccoord regarding RMV mailbox id = 5242880!
+        DEBUG: itc_delete_mailbox_zz - Deleted thread-local mailbox 5242880!
         DEBUG: terminate_itcthreads - Terminating a thread!
         DEBUG: q_exit - Queue still has items, removing them!
         DEBUG: q_dequeue - Queue currently has 11 items!
