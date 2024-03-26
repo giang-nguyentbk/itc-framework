@@ -35,8 +35,9 @@ extern "C" {
 // for itc_init() call
 #define ITC_NO_NAMESPACE	0x00000100
 #define ITC_NO_MBOX_ID		0xFFFFFFFF
-#define ITC_NO_TMO		-1
-// #define ITC_MY_MBOX_ID		0xFFF00000
+#define ITC_NO_WAIT		0
+#define ITC_WAIT_FOREVER	-1
+#define ITC_MY_MBOX_ID		0xFFF00000
 
 /* Currently,
 + 0x90000100 - 0x90000500: For SYSV Message Queue
@@ -111,13 +112,15 @@ extern bool itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
                 filter[3] = msgno3
                 ...
         2. You can set timeout in miliseconds to let your thread be blocked to wait for messages.
-        ITC_NO_TMO means wait forever until receiving any message and 0 means check the rx queue and return
+        ITC_WAIT_FOREVER means wait forever until receiving any message and 0 means check the rx queue and return
         immediately no matter if there are messages or not. (in milisecond)
         3. You may want to get messages from someone only, or get from all mailboxes via ITC_FROM_ALL.
 
 	Note that: 1 and 3 will be implemented in ITC V2.
 */
 // extern union itc_msg *itc_receive(const uint32_t *filter, int32_t tmo, itc_mbox_id_t from);
+
+/* We can easily use ITC_MY_MBOX_ID for "from" */
 extern union itc_msg *itc_receive(int32_t tmo, itc_mbox_id_t from); // By default ITC V1 receiving the 1st message in the rx queue
 						 			// no matter from who it came.
 

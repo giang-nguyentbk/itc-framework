@@ -331,6 +331,7 @@ static void* sysvmq_rx_thread(void *data)
 	sysvmq_inst.my_mbox_id = itc_create_mailbox(itc_mbox_name, ITC_NO_NAMESPACE);
 #endif
 
+	printf("\tDEBUG: sysvmq_rx_thread - Starting sysvmq_rx_thread %s...!\n", itc_mbox_name);
 	int ret = pthread_setspecific(sysvmq_inst.destruct_key, (void*)(unsigned long)sysvmq_inst.my_mbox_id);
 	if(ret != 0)
 	{
@@ -394,7 +395,7 @@ static void* sysvmq_rx_thread(void *data)
 	}
 	memset(sysvmq_inst.rx_buffer, 0, sysvmq_inst.max_msgsize);
 
-	MUTEX_UNLOCK(rc_tmp, &sysvmq_inst.thread_mtx);
+	MUTEX_UNLOCK(&sysvmq_inst.thread_mtx, __FILE__, __LINE__);
 	free(rc_tmp);
 
 	for(;;)

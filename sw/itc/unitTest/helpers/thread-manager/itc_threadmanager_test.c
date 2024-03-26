@@ -246,9 +246,7 @@ static void* worker_function_1(void* data)
 	worker_1.data = (int*)malloc(sizeof(int));
 	pthread_setspecific(worker_1.destructor_key, worker_1.data);
 
-	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
-	MUTEX_UNLOCK(rc, &worker_1.start_mtx);
-	free(rc);
+	MUTEX_UNLOCK(&worker_1.start_mtx, __FILE__, __LINE__);
 
 	while(1)
 	{

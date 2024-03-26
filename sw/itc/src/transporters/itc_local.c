@@ -183,7 +183,7 @@ static void local_exit(struct result_code* rc)
 		if(rc->flags != ITC_OK)
 		{
 			// ERROR trace here needed
-			printf("\tDEBUG: local_exit - Not belong to this process!\n");
+			printf("\tDEBUG: local_exit - Not belong to this process, mbox_id = %u!\n", local_inst.my_mbox_id_in_itccoord | i);
 			return;
 		}
 
@@ -216,7 +216,7 @@ static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet, or not belong to this process or mbox_id out of range
-		printf("\tDEBUG: local_create_mbox - Not belong to this process!\n");
+		printf("\tDEBUG: local_create_mbox - Not belong to this process, mbox_id = %u!\n", mailbox->mbox_id);
 		return;
 	}
 
@@ -249,7 +249,7 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	lc_mb_data = find_localmbx_data(rc, mailbox->mbox_id);
 	if(rc->flags != ITC_OK)
 	{
-		printf("\tDEBUG: local_delete_mbox - Not belong to this process!\n");
+		printf("\tDEBUG: local_delete_mbox - Not belong to this process, mbox_id = %u!\n", mailbox->mbox_id);
 		// Not init yet, or not belong to this process or mbox_id out of range
 		return;
 	}
@@ -299,7 +299,7 @@ static void local_send(struct result_code* rc, struct itc_message *message, itc_
 	if(rc->flags != ITC_OK)
 	{
 		// Cannot find local mailbox data for this mailbox id in this process
-		printf("\tDEBUG: local_send - Not belong to this process!\n");
+		printf("\tDEBUG: local_send - Not belong to this process, mbox_id = %u!\n", to);
 		return;
 	}
 
@@ -322,7 +322,7 @@ static struct itc_message *local_receive(struct result_code* rc, struct itc_mail
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
-		printf("\tDEBUG: local_receive - Not belong to this process!\n");
+		printf("\tDEBUG: local_receive - Not belong to this process, mbox_id = %u!\n", mbox->mbox_id);
 		return NULL;
 	}
 
@@ -346,7 +346,7 @@ static struct itc_message *local_remove(struct result_code* rc, struct itc_mailb
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
-		printf("\tDEBUG: local_remove - Not belong to this process!\n");
+		printf("\tDEBUG: local_remove - Not belong to this process, mbox_id = %u!\n", mbox->mbox_id);
 		return NULL;
 	}
 
@@ -418,7 +418,7 @@ static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mb
 
 	if((mbox_id & local_inst.itccoord_mask) != local_inst.my_mbox_id_in_itccoord)
 	{
-		printf("\tDEBUG: find_localmbx_data - Not belong to this process!\n");
+		printf("\tDEBUG: find_localmbx_data - Not belong to this process, mbox_id = %u, my_mbox_id_in_itccoord = %u!\n", (mbox_id & local_inst.itccoord_mask), local_inst.my_mbox_id_in_itccoord);
 		rc->flags |= ITC_NOT_THIS_PROC;
 		return NULL;
 	}
@@ -497,7 +497,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 	// queue empty
 	if(q->head == NULL)
 	{
-		printf("\tDEBUG: dequeue_message - RX queue is empty!\n");
+		// printf("\tDEBUG: dequeue_message - RX queue is empty!\n"); SPAM
 		rc->flags |= ITC_QUEUE_EMPTY;
 		return NULL;
 	}
