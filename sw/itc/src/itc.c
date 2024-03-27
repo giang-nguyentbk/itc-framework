@@ -184,11 +184,16 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		}
 		
 
-#ifdef UNITTEST
+#if defined MOCK_SENDER_UNITTEST
 		// In unit test, we assume that connecting to itccoord is successful
 		itc_inst.itccoord_mask = ITC_COORD_MASK;
 		itc_inst.itccoord_mbox_id = 1 << ITC_COORD_SHIFT | 1;
 		itc_inst.my_mbox_id_in_itccoord = 5 << ITC_COORD_SHIFT;
+#elif defined MOCK_RECEIVER_UNITTEST
+		// In unit test, we assume that connecting to itccoord is successful
+		itc_inst.itccoord_mask = ITC_COORD_MASK;
+		itc_inst.itccoord_mbox_id = 1 << ITC_COORD_SHIFT | 1;
+		itc_inst.my_mbox_id_in_itccoord = 9 << ITC_COORD_SHIFT;
 #else
 		/* Failed to locate itccoord which is not acceptable! */
 		if(i == ITC_NUM_TRANS)
