@@ -1,7 +1,10 @@
 TARGET = itc_test_2
 BIN = ./bin
 # Only one of two -DMUTEX_... is enabled at a time, otherwise you will get multiple definition error in compilation
-CFLAGS = -g -Wall -Wextra -lpthread -DUNITTEST -DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
+# -DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
+# -DMUTEX_TRACE_UNITTEST #-DMUTEX_TRACE_TIME_UNITTEST
+# #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
+CFLAGS = -g -Wall -Wextra -lpthread -DUNITTEST #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 CC = gcc
 
 INCLUDE_DIR =
