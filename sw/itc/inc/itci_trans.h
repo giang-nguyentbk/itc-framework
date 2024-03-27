@@ -34,7 +34,7 @@ typedef void (itci_trans_delete_mbox)(struct result_code* rc, struct itc_mailbox
 
 typedef void (itci_trans_send)(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to);
 
-typedef struct itc_message *(itci_trans_receive)(struct result_code* rc, struct itc_mailbox *mbox);
+typedef struct itc_message *(itci_trans_receive)(struct result_code* rc, struct itc_mailbox *my_mbox);
 
 typedef struct itc_message *(itci_trans_remove)(struct result_code* rc, struct itc_mailbox *mbox, \
 			     struct itc_message *removemessage);

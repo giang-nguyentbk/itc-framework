@@ -81,9 +81,9 @@ unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end)
 				t_start.tv_sec);					\
 			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 	\
 				t_start.tv_nsec);					\
-			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 	\
+			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 		\
 				t_end.tv_sec);						\
-			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",	\
+			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",		\
 				t_end.tv_nsec);						\
 		}									\
 	} while(0)
@@ -121,7 +121,7 @@ unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end)
 		pthread_mutex_lock(lock);						\
 	} while(0)
 
-#define MUTEX_UNLOCK(rc, lock)								\
+#define MUTEX_UNLOCK(lock, file, line)							\
 	do										\
 	{										\
 		printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d\n", 			\

@@ -458,8 +458,8 @@ union itc_msg *itc_alloc_zz(size_t size, uint32_t msgno)
 	}
 
 	message->msgno = msgno;
-	message->sender = 0;
-	message->receiver = 0;
+	message->sender = ITC_NO_MBOX_ID;
+	message->receiver = ITC_NO_MBOX_ID;
 	message->size = size;
 	message->flags = 0;
 	endpoint = (char*)((unsigned long)(&message->msgno) + size);
@@ -608,11 +608,11 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 		bool res = itc_send(&msg, itc_inst.itccoord_mbox_id, new_mbox->mbox_id);
 		if(!res)
 		{
-			printf("\tDEBUG: itc_create_mailbox_zz - Failed to send notification to itccoord regarding ADD mailbox id = %u!\n", new_mbox->mbox_id);
+			printf("\tDEBUG: itc_create_mailbox_zz - Failed to send notification to itccoord regarding ADD mailbox id = 0x%08x\n", new_mbox->mbox_id);
 			itc_free(&msg);
 		} else
 		{
-			printf("\tDEBUG: itc_create_mailbox_zz - Sent notification to itccoord regarding ADD mailbox id = %u!\n", new_mbox->mbox_id);
+			printf("\tDEBUG: itc_create_mailbox_zz - Sent notification to itccoord regarding ADD mailbox id = 0x%08x\n", new_mbox->mbox_id);
 		}
 		
 	}
@@ -637,7 +637,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 	if(mbox_id != my_threadlocal_mbox->mbox_id)
 	{
 		// Not allowed to delete a mailbox of other threads
-		printf("\tDEBUG: itc_delete_mailbox_zz - Not allowed to delete other thread's mailbox, mbox_id = %u!\n", mbox_id);
+		printf("\tDEBUG: itc_delete_mailbox_zz - Not allowed to delete other thread's mailbox, mbox_id = 0x%08x\n", mbox_id);
 		return false;
 	}
 
@@ -661,17 +661,20 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 			t_start.tv_sec);
 		printf("\tDEBUG: MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 	\
 			t_start.tv_nsec);
-		printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 	\
+		printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 		\
 			t_end.tv_sec);
-		printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",	\
+		printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",		\
 			t_end.tv_nsec);
 	}
 #elif defined MUTEX_TRACE_UNITTEST
 	printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d\n", 			\
-			(unsigned long)rxq_mtx, file, line);			\
-	pthread_mutex_lock(rxq_mtx);						\
+			(unsigned long)rxq_mtx, __FILE__, __LINE__);		\
+	pthread_mutex_lock(rxq_mtx);
 #else
 #endif
+
+	/* If program is stopped over here, consider adjusting to increase sleep time for itc_receive_zz ITC_NO_WAIT case */
+	printf("\tDEBUG: itc_delete_mailbox_zz - Waiting for other job that owned rx queue mutex before deleting the mailbox!\n");
 	int res = pthread_mutex_lock(rxq_mtx);
 	if(res != 0 && res != EDEADLK)
 	{
@@ -705,11 +708,11 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 		bool res = itc_send(&msg, itc_inst.itccoord_mbox_id, mbox->mbox_id);
 		if(!res)
 		{
-			printf("\tDEBUG: itc_delete_mailbox_zz - Failed to send notification to itccoord regarding RMV mailbox id = %u!\n", mbox->mbox_id);
+			printf("\tDEBUG: itc_delete_mailbox_zz - Failed to send notification to itccoord regarding RMV mailbox id = 0x%08x\n", mbox->mbox_id);
 			itc_free(&msg);
 		} else
 		{
-			printf("\tDEBUG: itc_delete_mailbox_zz - Sent notification to itccoord about my demise mbox_id = %u!\n", mbox->mbox_id);
+			printf("\tDEBUG: itc_delete_mailbox_zz - Sent notification to itccoord about my demise mbox_id = 0x%08x\n", mbox->mbox_id);
 		}
 	}
 
@@ -743,7 +746,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 
 	my_threadlocal_mbox = NULL;
 
-	printf("\tDEBUG: itc_delete_mailbox_zz - Deleted thread-local mailbox %u!\n", mbox_id);
+	printf("\tDEBUG: itc_delete_mailbox_zz - Deleted thread-local mailbox 0x%08x\n", mbox_id);
 	return true;
 }
 
@@ -762,14 +765,14 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 
 	if(to == my_threadlocal_mbox->mbox_id)
 	{
-		printf("\tDEBUG: itc_send_zz - Not allowed to send messages to myself, which causes deadlock, from = %u, to = %u!\n", from, to);
+		printf("\tDEBUG: itc_send_zz - Not allowed to send messages to myself, which causes deadlock, from = 0x%08x, to = 0x%08x\n", from, to);
 		return false;
 	}
 
 	if(from != ITC_MY_MBOX_ID && from != my_threadlocal_mbox->mbox_id)
 	{
 		// Not allowed to use mailboxes of other threads to send messages
-		printf("\tDEBUG: itc_send_zz - Not allowed to use other thread's mailbox to send messages, mbox_id = %u!\n", from);
+		printf("\tDEBUG: itc_send_zz - Not allowed to use other thread's mailbox to send messages, mbox_id = 0x%08x\n", from);
 		return false;
 	}
 
@@ -781,6 +784,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 
 	message = CONVERT_TO_MESSAGE(*msg);
 	message->sender = my_threadlocal_mbox->mbox_id;
+	message->receiver = to;
 
 	rc->flags = ITC_OK;
 	to_mbox = find_mbox(to);
@@ -860,7 +864,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 	return true;
 }
 
-union itc_msg *itc_receive_zz(int32_t tmo, itc_mbox_id_t from)
+union itc_msg *itc_receive_zz(int32_t tmo)
 {
 	struct itc_message* message = NULL;
 	struct itc_mailbox* mbox;
@@ -872,12 +876,6 @@ union itc_msg *itc_receive_zz(int32_t tmo, itc_mbox_id_t from)
 		// ERROR trace is needed
 		printf("\tDEBUG: itc_receive_zz - Not initialized yet!\n");
 		return NULL;
-	}
-
-	if(from == my_threadlocal_mbox->mbox_id)
-	{
-		printf("\tDEBUG: itc_receive_zz - Not allowed to receive messages from myself, from_mbox_id %u !\n", from);
-		return false;
 	}
 
 	mbox = my_threadlocal_mbox;
@@ -916,6 +914,9 @@ union itc_msg *itc_receive_zz(int32_t tmo, itc_mbox_id_t from)
 				// printf("\tDEBUG: itc_receive_zz - No message in rx queue, return!\n"); SPAM
 				mbox->p_rxq_info->is_in_rx = false;
 				MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+				/* Sleep a little bit to avoid EDEADLK when deleting the mailbox in case of using ITC_NO_WAIT in while true loop
+				*  Hope this will not affect much to the latency, but it's safe and worth doing this */
+				sleep(0.01);
 				break;
 			} else if(tmo == ITC_WAIT_FOREVER)
 			{
@@ -972,24 +973,42 @@ union itc_msg *itc_receive_zz(int32_t tmo, itc_mbox_id_t from)
 itc_mbox_id_t itc_sender_zz(union itc_msg *msg)
 {
 	struct itc_message* message;
-	message = CONVERT_TO_MESSAGE(msg);
 
+	if(msg == NULL)
+	{
+		printf("\tDEBUG: itc_sender_zz - Could not get sender from a NULL message!\n");
+		return ITC_NO_MBOX_ID;
+	}
+
+	message = CONVERT_TO_MESSAGE(msg);
 	return message->sender;
 }
 
 itc_mbox_id_t itc_receiver_zz(union itc_msg *msg)
 {
 	struct itc_message* message;
-	message = CONVERT_TO_MESSAGE(msg);
 
+	if(msg == NULL)
+	{
+		printf("\tDEBUG: itc_receiver_zz - Could not get receiver from a NULL message!\n");
+		return ITC_NO_MBOX_ID;
+	}
+
+	message = CONVERT_TO_MESSAGE(msg);
 	return message->receiver;
 }
 
 size_t itc_size_zz(union itc_msg *msg)
 {
 	struct itc_message* message;
-	message = CONVERT_TO_MESSAGE(msg);
 
+	if(msg == NULL)
+	{
+		printf("\tDEBUG: itc_size_zz - Could not get size from a NULL message!\n");
+		return 0;
+	}
+
+	message = CONVERT_TO_MESSAGE(msg);
 	return message->size;
 }
 
@@ -997,7 +1016,7 @@ itc_mbox_id_t itc_current_mbox_zz()
 {
 	if(my_threadlocal_mbox != NULL)
 	{
-		printf("\tDEBUG: itc_current_mboxes_zz - This thread has mailbox with id = %u!\n", my_threadlocal_mbox->mbox_id);
+		printf("\tDEBUG: itc_current_mboxes_zz - This thread has mailbox with id = 0x%08x\n", my_threadlocal_mbox->mbox_id);
 		return my_threadlocal_mbox->mbox_id;
 	}
 
@@ -1022,8 +1041,8 @@ int itc_get_fd_zz(itc_mbox_id_t mbox_id)
 	if(mbox_id != my_threadlocal_mbox->mbox_id)
 	{
 		// "mbox_id" mailbox is not from this thread
-		printf("\tDEBUG: itc_get_fd_zz - Mailbox not owned by this thread, mbox_id = %u, this thread's mbox_id = %u!\n", mbox_id, mbox->mbox_id);
-		return false;
+		printf("\tDEBUG: itc_get_fd_zz - Mailbox not owned by this thread, mbox_id = 0x%08x, this thread's mbox_id = 0x%08x\n", mbox_id, mbox->mbox_id);
+		return -1;
 	}
 
 	rc->flags = ITC_OK;
@@ -1068,7 +1087,7 @@ bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name)
 	if(mbox_id != my_threadlocal_mbox->mbox_id)
 	{
 		// "mbox_id" mailbox is not from this thread
-		printf("\tDEBUG: itc_get_name_zz - Mailbox not owned by this thread, mbox_id = %u, this thread's mbox_id = %u!\n", mbox_id, my_threadlocal_mbox->mbox_id);
+		printf("\tDEBUG: itc_get_name_zz - Mailbox not owned by this thread, mbox_id = 0x%08x, this thread's mbox_id = 0x%08x\n", mbox_id, my_threadlocal_mbox->mbox_id);
 		return false;
 	}
 
@@ -1112,12 +1131,12 @@ static void mailbox_destructor_at_thread_exit(void* data)
 {
 	struct itc_mailbox* mbox = (struct itc_mailbox*)data;
 
-	printf("\tDEBUG: mailbox_destructor_at_thread_exit - Thread-local mailbox destructor called by tid = %u, mbox_id = %u!\n", mbox->tid, mbox->mbox_id);
+	printf("\tDEBUG: mailbox_destructor_at_thread_exit - Thread-local mailbox destructor called by tid = 0x%08x, mbox_id = 0x%08x\n", mbox->tid, mbox->mbox_id);
 	if(itc_inst.mboxes != NULL && mbox->mbox_state == MBOX_INUSE)
 	{
 		if(my_threadlocal_mbox == mbox)
 		{
-			printf("\tDEBUG: mailbox_destructor_at_thread_exit - Deleting mailbox with mbox_id = %u!\n", mbox->mbox_id);
+			printf("\tDEBUG: mailbox_destructor_at_thread_exit - Deleting mailbox with mbox_id = 0x%08x\n", mbox->mbox_id);
 			itc_delete_mailbox(mbox->mbox_id);
 		}
 	}
@@ -1138,7 +1157,7 @@ static struct itc_mailbox* find_mbox(itc_mbox_id_t mbox_id)
 		}
 	}
 
-	printf("\tDEBUG: find_mbox - Mailbox not belong to this process, mbox_id = %u!\n", mbox_id);
+	printf("\tDEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 0x%08x\n", mbox_id);
 	return NULL;
 }
 

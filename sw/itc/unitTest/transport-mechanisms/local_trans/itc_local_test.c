@@ -48,7 +48,7 @@ void test_local_exit(void);
 void test_local_create_mbox(struct itc_mailbox *mailbox, uint32_t flags);
 void test_local_delete_mbox(struct itc_mailbox *mailbox);
 void test_local_send(struct itc_message *message, itc_mbox_id_t to);
-struct itc_message* test_local_receive(struct itc_mailbox *mbox);
+struct itc_message* test_local_receive(struct itc_mailbox *my_mbox);
 struct itc_message* test_local_remove(struct itc_mailbox *mbox, struct itc_message *removed_message);
 
 
@@ -199,19 +199,28 @@ int main(int argc, char* argv[])
 	(void)argv; // Avoid compiler warning unused variables
 	transporter = local_trans_apis;
 
-	PRINT_DASH_END;
 
-	// Test create mailbox when ITC local transport was not ITC_NOT_INIT_YET		-> EXPECT: FAILED
+	struct itc_message* message;
+	message = (struct itc_message*)malloc(sizeof(struct itc_message));
+	message->msgno = 111;
+
 	struct itc_mailbox* mbox_1;
 	mbox_1 = (struct itc_mailbox*)malloc(sizeof(struct itc_mailbox));
 	mbox_1->mbox_id = 0x00500000 | 10;
+
+	struct itc_mailbox* mbox_2;
+	mbox_2 = (struct itc_mailbox*)malloc(sizeof(struct itc_mailbox));
+	mbox_2->mbox_id = 0x00500000 | 5;
+
+	PRINT_DASH_END;
+
+	// Test create mailbox when ITC local transport was not ITC_NOT_INIT_YET		-> EXPECT: FAILED
+	
 	test_local_create_mbox(mbox_1, 0);
 	// Test receive a ITC message when ITC local transport was not ITC_NOT_INIT_YET		-> EXPECT: FAILED
 	test_local_receive(mbox_1);
 	// Test send a ITC message when ITC local transport was not ITC_NOT_INIT_YET		-> EXPECT: FAILED
-	struct itc_message* message;
-	message = (struct itc_message*)malloc(sizeof(struct itc_message));
-	message->msgno = 111;
+	
 	test_local_send(message, (itc_mbox_id_t)(0x00500000 | 10));
 
 
@@ -243,13 +252,10 @@ int main(int argc, char* argv[])
 
 
 	// Test create mailbox with a mailbox id already used					-> EXPECT: FAILED
-	struct itc_mailbox* mbox_2;
-	mbox_2 = (struct itc_mailbox*)malloc(sizeof(struct itc_mailbox));
-	mbox_2->mbox_id = 0x00500000 | 5;
 	test_local_create_mbox(mbox_2, 0);
 	// Test send a ITC message successfully							-> EXPECT: SUCCESS
 	test_local_send(message, (itc_mbox_id_t)(0x00500000 | 5));
-	// Test receive a ITC message not but it's for this process				-> EXPECT: FAILED
+	// Test receive a ITC message but it's not for this process				-> EXPECT: FAILED
 	mbox_2->mbox_id = 0x00600000 | 5; // Expected is 0x00500000 | 5
 	test_local_receive(mbox_2);
 
@@ -492,7 +498,7 @@ void test_local_send(struct itc_message *message, itc_mbox_id_t to)
 	free(rc);
 }
 
-struct itc_message* test_local_receive(struct itc_mailbox *mbox)
+struct itc_message* test_local_receive(struct itc_mailbox *my_mbox)
 {
 	struct itc_message* ret_message;
 	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
@@ -509,7 +515,7 @@ struct itc_message* test_local_receive(struct itc_mailbox *mbox)
 
 	if(transporter.itci_trans_receive != NULL)
 	{
-		ret_message = transporter.itci_trans_receive(rc, mbox);
+		ret_message = transporter.itci_trans_receive(rc, my_mbox);
 	} else
         {
 		PRINT_DASH_START;

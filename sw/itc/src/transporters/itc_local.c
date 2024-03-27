@@ -94,7 +94,7 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 
 static void local_send(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to);
 
-static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox);
+static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *my_mbox);
 
 static struct itc_message *local_remove(struct result_code* rc, struct itc_mailbox *mbox, \
 					struct itc_message *removed_message);
@@ -183,7 +183,7 @@ static void local_exit(struct result_code* rc)
 		if(rc->flags != ITC_OK)
 		{
 			// ERROR trace here needed
-			printf("\tDEBUG: local_exit - Not belong to this process, mbox_id = %u!\n", local_inst.my_mbox_id_in_itccoord | i);
+			printf("\tDEBUG: local_exit - Not belong to this process, mbox_id = 0x%08x\n", local_inst.my_mbox_id_in_itccoord | i);
 			return;
 		}
 
@@ -216,7 +216,7 @@ static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet, or not belong to this process or mbox_id out of range
-		printf("\tDEBUG: local_create_mbox - Not belong to this process, mbox_id = %u!\n", mailbox->mbox_id);
+		printf("\tDEBUG: local_create_mbox - Not belong to this process, mbox_id = 0x%08x\n", mailbox->mbox_id);
 		return;
 	}
 
@@ -249,7 +249,7 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	lc_mb_data = find_localmbx_data(rc, mailbox->mbox_id);
 	if(rc->flags != ITC_OK)
 	{
-		printf("\tDEBUG: local_delete_mbox - Not belong to this process, mbox_id = %u!\n", mailbox->mbox_id);
+		printf("\tDEBUG: local_delete_mbox - Not belong to this process, mbox_id = 0x%08x\n", mailbox->mbox_id);
 		// Not init yet, or not belong to this process or mbox_id out of range
 		return;
 	}
@@ -299,7 +299,7 @@ static void local_send(struct result_code* rc, struct itc_message *message, itc_
 	if(rc->flags != ITC_OK)
 	{
 		// Cannot find local mailbox data for this mailbox id in this process
-		printf("\tDEBUG: local_send - Not belong to this process, mbox_id = %u!\n", to);
+		printf("\tDEBUG: local_send - Not belong to this process, mbox_id = 0x%08x\n", to);
 		return;
 	}
 
@@ -314,15 +314,15 @@ static void local_send(struct result_code* rc, struct itc_message *message, itc_
 	enqueue_message(rc, to_lc_mb_data->rxq, message);
 }
 
-static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *mbox)
+static struct itc_message *local_receive(struct result_code* rc, struct itc_mailbox *my_mbox)
 {
 	struct local_mbox_data* lc_mb_data;
 
-	lc_mb_data = find_localmbx_data(rc, mbox->mbox_id);
+	lc_mb_data = find_localmbx_data(rc, my_mbox->mbox_id);
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
-		printf("\tDEBUG: local_receive - Not belong to this process, mbox_id = %u!\n", mbox->mbox_id);
+		printf("\tDEBUG: local_receive - Not belong to this process, mbox_id = 0x%08x\n", my_mbox->mbox_id);
 		return NULL;
 	}
 
@@ -346,7 +346,7 @@ static struct itc_message *local_remove(struct result_code* rc, struct itc_mailb
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
-		printf("\tDEBUG: local_remove - Not belong to this process, mbox_id = %u!\n", mbox->mbox_id);
+		printf("\tDEBUG: local_remove - Not belong to this process, mbox_id = 0x%08x\n", mbox->mbox_id);
 		return NULL;
 	}
 
@@ -418,7 +418,7 @@ static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mb
 
 	if((mbox_id & local_inst.itccoord_mask) != local_inst.my_mbox_id_in_itccoord)
 	{
-		printf("\tDEBUG: find_localmbx_data - Not belong to this process, mbox_id = %u, my_mbox_id_in_itccoord = %u!\n", (mbox_id & local_inst.itccoord_mask), local_inst.my_mbox_id_in_itccoord);
+		printf("\tDEBUG: find_localmbx_data - Not belong to this process, mbox_id = 0x%08x, my_mbox_id_in_itccoord = 0x%08x\n", (mbox_id & local_inst.itccoord_mask), local_inst.my_mbox_id_in_itccoord);
 		rc->flags |= ITC_NOT_THIS_PROC;
 		return NULL;
 	}
@@ -432,7 +432,7 @@ static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mb
 	   Therefore, masking mbox_id with ITC_MAX_MAILBOXES is a good workaround but not absolutely correct */
 	if((mbox_id & ITC_MAX_MAILBOXES) >= local_inst.nr_localmbx_datas)
 	{
-		printf("\tDEBUG: find_localmbx_data - Mailbox ID exceeded nr_mboxes, local mbox_id = %u, nr_mboxes = %u!\n", (mbox_id & ITC_MAX_MAILBOXES), local_inst.nr_localmbx_datas);
+		printf("\tDEBUG: find_localmbx_data - Mailbox ID exceeded nr_mboxes, local mbox_id = 0x%08x, nr_mboxes = %u!\n", (mbox_id & ITC_MAX_MAILBOXES), local_inst.nr_localmbx_datas);
 		rc->flags |= ITC_OUT_OF_RANGE;
 		return NULL;
 	}
