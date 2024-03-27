@@ -543,9 +543,11 @@ static void add_sysvmq_cl(struct result_code* rc, struct sysvmq_contactlist* cl,
 	sysv_msqid = get_sysvmq_id(rc, mbox_id);
 	if(sysv_msqid != -1)
 	{
-		printf("\tDEBUG: add_sysvmq_cl - sysv_msqid != -1!\n");
 		cl->mbox_id_in_itccoord = (mbox_id & sysvmq_inst.itccoord_mask);
 		cl->sysvmq_id = sysv_msqid;
+	} else
+	{
+		printf("\tDEBUG: add_sysvmq_cl - sysv_msqid = -1!\n");
 	}
 }
 
@@ -617,21 +619,21 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 
 	message = CONVERT_TO_MESSAGE(msg);
 
-	flags = message->flags; // Saved flags
+	flags 		= message->flags; // Saved flags
 
 	memcpy(message, rxmsg, (rxmsg->size + ITC_HEADER_SIZE));
 
-	message->flags = flags; // Retored flags
+	message->flags		= flags; // Retored flags
 
 #ifdef UNITTEST
 	// Simulate that everything is ok at this point. Do nothing in unit test.
 	// API itc_send is an external interface, so do not care about it if everything we pass into it is all correct.
+	printf("\tDEBUG: forward_sysvmq_msg - ENTER UNITTEST!\n");
 	free(tmp_message);
-#else
-	itc_send(&msg, message->receiver, message->sender);
 #endif
 
-	printf("\tDEBUG: forward_sysvmq_msg - Forward an itc message to local mailbox successfully from sysvmq!\n");
+	printf("\tDEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x%08x\n", message->sender);
+	itc_send(&msg, message->receiver, ITC_MY_MBOX_ID);
 }
 
 static void rxthread_destructor(void* data)

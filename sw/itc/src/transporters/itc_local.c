@@ -477,7 +477,7 @@ static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct it
 	// If not, just update the last item to point to new item and move q->tail to new item as well. 
 	if(q->tail == NULL)
 	{
-		printf("\tDEBUG: enqueue_message - RX queue has only one item, add a new one!\n");
+		printf("\tDEBUG: enqueue_message - RX queue is empty, add a new one!\n");
 		q->head = new_qitem;
 		q->tail = new_qitem;
 	} else
