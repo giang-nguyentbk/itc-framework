@@ -31,6 +31,7 @@ extern "C" {
 
 #define ITC_COORD_MASK		0xFFF00000
 #define ITC_COORD_SHIFT		20
+#define ITC_COORD_NAME		"itc_coord"
 
 #ifndef MAX_SUPPORTED_PROCESSES
 #define	MAX_SUPPORTED_PROCESSES	255
@@ -58,6 +59,15 @@ extern "C" {
 #define CONVERT_TO_MESSAGE(msg) (struct itc_message*)((unsigned long)msg - ITC_HEADER_SIZE) // See itc_message in README
 
 #define CONVERT_TO_MSG(message) (union itc_msg*)(&message->msgno)
+
+#define CHECK_RC_EXIT(rc)				\
+	do						\
+	{						\
+		if((rc->flags) != ITC_OK)		\
+		{					\
+			exit(EXIT_FAILURE);		\
+		}					\
+	} while(0)	
 
 
 unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end);
