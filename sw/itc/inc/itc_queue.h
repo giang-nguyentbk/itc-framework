@@ -27,8 +27,9 @@ struct itc_queue {
 
 extern struct itc_queue* q_init(struct result_code* rc);
 extern void q_exit(struct result_code* rc, struct itc_queue* q);
-extern void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data);
-extern void* q_dequeue(struct result_code* rc, struct itc_queue*q);
+extern void q_enqueue(struct result_code* rc, struct itc_queue* q, void* data);
+extern void* q_dequeue(struct result_code* rc, struct itc_queue* q);
+extern void q_remove(struct result_code* rc, struct itc_queue* q, void* data);
 
 
 #ifdef __cplusplus

@@ -186,6 +186,58 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 	return data;
 }
 
+void q_remove(struct result_code* rc, struct itc_queue* q, void* data)
+{
+	/* Functionality is same as q_dequeue but you can dequeue a node at any position instead */
+
+	struct itcq_node *iter = NULL;
+
+	/* Iterating through the used queue and search for any node that points to proc
+	** Then remove it and concatenate the prev and the next of node iter */
+	for(iter = q->head; iter != NULL; iter = iter->next)
+	{
+		if(iter->p_data == data)
+		{
+			break;
+		}
+	}
+
+	/* Found a node from queue */
+	if(iter != NULL)
+	{
+		/* Found node is the first one */
+		if(iter == q->head)
+		{
+			/* Queue has only one node */
+			if(q->size == 1)
+			{
+				q->head = NULL;
+				q->tail = NULL;
+			} else
+			{
+				q->head = iter->next;
+				q->head->prev = NULL;
+			}
+		} else if(iter == q->tail) /* Found node is the last one, and queue must have more than two nodes at here */
+		{
+			q->tail = iter->prev;
+			q->tail->next = NULL;
+		} else
+		{
+			/* Found node is in the middle of more-than-two-node queue */
+			iter->prev->next = iter->next;
+			iter->next->prev = iter->prev;
+		}
+	} else
+	{
+		/* Not found so nothing to be removed */
+		return;
+	}
+
+	q->size--;
+	q_removenode(rc, &iter);
+}
+
 /*****************************************************************************\/
 *****                  INTERNAL FUNCTIONS IMPLEMENTATION                   *****
 *******************************************************************************/
