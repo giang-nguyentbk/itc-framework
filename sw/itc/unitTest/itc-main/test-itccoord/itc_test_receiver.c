@@ -24,13 +24,14 @@
 		printf("-------------------------------------------------------------------------------------------------------------------\n\n");	\
 	} while(0)
 
+
+
 static volatile bool isTerminated = false;
 
 void interrupt_handler(int dummy) {
 	(void)dummy;
 	isTerminated = true;
 }
-
 
 void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags);
 void test_itc_exit(void);
@@ -48,69 +49,75 @@ itc_mbox_id_t test_itc_current_mbox(void);
 int test_itc_get_fd(itc_mbox_id_t mbox_id);
 void test_itc_get_name(itc_mbox_id_t mbox_id, char *name);
 
-/* Expect main call:    ./itc_test_sender */
+/* Expect main call:    ./itc_test_receiver */
 int main(int argc, char* argv[])
 {
 	(void)argc; // Avoid compiler warning unused variables
 	(void)argv; // Avoid compiler warning unused variables
-	
-	signal(SIGINT, interrupt_handler);
 
-	struct timespec t_start;
-	struct timespec t_end;
+	signal(SIGINT, interrupt_handler);
 	
 	PRINT_DASH_END;
 
 	test_itc_init(10, ITC_MALLOC, NULL, 0);
 
-	union itc_msg* send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+	union itc_msg* send_msg;
 
-	itc_mbox_id_t sender_mbox_id = test_itc_create_mailbox("senderMailbox", 0);
-
-	clock_gettime(CLOCK_REALTIME, &t_start);
-
-	itc_mbox_id_t receiver_mbox_id = 0x00900001;
-	test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID);
-
-	clock_gettime(CLOCK_REALTIME, &t_end);
-	unsigned long int difftime = calc_time_diff(t_start, t_end);
-	printf("\tDEBUG: sender - Time needed to send message = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
+	itc_mbox_id_t receiver_mbox_id = test_itc_create_mailbox("receiverMailbox", 0);
 
 	union itc_msg* rcv_msg;
+	itc_mbox_id_t sender_mbox_id = 0x00300001;
 	while(!isTerminated)
 	{
-		// teamServerMailbox1 always listens to resourceHandlerMailbox1
-		// printf("\tDEBUG: teamServerThread - Reading rx queue...!\n"); SPAM
-		// Because ITC_FROM_ALL is not implemented yet, so must use ITC_NO_WAIT here to check if messages from two sending threads 
 		rcv_msg = test_itc_receive(ITC_NO_WAIT);
 
 		if(rcv_msg != NULL)
 		{
 			switch (rcv_msg->msgNo)
 			{
-			case MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM:
+			case MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ:
 				{
-					printf("\tDEBUG: sender - Received MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM, sender = 0x%08x, receiver = 0x%08x, payload length = %lu\n", \
+					printf("\tDEBUG: receiver - Received MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ, sender = 0x%08x, receiver = 0x%08x, payload length = %lu\n", \
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
-					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateReqS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
-					test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID);
+					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1CfmS), MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM);
+					if(send_msg != NULL)
+					{
+						send_msg->InterfaceAbcModuleXyzSetup1Cfm.clientId = 1;
+						send_msg->InterfaceAbcModuleXyzSetup1Cfm.procedureId = 1;
+						send_msg->InterfaceAbcModuleXyzSetup1Cfm.serverId = 1;
+					} else
+					{
+						return -1;
+					}
+					test_itc_send(&send_msg, sender_mbox_id, ITC_MY_MBOX_ID);
 					break;
 				}
 
-			case MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM:
+			case MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ:
 				{
-					printf("\tDEBUG: sender - Received MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM, sender = 0x%08x, receiver = 0x%08x, payload length = %lu\n", \
+					printf("\tDEBUG: receiver - Received MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ, sender = 0x%08x, receiver = 0x%08x, payload length = %lu\n", \
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
-					printf("\tDEBUG: sender - Connect Sequence Done!\n");
+					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateCfmS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM);
+					if(send_msg != NULL)
+					{
+						send_msg->InterfaceAbcModuleXyzActivateCfm.clientId = 1;
+						send_msg->InterfaceAbcModuleXyzActivateCfm.procedureId = 1;
+						send_msg->InterfaceAbcModuleXyzActivateCfm.serverId = 1;
+					} else
+					{
+						return -1;
+					}
+					test_itc_send(&send_msg, sender_mbox_id, ITC_MY_MBOX_ID);
+					printf("\tDEBUG: receiver - Activated device from receiver!");
 					isTerminated = true;
 					break;
 				}
 
 			default:
 				{
-					printf("\tDEBUG: sender - Received unknown message msgno = %u, sender = 0x%08x, discard it!\n", rcv_msg->msgNo, test_itc_sender(rcv_msg));
+					printf("\tDEBUG: receiver - Received unknown message msgno = %u, sender = 0x%08x, discard it!\n", rcv_msg->msgNo, test_itc_sender(rcv_msg));
 					test_itc_free(&rcv_msg);
 					break;
 				}
@@ -119,9 +126,8 @@ int main(int argc, char* argv[])
 	}
 
 
-	test_itc_delete_mailbox(sender_mbox_id);
+	test_itc_delete_mailbox(receiver_mbox_id);
 
-	(void)send_msg;
 	// test_itc_free(&msg); // This will be freed by receiver "teamServer"
 
 	test_itc_exit();
@@ -138,6 +144,7 @@ void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *names
 		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_itc_init>\t\t Failed to itc_init()!\n");
 		PRINT_DASH_END;
+		isTerminated = true;
 		return;
 	}
 

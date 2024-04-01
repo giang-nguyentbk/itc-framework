@@ -29,14 +29,6 @@
 #define ITC_SYSV_MSG_BASE	(ITC_MSG_BASE + 0x100)
 #define ITC_SYSV_MSQ_TX_MSG	(ITC_SYSV_MSG_BASE + 1)
 
-#ifndef ITC_SYSVMSQ_FOLDER
-#define ITC_SYSVMSQ_FOLDER "/tmp/itc/sysvmsq/"
-#endif
-
-#ifndef ITC_SYSVMSQ_FILENAME
-#define ITC_SYSVMSQ_FILENAME "/tmp/itc/sysvmsq/sysvmsq_file"
-#endif
-
 struct sysvmq_contactlist {
 	itc_mbox_id_t	mbox_id_in_itccoord;
 	int		sysvmq_id;
@@ -307,7 +299,8 @@ static void* sysvmq_rx_thread(void *data)
 
 	key_t key;
 	char itc_mbox_name[30];
-	int rx_len, repeat = 0;
+	ssize_t rx_len = 0;
+	uint8_t repeat = 0;
 	struct msqid_ds msqinfo;
 	int proj_id;
 	struct result_code* rc_tmp;
@@ -422,10 +415,9 @@ static void* sysvmq_rx_thread(void *data)
 			}
 
 			// ERROR trace is needed here
-			printf("\tDEBUG: sysvmq_rx_thread - Negative rx message length, rx_len = %u!\n", rx_len);
+			printf("\tDEBUG: sysvmq_rx_thread - Negative rx message length, rx_len = %ld!\n", rx_len);
 		}
 
-		
 		forward_sysvmq_msg(&rc_tmp_stack, sysvmq_inst.rx_buffer, rx_len + sizeof(long), sysvmq_inst.my_sysvmq_id);
 		repeat = 0;
 	}
@@ -472,30 +464,29 @@ static void generate_msqfile(struct result_code* rc)
 		return;
 	}
 
-	if(errno != EEXIST)
+	res = chmod(ITC_SYSVMSQ_FOLDER, 0777);
+	if(res < 0)
 	{
-		res = chmod(ITC_SYSVMSQ_FOLDER, 0777);
-		if(res < 0)
-		{
-			perror("\tDEBUG: generate_msqfile - chmod");
-			rc->flags |= ITC_SYSCALL_ERROR;
-			return;
-		}
+		perror("\tDEBUG: generate_msqfile - chmod");
+		rc->flags |= ITC_SYSCALL_ERROR;
+		return;
+	}
 
-		fd = fopen(ITC_SYSVMSQ_FILENAME, "w");
-		if(fd == NULL)
-		{
-			perror("\tDEBUG: generate_msqfile - fopen");
-			rc->flags |= ITC_SYSCALL_ERROR;
-			return;
-		}
+	fd = fopen(ITC_SYSVMSQ_FILENAME, "w");
+	if(fd == NULL)
+	{
+		perror("\tDEBUG: generate_msqfile - fopen");
+		rc->flags |= ITC_SYSCALL_ERROR;
+		return;
+	}
 
-		if(fclose(fd) != 0)
-		{
-			perror("\tDEBUG: generate_msqfile - fclose");
-			rc->flags |= ITC_SYSCALL_ERROR;
-			return;
-		}
+	printf("\tDEBUG: generate_msqfile - Open file %s successfully!\n", ITC_SYSVMSQ_FILENAME);
+
+	if(fclose(fd) != 0)
+	{
+		perror("\tDEBUG: generate_msqfile - fclose");
+		rc->flags |= ITC_SYSCALL_ERROR;
+		return;
 	}
 
 	sysvmq_inst.is_initialized = 1;
@@ -561,6 +552,7 @@ static int get_sysvmq_id(struct result_code* rc, itc_mbox_id_t mbox_id)
 	new_mbx_id = mbox_id & sysvmq_inst.itccoord_mask;
 	proj_id = (new_mbx_id >> sysvmq_inst.itccoord_shift);
 
+	printf("\tDEBUG: get_sysvmq_id - proj_id = %d!\n", proj_id);
 	key = ftok(ITC_SYSVMSQ_FILENAME, proj_id);
 
 	if(key == -1)
@@ -619,11 +611,11 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 
 	message = CONVERT_TO_MESSAGE(msg);
 
-	flags 		= message->flags; // Saved flags
+	flags = message->flags; // Saved flags
 
 	memcpy(message, rxmsg, (rxmsg->size + ITC_HEADER_SIZE));
 
-	message->flags		= flags; // Retored flags
+	message->flags = flags; // Retored flags
 
 #ifdef UNITTEST
 	// Simulate that everything is ok at this point. Do nothing in unit test.

@@ -109,7 +109,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		{
 			/* Already initialized */
 			printf("\tDEBUG: itc_init_zz - Already initialized!\n");
-			
+			free(rc);
 			return false;
 		} else
 		{
@@ -131,6 +131,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 	if(ret != 0)
 	{
 		printf("\tDEBUG: itc_init_zz - pthread_mutex_init error code = %d\n", ret);
+		free(rc);
 		return false;
 	}
 
@@ -169,10 +170,11 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 	if(init_flags & ITC_FLAGS_I_AM_ITC_COORD)
 	{
 		itc_inst.itccoord_mask = ITC_COORD_MASK;
-		itc_inst.itccoord_mbox_id = 1 << ITC_COORD_SHIFT;
-		itc_inst.my_mbox_id_in_itccoord = (1 << ITC_COORD_SHIFT) | 1;
+		itc_inst.itccoord_mbox_id = (1 << ITC_COORD_SHIFT) | 1;
+		itc_inst.my_mbox_id_in_itccoord = 1 << ITC_COORD_SHIFT;
 	} else
 	{
+		printf("\tDEBUG: itc_init_zz - Start locating itccoord!\n");
 		uint32_t i = 0;
 		for(; i < ITC_NUM_TRANS; i++)
 		{
@@ -186,11 +188,13 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 
 #if defined MOCK_SENDER_UNITTEST
 		// In unit test, we assume that connecting to itccoord is successful
+		printf("\tDEBUG: itc_init_zz - Using MOCK_SENDER_UNITTEST!\n");
 		itc_inst.itccoord_mask = ITC_COORD_MASK;
 		itc_inst.itccoord_mbox_id = 1 << ITC_COORD_SHIFT | 1;
 		itc_inst.my_mbox_id_in_itccoord = 5 << ITC_COORD_SHIFT;
 #elif defined MOCK_RECEIVER_UNITTEST
 		// In unit test, we assume that connecting to itccoord is successful
+		printf("\tDEBUG: itc_init_zz - Using MOCK_RECEIVER_UNITTEST!\n");
 		itc_inst.itccoord_mask = ITC_COORD_MASK;
 		itc_inst.itccoord_mbox_id = 1 << ITC_COORD_SHIFT | 1;
 		itc_inst.my_mbox_id_in_itccoord = 9 << ITC_COORD_SHIFT;
@@ -199,6 +203,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		if(i == ITC_NUM_TRANS)
 		{
 			printf("\tDEBUG: itc_init_zz - Failed to locate itccoord, rc = %u!\n", rc->flags);
+			free(rc);
 			return false;
 		}
 #endif
@@ -210,6 +215,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 	if(itc_inst.mboxes == NULL)
 	{
 		perror("\tDEBUG: itc_init_zz - malloc");
+		free(rc);
 		return false;
 	}
 	memset(itc_inst.mboxes, 0, nr_mboxes*sizeof(struct itc_mailbox));
@@ -228,6 +234,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		if(ret != 0)
 		{
 			printf("\tDEBUG: itc_init_zz - pthread_mutexattr_init error code = %d\n", ret);
+			free(rc);
 			return false;
 		}
 
@@ -236,6 +243,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		if(ret != 0)
 		{
 			printf("\tDEBUG: itc_init_zz - pthread_mutexattr_settype error code = %d\n", ret);
+			free(rc);
 			return false;
 		}
 		
@@ -243,6 +251,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		if(ret != 0)
 		{
 			printf("\tDEBUG: itc_init_zz - pthread_mutex_init error code = %d\n", ret);
+			free(rc);
 			return false;
 		}
 
@@ -250,6 +259,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		if(ret != 0)
 		{
 			printf("\tDEBUG: itc_init_zz - pthread_condattr_init error code = %d\n", ret);
+			free(rc);
 			return false;
 		}
 
@@ -258,6 +268,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		if(ret != 0)
 		{
 			printf("\tDEBUG: itc_init_zz - pthread_condattr_setclock error code = %d\n", ret);
+			free(rc);
 			return false;
 		}
 
@@ -265,6 +276,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 		if(ret != 0)
 		{
 			printf("\tDEBUG: itc_init_zz - pthread_cond_init error code = %d\n", ret);
+			free(rc);
 			return false;
 		}
 		
@@ -284,6 +296,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 	if(ret != 0)
 	{
 		printf("\tDEBUG: itc_init_zz - pthread_key_create error code = %d\n", ret);
+		free(rc);
 		return false;
 	}
 
@@ -298,6 +311,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 			{
 				// ERROR trace is needed here
 				printf("\tDEBUG: itc_free_zz - Failed to init trans_mechanism[%u]!\n", i);
+				free(rc);
 				return false;
 			}
 		}
@@ -308,6 +322,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 	{
 		// ERROR trace is needed here
 		printf("\tDEBUG: itc_free_zz - Failed to start_itcthreads!\n");
+		free(rc);
 		return false;
 	}
 
@@ -421,6 +436,7 @@ bool itc_exit_zz()
 	free(itc_inst.mboxes);
 
 	rc->flags = ITC_OK;
+	printf("\tDEBUG: itc_exit_zz - Removing mailboxes from free_mboxes_queue, count = %u!\n", itc_inst.free_mboxes_queue->size);
 	q_exit(rc, itc_inst.free_mboxes_queue);
 	if(rc->flags != ITC_OK)
 	{
@@ -439,6 +455,8 @@ union itc_msg *itc_alloc_zz(size_t size, uint32_t msgno)
 {
 	struct itc_message* message;
 	char* endpoint;
+
+	printf("\tDEBUG: itc_alloc_zz - Allocating itc msg msgno 0x%08x, size = %lu\n", msgno, size);
 
 	if(size < sizeof(msgno))
 	{
@@ -477,6 +495,8 @@ bool itc_free_zz(union itc_msg **msg)
 {
 	struct itc_message* message;
 	char* endpoint;
+
+	printf("\tDEBUG: itc_free_zz - Freeing itc msg msgno 0x%08x\n", (*msg)->msgno);
 
 	if(itc_inst.mboxes == NULL)
 	{
@@ -522,6 +542,8 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 {
 	struct itc_mailbox* new_mbox;
 	union itc_msg* msg;
+
+	printf("\tDEBUG: itc_create_mailbox_zz - Creating mailbox name %s\n", name);
 
 	if(itc_inst.mboxes == NULL)
 	{
@@ -630,6 +652,8 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 	struct itc_mailbox* mbox;
 	union itc_msg* msg;
 	pthread_mutex_t* rxq_mtx;
+
+	printf("\tDEBUG: itc_delete_mailbox_zz - Deleting mailbox id 0x%08x\n", mbox_id);
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -759,6 +783,8 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 {
 	struct itc_message* message;
 	struct itc_mailbox* to_mbox;
+
+	printf("\tDEBUG: itc_send_zz - Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x\n", from, to, (*msg)->msgno);
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -1136,7 +1162,7 @@ static void mailbox_destructor_at_thread_exit(void* data)
 {
 	struct itc_mailbox* mbox = (struct itc_mailbox*)data;
 
-	printf("\tDEBUG: mailbox_destructor_at_thread_exit - Thread-local mailbox destructor called by tid = 0x%08x, mbox_id = 0x%08x\n", mbox->tid, mbox->mbox_id);
+	printf("\tDEBUG: mailbox_destructor_at_thread_exit - Thread-local mailbox destructor called by tid = %d, mbox_id = 0x%08x\n", mbox->tid, mbox->mbox_id);
 	if(itc_inst.mboxes != NULL && mbox->mbox_state == MBOX_INUSE)
 	{
 		if(my_threadlocal_mbox == mbox)

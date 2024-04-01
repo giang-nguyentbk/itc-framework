@@ -64,12 +64,23 @@ int main(int argc, char* argv[])
 	test_itc_init(10, ITC_MALLOC, NULL, 0);
 
 	union itc_msg* send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+	if(send_msg != NULL)
+	{
+		send_msg->InterfaceAbcModuleXyzSetup1Req.clientId = 1;
+		send_msg->InterfaceAbcModuleXyzSetup1Req.param1 = 1;
+		send_msg->InterfaceAbcModuleXyzSetup1Req.pattern = 1;
+		send_msg->InterfaceAbcModuleXyzSetup1Req.procedureId = 1;
+		send_msg->InterfaceAbcModuleXyzSetup1Req.serverId = 1;
+	} else
+	{
+		return -1;
+	}
 
 	itc_mbox_id_t sender_mbox_id = test_itc_create_mailbox("senderMailbox", 0);
 
 	clock_gettime(CLOCK_REALTIME, &t_start);
 
-	itc_mbox_id_t receiver_mbox_id = 0x00900001;
+	itc_mbox_id_t receiver_mbox_id = 0x00200001;
 	test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID);
 
 	clock_gettime(CLOCK_REALTIME, &t_end);
@@ -94,6 +105,17 @@ int main(int argc, char* argv[])
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateReqS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
+					if(send_msg != NULL)
+					{
+						send_msg->InterfaceAbcModuleXyzActivateReq.clientId = 1;
+						send_msg->InterfaceAbcModuleXyzActivateReq.procedureId = 1;
+						send_msg->InterfaceAbcModuleXyzActivateReq.serverId = 1;
+						send_msg->InterfaceAbcModuleXyzActivateReq.speed = 1;
+						send_msg->InterfaceAbcModuleXyzActivateReq.temperature = 1;
+					} else
+					{
+						return -1;
+					}
 					test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID);
 					break;
 				}
@@ -235,6 +257,7 @@ void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_itc_send>\t\t Failed to itc_send()!\n");
 		PRINT_DASH_END;
+		test_itc_free(msg);
 		return;
 	}
 

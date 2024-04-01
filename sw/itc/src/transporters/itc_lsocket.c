@@ -24,14 +24,6 @@
 *******************************************************************************/
 #define RXBUF_LEN 1024
 
-#ifndef ITC_SOCKET_FOLDER
-#define ITC_SOCKET_FOLDER "/tmp/itc/socket/"
-#endif
-
-#ifndef ITC_LSOCKET_FILENAME
-#define ITC_LSOCKET_FILENAME "/tmp/itc/socket/lsocket"
-#endif
-
 struct lsock_instance {
 	int			sd; // socket descriptor
 	bool			is_coord_running; // to see if itccoord is running, which is received in locate_cfm
@@ -135,7 +127,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	rx_len = recv(sd, lreply, RXBUF_LEN, 0);
 	if(rx_len < (int)sizeof(struct itc_locate_coord_reply))
 	{
-		printf("\tDEBUG: lsock_locate_coord - Message received to small, rx_len = %u!\n", rx_len);
+		printf("\tDEBUG: lsock_locate_coord - Message received too small, rx_len = %u!\n", rx_len);
 		free(lreply);
 		rc->flags |= ITC_INVALID_MSG_SIZE;
 		return false;
@@ -186,8 +178,10 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 
 	if(lsock_inst.is_coord_running)
 	{
+		printf("\tDEBUG: lsock_init - itccoord is running!\n");
 		if(!lsock_inst.is_path_created)
 		{
+			printf("\tDEBUG: lsock_init - lsockpath not created yet, create it!\n");
 			generate_lsockpath(rc);
 			if(rc->flags != ITC_OK)
 			{
@@ -208,10 +202,12 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		coord_addr.sun_family = AF_LOCAL;
 		sprintf(coord_addr.sun_path, "%s_0x%08x", ITC_LSOCKET_FILENAME, my_mbox_id_in_itccoord);
 
-		res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(struct sockaddr));
+		// When using connect() remember must use sizeof(coord_addr) here.
+		// If you use sizeof(struct sockaddr) instead, there will be a bug that no such file or directory even though it's existing, Idk why!!!
+		res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(coord_addr));
 		if(res < 0)
 		{
-			perror("\tDEBUG: lsock_init - connect");
+			printf("\tDEBUG: lsock_init - Failed to connect to address %s, res = %d, errno = %d!\n", coord_addr.sun_path, res, errno);
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -233,6 +229,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		}
 
 		lsock_inst.sd = sd;
+		free(str_ack);
 	}
 }
 
@@ -263,22 +260,16 @@ static void generate_lsockpath(struct result_code* rc)
 {
 	int res;
 
-	res = mkdir(ITC_BASE_PATH, 0777);
-
-	if(res < 0 && errno != EEXIST)
-	{
-		perror("\tDEBUG: mkdir 1");
-		rc->flags |= ITC_SYSCALL_ERROR;
-		return;
-	}
-
 	res = mkdir(ITC_SOCKET_FOLDER, 0777);
 
 	if(res < 0 && errno != EEXIST)
 	{
-		perror("\tDEBUG: mkdir 2");
+		perror("\tDEBUG: generate_lsockpath - mkdir 2");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
+	} else if(res < 0 && errno == EEXIST)
+	{
+		printf("\tDEBUG: generate_lsockpath - lsockpath %s already exists!\n", ITC_SOCKET_FOLDER);
 	}
 
 	lsock_inst.is_path_created = true;

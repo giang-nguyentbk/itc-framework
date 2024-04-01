@@ -73,7 +73,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         {
                 // Requested itc message's length is too large or itc_init() hasn't been called yet.
                 // Should implement tracing/logging later for debugging purposes.
-		printf("\tDEBUG: malloc_alloc - Requested msg size too large!\n");
+		printf("\tDEBUG: malloc_alloc - Requested msg size too large, size = %lu bytes, max allowed size = %lu bytes!\n", size, (size_t)max_mallocsize);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return NULL;
         }

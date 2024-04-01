@@ -175,7 +175,17 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 	{
 		// In case queue has more than one items, move head to the 2nd item and remove the 1st item via prev
 		// pointer of the 2nd.
-		printf("\tDEBUG: q_dequeue - Queue currently has %d items!\n", q->size);
+		if(q->size > 25)
+		{
+			if((q->size % 25) == 0)
+			{
+				printf("\tDEBUG: q_dequeue - Queue currently has %d items!\n", q->size);
+			}
+		} else
+		{
+			printf("\tDEBUG: q_dequeue - Queue currently has %d items!\n", q->size);
+		}
+
 		q->head = q->head->next;
 		q_removenode(rc, &q->head->prev);
 	}
@@ -236,6 +246,29 @@ void q_remove(struct result_code* rc, struct itc_queue* q, void* data)
 
 	q->size--;
 	q_removenode(rc, &iter);
+}
+
+void q_clear(struct result_code* rc, struct itc_queue* q)
+{
+	void* data;
+
+	if(q == NULL)
+	{
+		printf("\tDEBUG: q_clear - Queue null!\n");
+		rc->flags |= ITC_QUEUE_NULL;
+		return;
+	}
+
+	if(q->size > 0)
+	{
+		printf("\tDEBUG: q_clear - Queue still has items, removing them!\n");
+		// Go through and discard all data pointed to by all nodes in the queue
+		while((data = q_dequeue(rc, q)) != NULL)
+		{
+			// Queue is not allowed to free() user data by itself, just free() the pointer to user data on each node.
+			// free(node->p_data);
+		}
+	}
 }
 
 /*****************************************************************************\/

@@ -31,7 +31,7 @@ extern "C" {
 
 #define ITC_COORD_MASK		0xFFF00000
 #define ITC_COORD_SHIFT		20
-#define ITC_COORD_NAME		"itc_coord"
+#define ITC_COORD_MBOX_NAME	"itc_coord_mailbox"
 
 #ifndef MAX_SUPPORTED_PROCESSES
 #define	MAX_SUPPORTED_PROCESSES	255
@@ -48,6 +48,23 @@ extern "C" {
 #ifndef ITC_ITCCOORD_FILENAME
 #define ITC_ITCCOORD_FILENAME "/tmp/itc/itccoord/itc_coordinator"
 #endif
+
+#ifndef ITC_SOCKET_FOLDER
+#define ITC_SOCKET_FOLDER "/tmp/itc/socket/"
+#endif
+
+#ifndef ITC_LSOCKET_FILENAME
+#define ITC_LSOCKET_FILENAME "/tmp/itc/socket/lsocket"
+#endif
+
+#ifndef ITC_SYSVMSQ_FOLDER
+#define ITC_SYSVMSQ_FOLDER "/tmp/itc/sysvmsq/"
+#endif
+
+#ifndef ITC_SYSVMSQ_FILENAME
+#define ITC_SYSVMSQ_FILENAME "/tmp/itc/sysvmsq/sysvmsq_file"
+#endif
+
 
 #ifdef LOCAL_TRANS_UNITTEST
 #define ITC_NR_INTERNAL_USED_MBOXES 0 // Unittest for local trans so sock and sysvmq not used yet
@@ -274,7 +291,7 @@ do not access user data via itc_message but use itc_msg instead */
         /* There is one byte called endpoint which should be always 0xAA,
         if not, then there is something wrong with your itc message */
         /* Why it's 0xAA, because 0xAA = 1010 1010. Most efficient way to confirm the itc message correctness */
-        char                     payload_startpoint[1]; // Actual user data will start from this byte address
+        // char                     payload_startpoint[1]; // Actual user data will start from this byte address
 
 	/* Payload in bytes
 	*  ....
