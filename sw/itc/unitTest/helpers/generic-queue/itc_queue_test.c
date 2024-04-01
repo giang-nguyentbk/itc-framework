@@ -27,6 +27,7 @@ void test_q_enqueue(struct itc_queue*q, void* data);
 void test_q_dequeue_int(struct itc_queue*q, int data_to_compare);
 void test_q_dequeue_float(struct itc_queue*q, float data_to_compare);
 void test_q_remove(struct itc_queue* q, void* data);
+void test_q_clear(struct itc_queue* q);
 
 /* Expect main call:    ./itc_queue_test */
 int main(int argc, char* argv[])
@@ -92,7 +93,11 @@ int main(int argc, char* argv[])
 
 	struct itc_queue* q;
 
-	int* data = (int*)malloc(2*sizeof(int));
+	int* datac = (int*)malloc(2*sizeof(int));
+	datac[0] = 1;
+	datac[1] = 2;
+
+	int* data = (int*)malloc(5*sizeof(int));
 	data[0] = 1;
 	data[1] = 2;
 	
@@ -103,10 +108,15 @@ int main(int argc, char* argv[])
 	float* fdata = (float*)malloc(2*sizeof(float));
 	fdata[0] = 1.5;
 	fdata[1] = 2.5;
-	
+
 	PRINT_DASH_END;
 
 	q = test_q_init(); 			// OK
+
+	test_q_enqueue(q, datac + 0);		// OK		--> To be removed by q_clear
+	test_q_enqueue(q, datac + 1);		// OK		--> To be removed by q_clear
+
+	test_q_clear(q); 			// OK
 
 	test_q_enqueue(q, data + 2);		// OK		--> To be removed by q_remove before q_dequeue
 	test_q_enqueue(q, data + 1);		// OK
@@ -129,6 +139,7 @@ int main(int argc, char* argv[])
 
 	PRINT_DASH_START;
 
+	free(datac);
 	free(data);
 	free(fdata);
 
@@ -342,6 +353,37 @@ void test_q_remove(struct itc_queue* q, void* data)
 
 	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_q_remove>\t Calling q_remove() successful,\t\t\t rc = %d!\n", rc->flags);
+	PRINT_DASH_END;
+	free(rc);
+}
+
+void test_q_clear(struct itc_queue* q)
+{
+	struct result_code* rc = (struct result_code*)malloc(sizeof(struct result_code));
+	if(rc != NULL)
+	{
+		rc->flags = ITC_OK;
+	} else
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_q_clear>\t Failed to allocate result_code!\n");
+		PRINT_DASH_END;
+                return;
+	}
+
+	q_clear(rc, q);
+	if(rc->flags != ITC_OK)
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_q_clear>\t Failed to q_clear(),\t\t\t rc = %d!\n", \
+			rc->flags);
+		PRINT_DASH_END;
+		free(rc);
+		return;
+	}
+
+	PRINT_DASH_START;
+        printf("[SUCCESS]:\t<test_q_clear>\t Calling q_clear() successful,\t\t\t rc = %d!\n", rc->flags);
 	PRINT_DASH_END;
 	free(rc);
 }

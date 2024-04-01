@@ -118,7 +118,8 @@ static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		      int nr_mboxes, uint32_t flags)
 {       
         uint32_t mask, nr_localmb_data;
-        
+
+	printf("\tDEBUG: local_init - ENTER!\n");
         /* If localmbx_data is not NULL, that means itc_init() was already run for this process. */
         if(local_inst.localmbx_data != NULL)
         {

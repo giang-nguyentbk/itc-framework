@@ -98,6 +98,7 @@ void start_itcthreads(struct result_code* rc)
 			(thr->use_highest_prio ? m_sched_selflimit_prio : m_sched_priority));
 		if(rc_tmp->flags != ITC_OK)
 		{
+			printf("\tDEBUG: start_itcthreads - Failed to start a thread!\n");
 			rc->flags |= rc_tmp->flags;
 			break; // Failed to start some thread, stop here.
 		}
@@ -115,9 +116,9 @@ void start_itcthreads(struct result_code* rc)
 			MUTEX_UNLOCK(thr->start_mtx, __FILE__, __LINE__);
 		}
 
+		printf("\tDEBUG: start_itcthreads - Starting a thread, tid = %ld!\n", thr->tid);
 		thr->is_running = true;
 		thr = thr->next;
-		printf("\tDEBUG: start_itcthreads - Starting a thread!\n");
 	}
 
 	MUTEX_UNLOCK(&thrman_inst.thrlist_mtx, __FILE__, __LINE__);
@@ -150,7 +151,7 @@ void terminate_itcthreads(struct result_code* rc)
 			break;
 		}
 
-		printf("\tDEBUG: terminate_itcthreads - Terminating a thread!\n");
+		printf("\tDEBUG: terminate_itcthreads - Terminating a thread, tid = %ld!\n", thr->tid);
 		thrtmp = thr;
 		thr->is_running = false;
 		thr = thr->next;
