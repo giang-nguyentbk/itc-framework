@@ -58,6 +58,7 @@ size_t test_itc_size(union itc_msg *msg);
 itc_mbox_id_t test_itc_current_mbox(void);
 int test_itc_get_fd(itc_mbox_id_t mbox_id);
 void test_itc_get_name(itc_mbox_id_t mbox_id, char *name);
+itc_mbox_id_t test_itc_locate_sync(const char *name);
 
 /* Expect main call:    ./itc_test_2 */
 int main(int argc, char* argv[])
@@ -143,19 +144,20 @@ int main(int argc, char* argv[])
 
 	sleep(1); // Make sure sending2_thread is ready
 	printf("\tDEBUG: main - Started sending2_thread successfully!\n");
-	MUTEX_LOCK(&worker_1.mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&worker_1.mtx);
 	pthread_create(&receiving_thread_id, NULL, receiving_thread, NULL);
-	MUTEX_LOCK(&worker_1.mtx, __FILE__, __LINE__);
-	MUTEX_UNLOCK(&worker_1.mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&worker_1.mtx);
+	MUTEX_UNLOCK(&worker_1.mtx);
 
 
 	(void)test_itc_current_mbox();
 	(void)test_itc_get_fd(mbox_id_sending1_thread);
 	char name[255];
 	test_itc_get_name(mbox_id_sending1_thread, name);
+	itc_mbox_id_t mbox_id_receiving_thread_located = test_itc_locate_sync("teamServerMailbox1");
 
 	clock_gettime(CLOCK_MONOTONIC, &t_start);
-	test_itc_send(&msg_1, mbox_id_receiving_thread, ITC_MY_MBOX_ID);
+	test_itc_send(&msg_1, mbox_id_receiving_thread_located, ITC_MY_MBOX_ID);
 	clock_gettime(CLOCK_MONOTONIC, &t_end);
 	unsigned long int difftime = calc_time_diff(t_start, t_end);
 	printf("\tDEBUG: main - Time needed to send smg_1 = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
@@ -450,6 +452,29 @@ void test_itc_get_name(itc_mbox_id_t mbox_id, char *name)
 	PRINT_DASH_END;
 }
 
+itc_mbox_id_t test_itc_locate_sync(const char *name)
+{
+	itc_mbox_id_t ret;
+
+	ret = itc_locate_sync(name);
+
+	if(ret == ITC_NO_MBOX_ID)
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_itc_locate_sync>\t Failed to itc_locate_sync()!\n");
+		PRINT_DASH_END;
+		return ITC_NO_MBOX_ID;
+	}
+
+	PRINT_DASH_START;
+        printf("[SUCCESS]:\t<test_itc_locate_sync>\t Calling itc_locate_sync() successful, my mailbox id = 0x%08x\n", ret);
+	PRINT_DASH_END;
+	return ret;
+}
+
+
+
+
 
 static void* receiving_thread(void* data)
 {
@@ -466,9 +491,9 @@ static void* receiving_thread(void* data)
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL); // Allow this thread can be cancelled without having any cancellation point such as sleep(), read(),...
 	pthread_setspecific(worker_1.destructor_key, destruct_data);
 
-	MUTEX_UNLOCK(&worker_1.mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&worker_1.mtx);
 	printf("\tDEBUG: receiving_thread - UNLOCK for sending1_thread...\n");
-	MUTEX_UNLOCK(&worker_2.mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&worker_2.mtx);
 	printf("\tDEBUG: receiving_thread - UNLOCK for sending2_thread...\n");
 
 	while(!worker_1.isTerminated)
@@ -542,10 +567,10 @@ static void* sending2_thread(void* data)
 	msg_2 = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateReqS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
 
 
-	MUTEX_LOCK(&worker_2.mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&worker_2.mtx);
 	printf("\tDEBUG: sending2_thread - Pausing here...\n");
-	MUTEX_LOCK(&worker_2.mtx, __FILE__, __LINE__); // Will stop here until teamServerThread MUTEX_UNLOCK &worker2.mtx
-	MUTEX_UNLOCK(&worker_2.mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&worker_2.mtx); // Will stop here until teamServerThread MUTEX_UNLOCK &worker2.mtx
+	MUTEX_UNLOCK(&worker_2.mtx);
 	printf("\tDEBUG: sending2_thread - Resuming sending msg_2...\n");
 
 	clock_gettime(CLOCK_MONOTONIC, &t_start);

@@ -41,6 +41,22 @@ struct itc_notify_coord_add_rmv_mbox {
 	char		mbox_name[1];
 };
 
+#define ITC_LOCATE_MBOX_SYNC_REQUEST	(ITC_PROTO_MSG_BASE + 0x5)
+struct itc_locate_mbox_sync_request {
+	uint32_t	msgno;
+	itc_mbox_id_t	from_mbox;
+	char		mbox_name[1];
+};
+
+#define ITC_LOCATE_MBOX_SYNC_REPLY	(ITC_PROTO_MSG_BASE + 0x6)
+struct itc_locate_mbox_sync_reply {
+	uint32_t	msgno;
+	itc_mbox_id_t	mbox_id;
+	pid_t		pid;
+	char		mbox_name[1];
+};
+
+
 #ifdef __cplusplus
 }
 #endif

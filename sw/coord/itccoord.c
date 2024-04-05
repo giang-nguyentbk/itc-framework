@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,6 +80,8 @@ union itc_msg {
 	struct itc_locate_coord_request		itc_locate_coord_request;
 	struct itc_locate_coord_reply		itc_locate_coord_reply;
 	struct itc_notify_coord_add_rmv_mbox	itc_notify_coord_add_rmv_mbox;
+	struct itc_locate_mbox_sync_request	itc_locate_mbox_sync_request;
+	struct itc_locate_mbox_sync_reply	itc_locate_mbox_sync_reply;
 };
 
 typedef enum {
@@ -105,7 +108,7 @@ struct itccoord_instance {
 	struct itc_queue	*free_list; // Hold a list of process slots that mailbox id (masked with 0xFFF00000) can be assigned to a newly connected process
 	struct itc_queue	*used_list; // On the other hand, used list manages processes that were connected and assigned coord's mailbox id.
 
-	// void			*mbox_tree; // Manage all registered mailboxes in itccoord by tsearch, tfind, tdelete,... APIs
+	void			*mbox_tree; // Manage all registered mailboxes in itccoord by tsearch, tfind, tdelete,... APIs
 
 	itc_mbox_id_t		mbox_id;
 	int			mbox_fd;
@@ -142,8 +145,11 @@ static bool close_socket_connection(struct itc_process *proc);
 static struct itc_process *find_process(itc_mbox_id_t mbox_id);
 static bool connect_to_process(struct itc_process *proc);
 static void handle_incoming_request(void);
-
-
+static void handle_add_mbox(itc_mbox_id_t mbox_id, char *mbox_name);
+static void handle_remove_mbox(itc_mbox_id_t mbox_id, char *mbox_name);
+static void handle_locate_mbox(itc_mbox_id_t from_mbox, char *mbox_name);
+static int mbox_name_cmpfunc(const void *pa, const void *pb); // char *mbox_name vs struct itc_mbox_info *mbox2
+static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mbox_info *mbox1 vs struct itc_mbox_info *mbox2
 
 
 /*****************************************************************************\/
@@ -422,9 +428,14 @@ static void itccoord_exit_handler(void)
 		}
 	}
 
+
 	unlink(ITC_ITCCOORD_FILENAME);
 	rmdir(ITC_SOCKET_FOLDER);
 	rmdir(ITC_ITCCOORD_FOLDER);
+	printf("\tDEBUG: itccoord_exit_handler - Remove all directories successfully!\n");
+
+	tdestroy(itccoord_inst.mbox_tree, free); // Call free() on each node's user data
+	printf("\tDEBUG: itccoord_exit_handler - Remove all nodes from mbox_tree successfully!\n");
 
 	printf("\tDEBUG: itccoord_exit_handler - Removing processes in free_list, count = %u!\n", itccoord_inst.freelist_count);
 	q_exit(rc, itccoord_inst.free_list);
@@ -435,7 +446,6 @@ static void itccoord_exit_handler(void)
 	itc_exit();
 
 	free(rc);
-	printf("\tDEBUG: itccoord_exit_handler - Remove all directories successfully!\n");
 }
 
 static bool is_itccoord_running(void)
@@ -837,23 +847,158 @@ static void handle_incoming_request(void)
 	switch(msg->msgno)
 	{
 		case ITC_NOTIFY_COORD_ADD_MBOX:
-			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_ADD_MBOX received, temporarily discard it!\n");
-			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x%08x!\n", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
+			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_ADD_MBOX received!\n");
+			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x%08x\n", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
 			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_ADD_MBOX mbox_name = %s!\n", msg->itc_notify_coord_add_rmv_mbox.mbox_name);
+			handle_add_mbox(msg->itc_notify_coord_add_rmv_mbox.mbox_id, msg->itc_notify_coord_add_rmv_mbox.mbox_name);
 			break;
 		
 		case ITC_NOTIFY_COORD_RMV_MBOX:
-			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_RMV_MBOX received, temporarily discard it!\n");
-			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x%08x!\n", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
+			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_RMV_MBOX received!\n");
+			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x%08x\n", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
 			printf("\tDEBUG: handle_incoming_request - ITC_NOTIFY_COORD_RMV_MBOX mbox_name = %s!\n", msg->itc_notify_coord_add_rmv_mbox.mbox_name);
+			handle_remove_mbox(msg->itc_notify_coord_add_rmv_mbox.mbox_id, msg->itc_notify_coord_add_rmv_mbox.mbox_name);
 			break;
 		
+		case ITC_LOCATE_MBOX_SYNC_REQUEST:
+			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST received!\n");
+			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x%08x\n", msg->itc_locate_mbox_sync_request.from_mbox);
+			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = %s!\n", msg->itc_locate_mbox_sync_request.mbox_name);
+			handle_locate_mbox(msg->itc_locate_mbox_sync_request.from_mbox, msg->itc_locate_mbox_sync_request.mbox_name);
+			break;
+
 		default:
-			printf("\tDEBUG: handle_incoming_request - Unknown signal 0x%08x received, temporarily discard it!\n", msg->msgno);
+			printf("\tDEBUG: handle_incoming_request - Unknown signal 0x%08x received, discard it!\n", msg->msgno);
 			break;
 	}
 
 	itc_free(&msg);
 }
 
+static void handle_add_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
+{
+	struct itc_process *proc;
+	struct itc_mbox_info *mbox, **iter;
+
+	proc = find_process(mbox_id);
+	if(proc == NULL)
+	{
+		printf("\tDEBUG: handle_add_mbox - Mailbox 0x%08x from an unknown process!\n", mbox_id);
+		return;
+	} else if(proc->state != PROC_CONNECTED)
+	{
+		printf("\tDEBUG: handle_add_mbox - Mailbox 0x%08x from a just-terminated process!\n", mbox_id);
+		return;
+	}
+
+	mbox = (struct itc_mbox_info *)malloc(offsetof(struct itc_mbox_info, mbox_name) + strlen(mbox_name) + 1);
+	if(mbox == NULL)
+	{
+		printf("\tDEBUG: handle_add_mbox - Failed to add mailbox 0x%08x to itccoord mbox_tree due to out of memory!\n", mbox_id);
+		return;
+	}
+
+	mbox->mbox_id = mbox_id;
+	strcpy(mbox->mbox_name, mbox_name);
+
+	iter = tfind(mbox, &itccoord_inst.mbox_tree, mbox_name_cmpfunc2);
+	if(iter != NULL)
+	{
+		printf("\tDEBUG: handle_add_mbox - Mailbox 0x%08x already exists in mbox_tree, something was messed up!\n", mbox_id);
+		return;
+	} else
+	{
+		tsearch(mbox, &itccoord_inst.mbox_tree, mbox_name_cmpfunc2);
+	}
+}
+
+static void handle_remove_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
+{
+	struct itc_process *proc;
+	struct itc_mbox_info **iter, *mbox;
+
+	proc = find_process(mbox_id);
+	if(proc == NULL)
+	{
+		printf("\tDEBUG: handle_remove_mbox - Mailbox 0x%08x from an unknown process!\n", mbox_id);
+		return;
+	} else if(proc->state != PROC_CONNECTED)
+	{
+		printf("\tDEBUG: handle_remove_mbox - Mailbox 0x%08x from a just-terminated process!\n", mbox_id);
+		return;
+	}
+
+	iter = tfind(mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
+	if(iter == NULL)
+	{
+		printf("\tDEBUG: handle_remove_mbox - Mailbox 0x%08x not found in mbox_tree, something was messed up!\n", mbox_id);
+		return;
+	}
+
+	mbox = *iter;
+	tdelete(mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
+	free(mbox);
+}
+
+static void handle_locate_mbox(itc_mbox_id_t from_mbox, char *mbox_name)
+{
+	struct itc_process *proc;
+	struct itc_mbox_info **iter;
+	itc_mbox_id_t mbox_id;
+
+	union itc_msg *msg;
+
+	msg = itc_alloc(offsetof(struct itc_locate_mbox_sync_reply, mbox_name) + strlen(mbox_name) + 1, ITC_LOCATE_MBOX_SYNC_REPLY);
+
+	iter = tfind(mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
+	if(iter == NULL)
+	{
+		printf("\tDEBUG: handle_add_mbox - Mailbox 0x%08x not found in this process's mbox_tree, try to find it in other hosts!\n", (*iter)->mbox_id);
+		// return; // Will not return here, anyhow still need to reply the process
+		msg->itc_locate_mbox_sync_reply.mbox_id = ITC_NO_MBOX_ID;
+		msg->itc_locate_mbox_sync_reply.pid = -1;
+	} else
+	{
+		mbox_id = (*iter)->mbox_id;
+		proc = find_process(mbox_id);
+		if(proc == NULL)
+		{
+			printf("\tDEBUG: handle_locate_mbox - Received a locating mailbox request from from an unknown process's mailbox 0x%08x\n", from_mbox);
+			return;
+		} else if(proc->state != PROC_CONNECTED)
+		{
+			printf("\tDEBUG: handle_locate_mbox - Mailbox 0x%08x from a just-terminated process!\n", from_mbox);
+			return;
+		}
+		msg->itc_locate_mbox_sync_reply.mbox_id = mbox_id;
+		msg->itc_locate_mbox_sync_reply.pid = proc->pid;
+	}
+
+	/* Send back response to the process */
+	strcpy(msg->itc_locate_mbox_sync_reply.mbox_name, mbox_name);
+	if(itc_send(&msg, from_mbox, ITC_MY_MBOX_ID) == false)
+	{
+		printf("\tDEBUG: handle_locate_mbox - Failed to send ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x%08x\n", from_mbox);
+		itc_free(&msg);
+		return;
+	}
+
+	printf("\tDEBUG: handle_locate_mbox - Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x%08x\n", from_mbox);
+}
+
+static int mbox_name_cmpfunc(const void *pa, const void *pb)
+{
+	const char *name = pa;
+	const struct itc_mbox_info *mbox = pb;
+
+	return strcmp(name, mbox->mbox_name);
+}
+
+static int mbox_name_cmpfunc2(const void *pa, const void *pb)
+{
+	const struct itc_mbox_info *mbox1 = pa;
+	const struct itc_mbox_info *mbox2 = pb;
+
+	return strcmp(mbox1->mbox_name, mbox2->mbox_name);
+}
 

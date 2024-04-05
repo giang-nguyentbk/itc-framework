@@ -388,7 +388,7 @@ static void* sysvmq_rx_thread(void *data)
 	}
 	memset(sysvmq_inst.rx_buffer, 0, sysvmq_inst.max_msgsize);
 
-	MUTEX_UNLOCK(&sysvmq_inst.thread_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&sysvmq_inst.thread_mtx);
 	free(rc_tmp);
 
 	for(;;)

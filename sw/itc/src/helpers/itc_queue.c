@@ -119,7 +119,7 @@ void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data)
 		return;
 	}
 
-	MUTEX_LOCK(q->q_mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(q->q_mtx);
 
 	// Check if the queue tail is NULL or not.
 	// If yes, so the queue now is empty, so move q->head and q->tail to the 1st item.
@@ -137,21 +137,21 @@ void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data)
 	}
 
 	q->size++;
-	MUTEX_UNLOCK(q->q_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(q->q_mtx);
 }
 
 void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 {
 	void* data;
 
-	MUTEX_LOCK(q->q_mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(q->q_mtx);
 
 	// Queue empty
 	if(q->head == NULL)
 	{
 		printf("\tDEBUG: q_dequeue - Queue empty!\n");
 		rc->flags |= ITC_QUEUE_EMPTY;
-		MUTEX_UNLOCK(q->q_mtx, __FILE__, __LINE__);
+		MUTEX_UNLOCK(q->q_mtx);
 		return NULL;
 	}
 
@@ -191,7 +191,7 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 	}
 
 	q->size--;
-	MUTEX_UNLOCK(q->q_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(q->q_mtx);
 
 	return data;
 }

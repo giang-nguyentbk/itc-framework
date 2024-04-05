@@ -70,10 +70,10 @@ void add_itcthread(struct result_code* rc, void* (*worker)(void*), void* arg, bo
 	thr->use_highest_prio = use_highest_prio;
 	thr->is_running = false;
 
-	MUTEX_LOCK(&thrman_inst.thrlist_mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&thrman_inst.thrlist_mtx);
 	thr->next = thrman_inst.thread_list;
 	thrman_inst.thread_list = thr;
-	MUTEX_UNLOCK(&thrman_inst.thrlist_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&thrman_inst.thrlist_mtx);
 }
 
 void start_itcthreads(struct result_code* rc)
@@ -81,7 +81,7 @@ void start_itcthreads(struct result_code* rc)
 	struct itc_threads* thr;
 	struct result_code* rc_tmp;
 	
-	MUTEX_LOCK(&thrman_inst.thrlist_mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&thrman_inst.thrlist_mtx);
 	thr = thrman_inst.thread_list; // Go through the thread lists and try to start them all
 
 	rc_tmp = (struct result_code*)malloc(sizeof(struct result_code));
@@ -90,7 +90,7 @@ void start_itcthreads(struct result_code* rc)
 	{
 		if(thr->start_mtx != NULL)
 		{
-			MUTEX_LOCK(thr->start_mtx, __FILE__, __LINE__);
+			MUTEX_LOCK(thr->start_mtx);
 		}
 
 		rc_tmp->flags = ITC_OK;
@@ -112,8 +112,8 @@ void start_itcthreads(struct result_code* rc)
 
 			/* Note that: We MUST call MUTEX_UNLOCK for the thread-specific mutex in the "worker" function.
 			* Otherwise, we will stuck here indefinitely. */
-			MUTEX_LOCK(thr->start_mtx, __FILE__, __LINE__);
-			MUTEX_UNLOCK(thr->start_mtx, __FILE__, __LINE__);
+			MUTEX_LOCK(thr->start_mtx);
+			MUTEX_UNLOCK(thr->start_mtx);
 		}
 
 		printf("\tDEBUG: start_itcthreads - Starting a thread, tid = %ld!\n", thr->tid);
@@ -121,7 +121,7 @@ void start_itcthreads(struct result_code* rc)
 		thr = thr->next;
 	}
 
-	MUTEX_UNLOCK(&thrman_inst.thrlist_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&thrman_inst.thrlist_mtx);
 
 	free(rc_tmp);
 }
@@ -130,7 +130,7 @@ void terminate_itcthreads(struct result_code* rc)
 {
 	struct itc_threads* thr, *thrtmp;
 
-	MUTEX_LOCK(&thrman_inst.thrlist_mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&thrman_inst.thrlist_mtx);
 	thr = thrman_inst.thread_list;
 	while(thr != NULL && thr->is_running)
 	{
@@ -159,7 +159,7 @@ void terminate_itcthreads(struct result_code* rc)
 		thrtmp = NULL;
 	}
 
-	MUTEX_UNLOCK(&thrman_inst.thrlist_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&thrman_inst.thrlist_mtx);
 }
 
 /*****************************************************************************\/

@@ -138,7 +138,7 @@ extern itc_mbox_id_t itc_current_mbox(void);
 /*
 *  Locate a mailbox across the entire universe.
 *       1. First search for local mailboxes in the current process.
-*       2. If cannot find, send a message ITC_LOCATE_OVER_PROC to itc_coord asking for seeking across processes.
+*       2. If cannot find, send a message ITC_LOCATE_MBOX_SYNC_REQ to itc_coord asking for seeking across processes.
 *       3. If still cannot find, itc_coord will help send a message ITC_LOCATE_OVER_HOST to itc_gw asking for
 *       broadcasting this message to all hosts on LAN network for locating the requested mailbox.
 *
@@ -148,6 +148,7 @@ extern itc_mbox_id_t itc_current_mbox(void);
 *       Improvement: add one more input, let's say, uint32_t wheretofind. You're be able to select where to find
 *       the target mailbox. Locally, or over processes, or even over hosts???
 */
+extern itc_mbox_id_t itc_locate_sync(const char *name);
 // extern itc_mbox_id_t itc_locate_sync(const char *name, uint32_t wheretofind);
 
 /*
@@ -224,8 +225,8 @@ extern size_t itc_size_zz(union itc_msg *msg);
 extern itc_mbox_id_t itc_current_mbox_zz(void);
 #define itc_current_mbox() itc_current_mbox_zz()
 
-// extern itc_mbox_id_t itc_locate_sync_zz(const char *name, uint32_t wheretofind);
-// #define itc_locate_sync(name, wheretofind) itc_locate_sync_zz((name), (wheretofind))
+extern itc_mbox_id_t itc_locate_sync_zz(const char *name);
+#define itc_locate_sync(name) itc_locate_sync_zz((name))
 
 extern int itc_get_fd_zz(itc_mbox_id_t mbox_id);
 #define itc_get_fd(mbox_id) itc_get_fd_zz(mbox_id)

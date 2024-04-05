@@ -48,6 +48,7 @@ size_t test_itc_size(union itc_msg *msg);
 itc_mbox_id_t test_itc_current_mbox(void);
 int test_itc_get_fd(itc_mbox_id_t mbox_id);
 void test_itc_get_name(itc_mbox_id_t mbox_id, char *name);
+itc_mbox_id_t test_itc_locate_sync(const char *name);
 
 /* Expect main call:    ./itc_test_receiver */
 int main(int argc, char* argv[])
@@ -66,13 +67,19 @@ int main(int argc, char* argv[])
 	itc_mbox_id_t receiver_mbox_id = test_itc_create_mailbox("receiverMailbox", 0);
 
 	union itc_msg* rcv_msg;
-	itc_mbox_id_t sender_mbox_id = 0x00300001;
+	// itc_mbox_id_t sender_mbox_id = 0x00300001;
+	itc_mbox_id_t sender_mbox_id = ITC_NO_MBOX_ID;
 	while(!isTerminated)
 	{
 		rcv_msg = test_itc_receive(ITC_NO_WAIT);
 
 		if(rcv_msg != NULL)
 		{
+			if(sender_mbox_id == ITC_NO_MBOX_ID)
+			{
+				sender_mbox_id = test_itc_locate_sync("senderMailbox");
+			}
+
 			switch (rcv_msg->msgNo)
 			{
 			case MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ:
@@ -110,7 +117,7 @@ int main(int argc, char* argv[])
 						return -1;
 					}
 					test_itc_send(&send_msg, sender_mbox_id, ITC_MY_MBOX_ID);
-					printf("\tDEBUG: receiver - Activated device from receiver!");
+					printf("\tDEBUG: receiver - Activated device from receiver!\n");
 					isTerminated = true;
 					break;
 				}
@@ -388,4 +395,24 @@ void test_itc_get_name(itc_mbox_id_t mbox_id, char *name)
 	PRINT_DASH_START;
         printf("[SUCCESS]:\t<test_itc_get_name>\t\t Calling itc_get_name() successful, mbox name = %s!\n", name);
 	PRINT_DASH_END;
+}
+
+itc_mbox_id_t test_itc_locate_sync(const char *name)
+{
+	itc_mbox_id_t ret;
+
+	ret = itc_locate_sync(name);
+
+	if(ret == ITC_NO_MBOX_ID)
+	{
+		PRINT_DASH_START;
+		printf("[FAILED]:\t<test_itc_locate_sync>\t Failed to itc_locate_sync()!\n");
+		PRINT_DASH_END;
+		return ITC_NO_MBOX_ID;
+	}
+
+	PRINT_DASH_START;
+        printf("[SUCCESS]:\t<test_itc_locate_sync>\t Calling itc_locate_sync() successful, my mailbox id = 0x%08x\n", ret);
+	PRINT_DASH_END;
+	return ret;
 }

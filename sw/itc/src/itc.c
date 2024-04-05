@@ -31,6 +31,8 @@ union itc_msg {
 	uint32_t				msgno;
 
 	struct itc_notify_coord_add_rmv_mbox	itc_notify_coord_add_rmv_mbox;
+	struct itc_locate_mbox_sync_request	itc_locate_mbox_sync_request;
+	struct itc_locate_mbox_sync_reply	itc_locate_mbox_sync_reply;
 };
 
 struct itc_instance {
@@ -42,6 +44,9 @@ struct itc_instance {
 
 	struct itc_threads*		thread_list;	// manage a list of threads that is started by itc.c via itc_init() such as sysvmq_rx_thread,...
 	pthread_mutex_t			thread_list_mtx;
+
+	pthread_mutex_t			local_locating_mbox_mtx;
+	void				*local_locating_mbox_tree;
 
 	pthread_key_t			destruct_key;
 
@@ -76,6 +81,12 @@ static void release_all_itc_resources(void);
 static void mailbox_destructor_at_thread_exit(void* data);
 static struct itc_mailbox* find_mbox(itc_mbox_id_t mbox_id);
 static void calc_abs_time(struct timespec* ts, unsigned long tmo);
+static struct itc_mailbox *locate_local_mbox(const char *name);
+static int mbox_name_cmpfunc(const void *pa, const void *pb); // char *name vs struct itc_mailbox *mbox
+static void do_nothing(void *a);
+static bool remove_mbox_from_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox);
+static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mailbox *mbox1 vs struct itc_mailbox *mbox2
+static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox);
 
 
 /*****************************************************************************\/
@@ -295,7 +306,15 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 	ret = pthread_key_create(&itc_inst.destruct_key, mailbox_destructor_at_thread_exit);
 	if(ret != 0)
 	{
-		printf("\tDEBUG: itc_init_zz - pthread_key_create error code = %d\n", ret);
+		printf("\tDEBUG: itc_init_zz - Failed to create destruct_key, error code = %d\n", ret);
+		free(rc);
+		return false;
+	}
+
+	ret = pthread_mutex_init(&itc_inst.local_locating_mbox_mtx, NULL);
+	if(ret != 0)
+	{
+		printf("\tDEBUG: itc_init_zz - Failed to init local_locating_tree mutex, error code = %d\n", ret);
 		free(rc);
 		return false;
 	}
@@ -348,7 +367,7 @@ bool itc_exit_zz()
 	{
 		mbox = &itc_inst.mboxes[i];
 		
-		MUTEX_LOCK(&mbox->rxq_info.rxq_mtx, __FILE__, __LINE__);
+		MUTEX_LOCK(&mbox->rxq_info.rxq_mtx);
 
 
 		if(mbox->mbox_state == MBOX_INUSE)
@@ -356,7 +375,7 @@ bool itc_exit_zz()
 			running_mboxes++;
 		}
 
-		MUTEX_UNLOCK(&mbox->rxq_info.rxq_mtx, __FILE__, __LINE__);
+		MUTEX_UNLOCK(&mbox->rxq_info.rxq_mtx);
 
 		if(running_mboxes > ITC_NR_INTERNAL_USED_MBOXES)
 		{
@@ -425,6 +444,18 @@ bool itc_exit_zz()
 	{
 		// ERROR trace is needed here
 		printf("\tDEBUG: itc_exit_zz - pthread_key_delete error code = %d\n", ret);
+		return false;
+	}
+
+	/* Destroy local_locating_tree */
+	MUTEX_LOCK(&itc_inst.local_locating_mbox_mtx);
+	tdestroy(itc_inst.local_locating_mbox_tree, do_nothing);
+	MUTEX_UNLOCK(&itc_inst.local_locating_mbox_mtx);
+
+	ret = pthread_mutex_destroy(&itc_inst.local_locating_mbox_mtx);
+	if(ret != 0)
+	{
+		printf("\tDEBUG: itc_exit_zz - pthread_mutex_destroy error code = %d\n", ret);
 		return false;
 	}
 
@@ -592,7 +623,7 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 	new_mbox->p_rxq_info->rxq_len	= 0;
 	new_mbox->p_rxq_info->is_in_rx	= 0;
 
-	MUTEX_LOCK(&(new_mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+	MUTEX_LOCK(&(new_mbox->p_rxq_info->rxq_mtx));
 
 	new_mbox->mbox_state		= MBOX_INUSE;
 	new_mbox->tid			= (pid_t)syscall(SYS_gettid);
@@ -607,7 +638,7 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 			{
 				// ERROR trace is needed here
 				printf("\tDEBUG: itc_create_mailbox_zz - Failed to create mailbox on trans_mechanism[%d]!\n", i);
-				MUTEX_UNLOCK(&(new_mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+				MUTEX_UNLOCK(&(new_mbox->p_rxq_info->rxq_mtx));
 				return ITC_NO_MBOX_ID;
 			}
 		}
@@ -618,13 +649,20 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 	{
 		// ERROR trace is needed here
 		printf("\tDEBUG: itc_create_mailbox_zz - pthread_setspecific error code = %d\n", ret);
-		MUTEX_UNLOCK(&(new_mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+		MUTEX_UNLOCK(&(new_mbox->p_rxq_info->rxq_mtx));
 		return ITC_NO_MBOX_ID;
+	}
+
+	/* Insert mailbox to local_locating_tree */
+	if(insert_mbox_to_tree(&itc_inst.local_locating_mbox_tree, &itc_inst.local_locating_mbox_mtx, new_mbox) == false)
+	{
+		/* Not a big problem, will not return. User may only not be able to get precise mbox_id from name in the future for this mailbox by itc_locate_sync() request */
+		printf("\tDEBUG: itc_create_mailbox_zz - Mailbox id 0x%08x already exists in local_locating_tree!\n", new_mbox->mbox_id);
 	}
 
 	my_threadlocal_mbox = new_mbox;
 
-	MUTEX_UNLOCK(&(new_mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+	MUTEX_UNLOCK(&(new_mbox->p_rxq_info->rxq_mtx));
 
 	/* In case this process is not the itccoord process, send notification to itccoord */
 	if(itc_inst.my_mbox_id_in_itccoord != (itc_inst.itccoord_mbox_id & itc_inst.itccoord_mask))
@@ -672,6 +710,13 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 
 	mbox = my_threadlocal_mbox;
 
+	/* Remove mailbox from local_locating_tree */
+	if(remove_mbox_from_tree(&itc_inst.local_locating_mbox_tree, &itc_inst.local_locating_mbox_mtx, mbox) == false)
+	{
+		/* Not a too big problem, will not return here */
+		printf("\tDEBUG: itc_delete_mailbox_zz - Failed to delete mbox_id = 0x%08x which is not found in local locating tree, something was messed up!\n", mbox_id);
+	}
+
 	rxq_mtx = &(mbox->p_rxq_info->rxq_mtx);
 #if defined MUTEX_TRACE_TIME_UNITTEST
 	struct timespec t_start;
@@ -714,7 +759,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 	mbox->mbox_state = MBOX_UNUSED;
 
 	rc->flags = ITC_OK;
-	MUTEX_UNLOCK(rxq_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(rxq_mtx);
 
 	if(mbox->p_rxq_info->is_fd_created)
 	{
@@ -726,7 +771,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 		mbox->p_rxq_info->is_fd_created = false;
 	}
 
-	MUTEX_LOCK(rxq_mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(rxq_mtx);
 
 	/* Notify itccoord of my deleted mailbox */
 	if(itc_inst.my_mbox_id_in_itccoord != (itc_inst.itccoord_mbox_id & itc_inst.itccoord_mask))
@@ -771,7 +816,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 		return false;
 	}
 
-	MUTEX_UNLOCK(rxq_mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(rxq_mtx);
 
 	my_threadlocal_mbox = NULL;
 
@@ -828,7 +873,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 			printf("\tDEBUG: itc_send_zz - Sending message to a non-active mailbox!\n");
 			return false;
 		}
-		MUTEX_LOCK(&(to_mbox->rxq_info.rxq_mtx), __FILE__, __LINE__);
+		MUTEX_LOCK(&(to_mbox->rxq_info.rxq_mtx));
 	}
 
 	int idx = 0;
@@ -842,7 +887,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 			{
 				if(to_mbox != NULL)
 				{
-					MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+					MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx));
 				}
 			} else
 			{
@@ -856,7 +901,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 	{
 		if(to_mbox != NULL)
 		{
-			MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+			MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx));
 		}
 		// ERROR trace is needed here. Failed to send the message on all mechanisms
 		printf("\tDEBUG: itc_send_zz - Failed to send message by all transport mechanisms!\n");
@@ -884,7 +929,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 
 		to_mbox->p_rxq_info->rxq_len++;
 		pthread_cond_signal(&(to_mbox->p_rxq_info->rxq_cond));
-		MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+		MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx));
 
 		pthread_setcancelstate(saved_cancel_state, NULL);
 		printf("\tDEBUG: itc_send_zz - Notify receiver about sent messages!\n");
@@ -919,7 +964,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 	rc->flags = ITC_OK;
 	do
 	{
-		MUTEX_LOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+		MUTEX_LOCK(&(mbox->p_rxq_info->rxq_mtx));
 
 		mbox->p_rxq_info->is_in_rx = true;
 		
@@ -944,7 +989,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				/* If nothing in rx queue, return immediately */
 				// printf("\tDEBUG: itc_receive_zz - No message in rx queue, return!\n"); SPAM
 				mbox->p_rxq_info->is_in_rx = false;
-				MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+				MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 				/* Sleep a little bit to avoid EDEADLK when deleting the mailbox in case of using ITC_NO_WAIT in while true loop
 				*  Hope this will not affect much to the latency, but it's safe and worth doing this */
 				sleep(0.01);
@@ -967,7 +1012,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				{
 					printf("\tDEBUG: itc_receive_zz - Timeout when expecting message, timeout = %u ms!\n", tmo);
 					mbox->p_rxq_info->is_in_rx = false;
-					MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+					MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 					break;
 				} else if(ret != 0)
 				{
@@ -995,7 +1040,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 
 		mbox->p_rxq_info->is_in_rx = false;
 		
-		MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+		MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 	} while(message == NULL);
 
 	return (union itc_msg*)((message == NULL) ? NULL : CONVERT_TO_MSG(message));
@@ -1077,7 +1122,7 @@ int itc_get_fd_zz(itc_mbox_id_t mbox_id)
 	}
 
 	rc->flags = ITC_OK;
-	MUTEX_LOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+	MUTEX_LOCK(&(mbox->p_rxq_info->rxq_mtx));
 
 	uint64_t one = 1;
 	if(!mbox->p_rxq_info->is_fd_created)
@@ -1086,7 +1131,7 @@ int itc_get_fd_zz(itc_mbox_id_t mbox_id)
 		if(mbox->p_rxq_info->rxq_fd == -1)
 		{
 			perror("\tDEBUG: itc_get_fd_zz - eventfd");
-			MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+			MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 			return -1;
 		}
 		mbox->p_rxq_info->is_fd_created = true;
@@ -1095,13 +1140,13 @@ int itc_get_fd_zz(itc_mbox_id_t mbox_id)
 			if(write(mbox->p_rxq_info->rxq_fd, &one, 8) < 0)
 			{
 				perror("\tDEBUG: itc_get_fd_zz - write");
-				MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+				MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 				return -1;
 			}
 		}
 	}
 
-	MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx), __FILE__, __LINE__);
+	MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 	return mbox->p_rxq_info->rxq_fd;
 }
 
@@ -1126,7 +1171,55 @@ bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name)
 	return true;
 }
 
+itc_mbox_id_t itc_locate_sync_zz(const char *name)
+{
+	itc_mbox_id_t mbox_id = ITC_NO_MBOX_ID;
+	struct itc_mailbox *mbox;
+	union itc_msg *msg;
+	pid_t pid;
 
+	if(itc_inst.mboxes == NULL)
+	{
+		// Not initialized yet
+		// ERROR trace is needed
+		printf("\tDEBUG: itc_locate_sync_zz - Not initialized yet!\n");
+		return -1;
+	}
+
+	/* First search for local mailboxes in the current process. */
+	mbox = locate_local_mbox(name);
+	if(mbox != NULL)
+	{
+		printf("\tDEBUG: itc_locate_sync_zz - Mailbox \"%s\" was found in this process pid = %d!\n", name, itc_inst.pid);
+		return mbox->mbox_id;
+	}
+
+	/* If cannot find locally, send a message ITC_LOCATE_MBOX_SYNC_REQ to itc_coord asking for seeking across processes. */
+	msg = itc_alloc(offsetof(struct itc_locate_mbox_sync_request, mbox_name) + strlen(name) + 1, ITC_LOCATE_MBOX_SYNC_REQUEST);
+	msg->itc_locate_mbox_sync_request.from_mbox = my_threadlocal_mbox->mbox_id;
+	strcpy(msg->itc_locate_mbox_sync_request.mbox_name, name);
+	if(itc_send(&msg, itc_inst.itccoord_mbox_id, ITC_MY_MBOX_ID) == false)
+	{
+		printf("\tDEBUG: itc_locate_sync_zz - Failed to send ITC_LOCATE_MBOX_SYNC_REQUEST to itccoord!\n");
+		itc_free(&msg);
+		return ITC_NO_MBOX_ID;
+	}
+
+	msg = itc_receive(ITC_WAIT_FOREVER);
+	if(msg->msgno != ITC_LOCATE_MBOX_SYNC_REPLY)
+	{
+		printf("\tDEBUG: itc_locate_sync_zz - Received unknown message 0x%08x, expecting ITC_LOCATE_MBOX_SYNC_REPLY!\n", msg->msgno);
+		itc_free(&msg);
+		return ITC_NO_MBOX_ID;
+	}
+
+	mbox_id = msg->itc_locate_mbox_sync_reply.mbox_id;
+	pid = msg->itc_locate_mbox_sync_reply.pid;
+
+	printf("\tDEBUG: itc_locate_sync_zz - Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!\n", name, mbox_id, pid);
+	itc_free(&msg);
+	return mbox_id;
+}
 
 
 /*****************************************************************************\/
@@ -1145,6 +1238,8 @@ static void release_all_itc_resources()
 	// {
 	// 	free(itc_inst.name_space);
 	// }
+
+	tdestroy(itc_inst.local_locating_mbox_tree, do_nothing);
 
 	free(itc_inst.mboxes);
 	free(rc);
@@ -1220,3 +1315,84 @@ unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end)
 
 	return diff; 
 }
+
+static struct itc_mailbox *locate_local_mbox(const char *name)
+{
+	struct itc_mailbox **iter, *mbox;
+
+	MUTEX_LOCK(&itc_inst.local_locating_mbox_mtx);
+
+	iter = tfind(name, &itc_inst.local_locating_mbox_tree, mbox_name_cmpfunc);
+	mbox = iter ? *iter : NULL;
+
+	MUTEX_UNLOCK(&itc_inst.local_locating_mbox_mtx);
+
+	return mbox;
+}
+
+static int mbox_name_cmpfunc(const void *pa, const void *pb)
+{
+	const char *name = pa;
+	const struct itc_mailbox *mbox = pb;
+
+	return strcmp(name, mbox->name);
+}
+
+static void do_nothing(void *a)
+{
+	(void)a;
+}
+
+static bool remove_mbox_from_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox)
+{
+	struct itc_mailbox **iter;
+	bool found = true;
+
+	MUTEX_LOCK(tree_mtx);
+
+	iter = tfind(mbox, tree, mbox_name_cmpfunc2);
+	if(iter == NULL)
+	{
+		found = false;
+	} else
+	{
+		tdelete(mbox, tree, mbox_name_cmpfunc2);
+	}
+
+	MUTEX_UNLOCK(tree_mtx);
+
+	return found;
+}
+
+static int mbox_name_cmpfunc2(const void *pa, const void *pb)
+{
+	const struct itc_mailbox *mbox1 = pa;
+	const struct itc_mailbox *mbox2 = pb;
+
+	return strcmp(mbox1->name, mbox2->name);
+}
+
+static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox)
+{
+	struct itc_mailbox **iter;
+	bool found = false;
+
+	MUTEX_LOCK(tree_mtx);
+
+	iter = tfind(mbox, tree, mbox_name_cmpfunc2);
+	if(iter != NULL)
+	{
+		found = true;
+	} else
+	{
+		tsearch(mbox, tree, mbox_name_cmpfunc2);
+	}
+
+	MUTEX_UNLOCK(tree_mtx);
+
+	/* This function will fail when mbox is already exist in the tree. We expect it should not be in tree instead. */
+	return !found;
+}
+
+
+
