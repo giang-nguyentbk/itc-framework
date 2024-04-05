@@ -90,79 +90,80 @@ extern "C" {
 unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end);
 
 #if defined MUTEX_TRACE_TIME_UNITTEST
-#define MUTEX_LOCK(lock, file, line)							\
-	do										\
-	{										\
-		struct timespec t_start;						\
-		struct timespec t_end;							\
-		clock_gettime(CLOCK_MONOTONIC, &t_start);				\
-		pthread_mutex_lock(lock);						\
-		clock_gettime(CLOCK_MONOTONIC, &t_end);					\
-		unsigned long int difftime = calc_time_diff(t_start, t_end);		\
-		if(difftime/1000000 > 10)						\
-		{									\
-			printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"		\
-				"time_elapsed = %lu (ms)!\n",				\
-				(unsigned long)lock, file, line, difftime/1000000);	\
-			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_sec = %lu!\n", 	\
-				t_start.tv_sec);					\
-			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 	\
-				t_start.tv_nsec);					\
-			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 		\
-				t_end.tv_sec);						\
-			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",		\
-				t_end.tv_nsec);						\
-		}									\
+/* Tracing prolong locking mutex, > 5ms */
+#define MUTEX_LOCK(lock)									\
+	do											\
+	{											\
+		struct timespec t_start;							\
+		struct timespec t_end;								\
+		clock_gettime(CLOCK_MONOTONIC, &t_start);					\
+		pthread_mutex_lock(lock);							\
+		clock_gettime(CLOCK_MONOTONIC, &t_end);						\
+		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
+		if(difftime/1000000 > 5)							\
+		{										\
+			printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"			\
+				"time_elapsed = %lu (ms)!\n",					\
+				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
+			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_sec = %lu!\n", 		\
+				t_start.tv_sec);						\
+			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 		\
+				t_start.tv_nsec);						\
+			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 			\
+				t_end.tv_sec);							\
+			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",			\
+				t_end.tv_nsec);							\
+		}										\
 	} while(0)
 
-#define MUTEX_UNLOCK(lock, file, line)							\
-	do										\
-	{										\
-		struct timespec t_start;						\
-		struct timespec t_end;							\
-		clock_gettime(CLOCK_MONOTONIC, &t_start);				\
-		pthread_mutex_unlock(lock);						\
-		clock_gettime(CLOCK_MONOTONIC, &t_end);					\
-		unsigned long int difftime = calc_time_diff(t_start, t_end);		\
-		if(difftime/1000000 > 10)						\
-		{									\
-			printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"		\
-				"time_elapsed = %lu (ms)!\n",				\
-				(unsigned long)lock, file, line, difftime/1000000);	\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_sec = %lu!\n", 	\
-				t_start.tv_sec);					\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_nsec = %lu!\n", 	\
-				t_start.tv_nsec);					\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_sec = %lu!\n", 	\
-				t_end.tv_sec);						\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_nsec = %lu!\n",	\
-				t_end.tv_nsec);						\
-		}									\
+#define MUTEX_UNLOCK(lock)									\
+	do											\
+	{											\
+		struct timespec t_start;							\
+		struct timespec t_end;								\
+		clock_gettime(CLOCK_MONOTONIC, &t_start);					\
+		pthread_mutex_unlock(lock);							\
+		clock_gettime(CLOCK_MONOTONIC, &t_end);						\
+		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
+		if(difftime/1000000 > 5)							\
+		{										\
+			printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"			\
+				"time_elapsed = %lu (ms)!\n",					\
+				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_sec = %lu!\n", 		\
+				t_start.tv_sec);						\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_nsec = %lu!\n", 		\
+				t_start.tv_nsec);						\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_sec = %lu!\n", 		\
+				t_end.tv_sec);							\
+			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_nsec = %lu!\n",		\
+				t_end.tv_nsec);							\
+		}										\
 	} while(0)
 #elif defined MUTEX_TRACE_UNITTEST
-#define MUTEX_LOCK(lock, file, line)							\
+#define MUTEX_LOCK(lock)								\
 	do										\
 	{										\
 		printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d\n", 			\
-			(unsigned long)lock, file, line);				\
+			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_lock(lock);						\
 	} while(0)
 
-#define MUTEX_UNLOCK(lock, file, line)							\
+#define MUTEX_UNLOCK(lock)								\
 	do										\
 	{										\
 		printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d\n", 			\
-			(unsigned long)lock, file, line);				\
+			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_unlock(lock);						\
 	} while(0)
 #else
-#define MUTEX_LOCK(lock, file, line)							\
+#define MUTEX_LOCK(lock)								\
 	do										\
 	{										\
 		pthread_mutex_lock(lock);						\
 	} while(0)
 
-#define MUTEX_UNLOCK(lock, file, line)							\
+#define MUTEX_UNLOCK(lock)								\
 	do										\
 	{										\
 		pthread_mutex_unlock(lock);						\

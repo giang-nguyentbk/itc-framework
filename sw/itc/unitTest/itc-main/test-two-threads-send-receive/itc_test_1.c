@@ -225,10 +225,10 @@ int main(int argc, char* argv[])
 
 	itc_mbox_id_t mbox_id_1 = test_itc_create_mailbox("resourceHandlerMailbox1", 0);
 
-	MUTEX_LOCK(&worker_1.mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&worker_1.mtx);
 	pthread_create(&teamServer_thread_id, NULL, teamServer_thread, NULL);
-	MUTEX_LOCK(&worker_1.mtx, __FILE__, __LINE__);
-	MUTEX_UNLOCK(&worker_1.mtx, __FILE__, __LINE__);
+	MUTEX_LOCK(&worker_1.mtx);
+	MUTEX_UNLOCK(&worker_1.mtx);
 
 	clock_gettime(CLOCK_REALTIME, &t_start);
 
@@ -418,7 +418,7 @@ static void* teamServer_thread(void* data)
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL); // Allow this thread can be cancelled without having any cancellation point such as sleep(), read(),...
 	pthread_setspecific(worker_1.destructor_key, &mbox_id_ts);
 
-	MUTEX_UNLOCK(&worker_1.mtx, __FILE__, __LINE__);
+	MUTEX_UNLOCK(&worker_1.mtx);
 
 	itc_mbox_id_t mbox_id_1 = 0x00500001; // resourceHandlerMailbox1
 	while(1)
