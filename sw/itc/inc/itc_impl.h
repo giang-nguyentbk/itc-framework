@@ -29,9 +29,23 @@ extern "C" {
                                 // the starting of itc_message and the starting of itc_msg.
 #define ITC_MAX_MSGSIZE	(1024*1024)
 
-#define ITC_COORD_MASK		0xFFF00000
-#define ITC_COORD_SHIFT		20
-#define ITC_COORD_MBOX_NAME	"itc_coord_mailbox"
+#define ITC_COORD_MASK			0xFFF00000
+#define ITC_COORD_SHIFT			20
+#define ITC_COORD_MBOX_NAME		"itc_coord_mailbox"
+#define ITC_GATEWAY_MBOX_UDP_NAME	"itc_gw_udp_mailbox"
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME	"itc_gw_tcp_client_mailbox"
+#define ITC_GATEWAY_MBOX_TCP_SER_NAME	"itc_gw_tcp_server_mailbox"
+#define ITC_GATEWAY_BROADCAST_PORT	11111
+#define ITC_GATEWAY_TCP_LISTENING_PORT	22222
+#define ITC_GATEWAY_BROADCAST_INTERVAL	10
+#define ITC_GATEWAY_ETH_PACKET_SIZE	1500
+#define ITC_GATEWAY_NET_INTERFACE_ETH0	"eth0"
+#define ITC_GATEWAY_NET_INTERFACE_LO	"lo"
+#define ITC_GATEWAY_NO_ADDR_STRING	"NO_ADDR"
+#define ITC_GATEWAY_MAX_PEERS		255
+
+#define MAX_OF(a, b)		(a) > (b) ? (a) : (b)
+#define MIN_OF(a, b)		(a) < (b) ? (a) : (b)
 
 #ifndef MAX_SUPPORTED_PROCESSES
 #define	MAX_SUPPORTED_PROCESSES	255
@@ -271,10 +285,11 @@ struct itc_mailbox {
         uint32_t                    	mbox_id;
 	mbox_state_e			mbox_state;
         pid_t                       	tid;
-        char                        	name[ITC_MAX_MBOX_NAME_LENGTH];
+        char                        	name[ITC_MAX_NAME_LENGTH];
 };
 
 struct itc_message {
+/* Any change in itc_message struct size must lead to re-calculation of ITC_HEADER_SIZE as well */
 /* itc_message is only used for controlling itc system through below admin information,
 do not access user data via itc_message but use itc_msg instead */
         uint32_t               	flags;

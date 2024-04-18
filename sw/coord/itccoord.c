@@ -75,13 +75,15 @@ process (lsock)	:	rx_len = recv(sd, str_ack, 4, 0) ---> CONNECTING TO A PROCESS 
 #define FREELIST_LOW_THRESHOLD		10 // When number of processes remaining in free_list decreases down to 10 -> used_list count should be 255 - 10 = 245, check zombie processes.
 
 union itc_msg {
-	uint32_t				msgno;
+	uint32_t					msgno;
 
-	struct itc_locate_coord_request		itc_locate_coord_request;
-	struct itc_locate_coord_reply		itc_locate_coord_reply;
-	struct itc_notify_coord_add_rmv_mbox	itc_notify_coord_add_rmv_mbox;
-	struct itc_locate_mbox_sync_request	itc_locate_mbox_sync_request;
-	struct itc_locate_mbox_sync_reply	itc_locate_mbox_sync_reply;
+	struct itc_locate_coord_request			itc_locate_coord_request;
+	struct itc_locate_coord_reply			itc_locate_coord_reply;
+	struct itc_notify_coord_add_rmv_mbox		itc_notify_coord_add_rmv_mbox;
+	struct itc_locate_mbox_sync_request		itc_locate_mbox_sync_request;
+	struct itc_locate_mbox_sync_reply		itc_locate_mbox_sync_reply;
+	struct itc_locate_mbox_from_itcgws_request	itc_locate_mbox_from_itcgws_request;
+	struct itc_locate_mbox_from_itcgws_reply	itc_locate_mbox_from_itcgws_reply;
 };
 
 typedef enum {
@@ -147,7 +149,7 @@ static bool connect_to_process(struct itc_process *proc);
 static void handle_incoming_request(void);
 static void handle_add_mbox(itc_mbox_id_t mbox_id, char *mbox_name);
 static void handle_remove_mbox(itc_mbox_id_t mbox_id, char *mbox_name);
-static void handle_locate_mbox(itc_mbox_id_t from_mbox, char *mbox_name);
+static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool find_only_internal, char *mbox_name);
 static int mbox_name_cmpfunc(const void *pa, const void *pb); // char *mbox_name vs struct itc_mbox_info *mbox2
 static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mbox_info *mbox1 vs struct itc_mbox_info *mbox2
 
@@ -192,7 +194,7 @@ int main(int argc, char* argv[])
 	atexit(itccoord_exit_handler);
 
 	// Allocate two mailboxes, one is for itccoord-self, one is reserved
-	if(itc_init(2, ITC_MALLOC, NULL, ITC_FLAGS_I_AM_ITC_COORD) == false)
+	if(itc_init(2, ITC_MALLOC, ITC_FLAGS_I_AM_ITC_COORD) == false)
 	{
 		printf("\tDEBUG: itccoord - Failed to itc_init(), ITC_FLAGS_I_AM_ITC_COORD!\n");
 		exit(EXIT_FAILURE);
@@ -230,7 +232,7 @@ int main(int argc, char* argv[])
 	/* Go through all other process's slots and assign init value and enqueue to free list */
 	int i = 2;
 	printf("\tDEBUG: itccoord - Enqueue process index = %d to free_list!\n", i);
-	printf("\tDEBUG: itccoord - Enqueue process ... to free_list!\n");
+	printf("\tDEBUG: itccoord - Enqueue process n-th to free_list!\n");
 	for(; i < MAX_SUPPORTED_PROCESSES; i++)
 	{
 		itc_proc 			= &itccoord_inst.processes[i];
@@ -432,6 +434,9 @@ static void itccoord_exit_handler(void)
 	unlink(ITC_ITCCOORD_FILENAME);
 	rmdir(ITC_SOCKET_FOLDER);
 	rmdir(ITC_ITCCOORD_FOLDER);
+	remove(ITC_SYSVMSQ_FILENAME);
+	rmdir(ITC_SYSVMSQ_FOLDER);
+	rmdir(ITC_BASE_PATH);
 	printf("\tDEBUG: itccoord_exit_handler - Remove all directories successfully!\n");
 
 	tdestroy(itccoord_inst.mbox_tree, free); // Call free() on each node's user data
@@ -475,11 +480,25 @@ static bool create_itccoord_dir(void)
 		return false;
 	}
 
+	res = chmod(ITC_BASE_PATH, 0777);
+	if(res < 0)
+	{
+		printf("\tDEBUG: create_itccoord_dir - Failed to chmod %s, errno = %d!\n", ITC_BASE_PATH, errno);
+		return false;
+	}
+
 	res = mkdir(ITC_SOCKET_FOLDER, 0777);
 
 	if(res < 0 && errno != EEXIST)
 	{
 		printf("\tDEBUG: create_itccoord_dir - Failed to mkdir %s, errno = %d!\n", ITC_SOCKET_FOLDER, errno);
+		return false;
+	}
+
+	res = chmod(ITC_SOCKET_FOLDER, 0777);
+	if(res < 0)
+	{
+		printf("\tDEBUG: create_itccoord_dir - Failed to chmod %s, errno = %d!\n", ITC_SOCKET_FOLDER, errno);
 		return false;
 	}
 
@@ -863,8 +882,10 @@ static void handle_incoming_request(void)
 		case ITC_LOCATE_MBOX_SYNC_REQUEST:
 			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST received!\n");
 			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x%08x\n", msg->itc_locate_mbox_sync_request.from_mbox);
+			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST timeout = %d ms\n", msg->itc_locate_mbox_sync_request.timeout);
+			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST timeout = %d ms\n", msg->itc_locate_mbox_sync_request.find_only_internal);
 			printf("\tDEBUG: handle_incoming_request - ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = %s!\n", msg->itc_locate_mbox_sync_request.mbox_name);
-			handle_locate_mbox(msg->itc_locate_mbox_sync_request.from_mbox, msg->itc_locate_mbox_sync_request.mbox_name);
+			handle_locate_mbox(msg->itc_locate_mbox_sync_request.from_mbox, msg->itc_locate_mbox_sync_request.timeout, msg->itc_locate_mbox_sync_request.find_only_internal, msg->itc_locate_mbox_sync_request.mbox_name);
 			break;
 
 		default:
@@ -940,23 +961,65 @@ static void handle_remove_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
 	free(mbox);
 }
 
-static void handle_locate_mbox(itc_mbox_id_t from_mbox, char *mbox_name)
+static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool find_only_internal, char *mbox_name)
 {
 	struct itc_process *proc;
 	struct itc_mbox_info **iter;
+	pid_t pid;
 	itc_mbox_id_t mbox_id;
-
-	union itc_msg *msg;
-
-	msg = itc_alloc(offsetof(struct itc_locate_mbox_sync_reply, mbox_name) + strlen(mbox_name) + 1, ITC_LOCATE_MBOX_SYNC_REPLY);
+	bool is_external = false;
+	char namespace[ITC_MAX_NAME_LENGTH];
+	strcpy(namespace, "");
 
 	iter = tfind(mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
 	if(iter == NULL)
 	{
-		printf("\tDEBUG: handle_add_mbox - Mailbox 0x%08x not found in this process's mbox_tree, try to find it in other hosts!\n", (*iter)->mbox_id);
+		printf("\tDEBUG: handle_add_mbox - Mailbox 0x%08x not found in the mbox_tree, try to find it in other hosts!\n", (*iter)->mbox_id);
 		// return; // Will not return here, anyhow still need to reply the process
-		msg->itc_locate_mbox_sync_reply.mbox_id = ITC_NO_MBOX_ID;
-		msg->itc_locate_mbox_sync_reply.pid = -1;
+
+		if(!find_only_internal)
+		{
+			union itc_msg *req;
+			req = itc_alloc(offsetof(struct itc_locate_mbox_from_itcgws_request, mboxname) + strlen(mbox_name) + 1, ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST);
+			strcpy(req->itc_locate_mbox_from_itcgws_request.mboxname, mbox_name);
+
+			itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_TCP_CLI_NAME, 1, NULL, NULL);
+			if(itcgw_mboxid == ITC_NO_MBOX_ID)
+			{
+				printf("\tDEBUG: itc_locate_sync_zz - Failed to locate mailbox \"%s\" even after %d ms!\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME, timeout);
+				itc_free(&req);
+				return;
+			}
+
+			if(itc_send(&req, itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
+			{
+				printf("\tDEBUG: itc_locate_sync_zz - Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itccoord!\n");
+				itc_free(&req);
+				return;
+			}
+
+			req = itc_receive(timeout);
+			if(req == NULL)
+			{
+				printf("\tDEBUG: itc_get_namespace_zz - Failed to ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY even after %d ms!\n", timeout);
+				return;
+			} else if(req->msgno != ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY)
+			{
+				printf("\tDEBUG: itc_locate_sync_zz - Received unknown message 0x%08x, expecting ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY!\n", req->msgno);
+				itc_free(&req);
+				return;
+			}
+
+			mbox_id = req->itc_locate_mbox_from_itcgws_reply.mbox_id;
+			is_external = true;
+			strcpy(namespace, req->itc_locate_mbox_from_itcgws_reply.namespace);
+
+			itc_free(&req);
+		} else
+		{
+			mbox_id = ITC_NO_MBOX_ID;
+			pid = -1;
+		}
 	} else
 	{
 		mbox_id = (*iter)->mbox_id;
@@ -970,13 +1033,20 @@ static void handle_locate_mbox(itc_mbox_id_t from_mbox, char *mbox_name)
 			printf("\tDEBUG: handle_locate_mbox - Mailbox 0x%08x from a just-terminated process!\n", from_mbox);
 			return;
 		}
-		msg->itc_locate_mbox_sync_reply.mbox_id = mbox_id;
-		msg->itc_locate_mbox_sync_reply.pid = proc->pid;
+
+		pid = proc->pid;
 	}
 
+	union itc_msg *msg;
+	msg = itc_alloc(offsetof(struct itc_locate_mbox_sync_reply, namespace) + strlen(namespace) + 1, ITC_LOCATE_MBOX_SYNC_REPLY);
+
+	msg->itc_locate_mbox_sync_reply.mbox_id 	= mbox_id;
+	msg->itc_locate_mbox_sync_reply.pid 		= pid;
+	msg->itc_locate_mbox_sync_reply.is_external 	= is_external;
+	strcpy(msg->itc_locate_mbox_sync_reply.namespace, namespace);
+
 	/* Send back response to the process */
-	strcpy(msg->itc_locate_mbox_sync_reply.mbox_name, mbox_name);
-	if(itc_send(&msg, from_mbox, ITC_MY_MBOX_ID) == false)
+	if(itc_send(&msg, from_mbox, ITC_MY_MBOX_ID, NULL) == false)
 	{
 		printf("\tDEBUG: handle_locate_mbox - Failed to send ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x%08x\n", from_mbox);
 		itc_free(&msg);

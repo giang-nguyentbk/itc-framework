@@ -12,3 +12,4 @@ Where:
 
 ## References:
 1. [Socket Programming Basic Knowledge](https://www.cs.dartmouth.edu/~campbell/cs50/socketprogramming.html)
+2. [Detail Explanation Socket APIs](https://notes.shichao.io/unp/ch4/)
