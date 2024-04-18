@@ -272,5 +272,12 @@ static void generate_lsockpath(struct result_code* rc)
 		printf("\tDEBUG: generate_lsockpath - lsockpath %s already exists!\n", ITC_SOCKET_FOLDER);
 	}
 
+	res = chmod(ITC_SOCKET_FOLDER, 0777);
+	if(res < 0)
+	{
+		printf("\tDEBUG: generate_lsockpath - Failed to chmod %s, errno = %d!\n", ITC_SOCKET_FOLDER, errno);
+		return;
+	}
+
 	lsock_inst.is_path_created = true;
 }

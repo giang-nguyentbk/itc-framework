@@ -468,8 +468,9 @@ static void generate_msqfile(struct result_code* rc)
 	if(res < 0)
 	{
 		perror("\tDEBUG: generate_msqfile - chmod");
-		rc->flags |= ITC_SYSCALL_ERROR;
-		return;
+		// Will not "return" over here, just ignore it because maybe other users created this folder earlier
+		// rc->flags |= ITC_SYSCALL_ERROR;
+		// return;
 	}
 
 	fd = fopen(ITC_SYSVMSQ_FILENAME, "w");
@@ -478,6 +479,15 @@ static void generate_msqfile(struct result_code* rc)
 		perror("\tDEBUG: generate_msqfile - fopen");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
+	}
+
+	res = chmod(ITC_SYSVMSQ_FILENAME, 0777);
+	if(res < 0)
+	{
+		perror("\tDEBUG: generate_msqfile - chmod");
+		// Will not "return" over here, just ignore it because maybe other users created this file earlier
+		// rc->flags |= ITC_SYSCALL_ERROR;
+		// return;
 	}
 
 	printf("\tDEBUG: generate_msqfile - Open file %s successfully!\n", ITC_SYSVMSQ_FILENAME);
@@ -625,7 +635,7 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 #endif
 
 	printf("\tDEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x%08x\n", message->sender);
-	itc_send(&msg, message->receiver, ITC_MY_MBOX_ID);
+	itc_send(&msg, message->receiver, ITC_MY_MBOX_ID, NULL);
 }
 
 static void rxthread_destructor(void* data)

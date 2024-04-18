@@ -37,13 +37,13 @@ static union itc_msg* rcv_msg = NULL;
 static void teamServer_thread_destructor();
 static void* teamServer_thread(void* data);
 
-void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags);
+void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init_flags);
 void test_itc_exit(void);
 union itc_msg* test_itc_alloc(void);
 void test_itc_free(union itc_msg **msg);
 itc_mbox_id_t test_itc_create_mailbox(const char *name, uint32_t flags);
 void test_itc_delete_mailbox(itc_mbox_id_t mbox_id);
-void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
+void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace);
 union itc_msg *test_itc_receive(int32_t tmo, itc_mbox_id_t from);
 
 /* Expect main call:    ./itc_test_1 */
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 	
 	PRINT_DASH_END;
 
-	test_itc_init(10, ITC_MALLOC, NULL, 0);
+	test_itc_init(10, ITC_MALLOC, 0);
 
 	msg = test_itc_alloc();
 
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 	clock_gettime(CLOCK_REALTIME, &t_start);
 
 	itc_mbox_id_t mbox_id_2 = 0x00500002;
-	test_itc_send(&msg, mbox_id_2, ITC_MY_MBOX_ID);
+	test_itc_send(&msg, mbox_id_2, ITC_MY_MBOX_ID, NULL);
 
 	clock_gettime(CLOCK_REALTIME, &t_end);
 	unsigned long int difftime = calc_time_diff(t_start, t_end);
@@ -268,9 +268,9 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags)
+void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init_flags)
 {
-	if(itc_init(nr_mboxes, alloc_scheme, namespace, init_flags) == false)
+	if(itc_init(nr_mboxes, alloc_scheme, init_flags) == false)
 	{
 		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_itc_init>\t\t Failed to itc_init()!\n");
@@ -365,9 +365,9 @@ void test_itc_delete_mailbox(itc_mbox_id_t mbox_id)
 	PRINT_DASH_END;
 }
 
-void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
+void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
 {
-	if(itc_send(msg, to, from) == false)
+	if(itc_send(msg, to, from, NULL) == false)
 	{
 		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_itc_send>\t\t Failed to itc_send()!\n");

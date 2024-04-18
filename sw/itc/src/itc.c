@@ -33,6 +33,9 @@ union itc_msg {
 	struct itc_notify_coord_add_rmv_mbox	itc_notify_coord_add_rmv_mbox;
 	struct itc_locate_mbox_sync_request	itc_locate_mbox_sync_request;
 	struct itc_locate_mbox_sync_reply	itc_locate_mbox_sync_reply;
+	struct itc_fwd_data_to_itcgws		itc_fwd_data_to_itcgws;
+	struct itc_get_namespace_request	itc_get_namespace_request;
+	struct itc_get_namespace_reply		itc_get_namespace_reply;
 };
 
 struct itc_instance {
@@ -54,7 +57,9 @@ struct itc_instance {
 
 	uint32_t			nr_mboxes;
 	uint32_t			local_mbox_mask; // mask for local mailbox id
-	struct itc_mailbox*		mboxes; // List of mailboxes allocated by malloc	
+	struct itc_mailbox*		mboxes; // List of mailboxes allocated by malloc
+
+	char				namespace[ITC_MAX_NAME_LENGTH];	
 };
 
 /*****************************************************************************\/
@@ -87,15 +92,14 @@ static void do_nothing(void *a);
 static bool remove_mbox_from_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox);
 static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mailbox *mbox1 vs struct itc_mailbox *mbox2
 static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox);
+static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t to, char *namespace);
 
 
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
-bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags)
+bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init_flags)
 {
-	(void)namespace; // Will be implemented later
-
 	int max_msgsize = ITC_MAX_MSGSIZE;
 	uint32_t flags = 0;
 	int ret = 0;
@@ -220,7 +224,6 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespa
 #endif
 		rc->flags = ITC_OK;
 	}
-
 
 	itc_inst.mboxes = (struct itc_mailbox*)malloc(nr_mboxes*sizeof(struct itc_mailbox));
 	if(itc_inst.mboxes == NULL)
@@ -611,7 +614,7 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 		return ITC_NO_MBOX_ID;
 	}
 
-	if(strlen(name) > (ITC_MAX_MBOX_NAME_LENGTH))
+	if(strlen(name) > (ITC_MAX_NAME_LENGTH))
 	{
 		printf("\tDEBUG: itc_create_mailbox_zz - Requested mailbox name too long!\n");
 		return ITC_NO_MBOX_ID;
@@ -670,7 +673,7 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 		msg = itc_alloc(offsetof(struct itc_notify_coord_add_rmv_mbox, mbox_name) + strlen(name) + 1, ITC_NOTIFY_COORD_ADD_MBOX);
 		msg->itc_notify_coord_add_rmv_mbox.mbox_id = new_mbox->mbox_id;
 		strcpy(msg->itc_notify_coord_add_rmv_mbox.mbox_name, name);
-		bool res = itc_send(&msg, itc_inst.itccoord_mbox_id, new_mbox->mbox_id);
+		bool res = itc_send(&msg, itc_inst.itccoord_mbox_id, new_mbox->mbox_id, NULL);
 		if(!res)
 		{
 			printf("\tDEBUG: itc_create_mailbox_zz - Failed to send notification to itccoord regarding ADD mailbox id = 0x%08x\n", new_mbox->mbox_id);
@@ -779,7 +782,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 		msg = itc_alloc(offsetof(struct itc_notify_coord_add_rmv_mbox, mbox_name) + strlen(mbox->name) + 1, ITC_NOTIFY_COORD_RMV_MBOX);
 		msg->itc_notify_coord_add_rmv_mbox.mbox_id = mbox->mbox_id;
 		strcpy(msg->itc_notify_coord_add_rmv_mbox.mbox_name, mbox->name);
-		bool res = itc_send(&msg, itc_inst.itccoord_mbox_id, mbox->mbox_id);
+		bool res = itc_send(&msg, itc_inst.itccoord_mbox_id, mbox->mbox_id, NULL);
 		if(!res)
 		{
 			printf("\tDEBUG: itc_delete_mailbox_zz - Failed to send notification to itccoord regarding RMV mailbox id = 0x%08x\n", mbox->mbox_id);
@@ -824,12 +827,12 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 	return true;
 }
 
-bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
+bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
 {
 	struct itc_message* message;
 	struct itc_mailbox* to_mbox;
 
-	printf("\tDEBUG: itc_send_zz - Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x\n", from, to, (*msg)->msgno);
+
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -839,7 +842,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 		return false;
 	}
 
-	if(to == my_threadlocal_mbox->mbox_id)
+	if(to == my_threadlocal_mbox->mbox_id && (namespace == NULL || (strcmp(namespace, itc_inst.namespace) == 0)))
 	{
 		printf("\tDEBUG: itc_send_zz - Not allowed to send messages to myself, which causes deadlock, from = 0x%08x, to = 0x%08x\n", from, to);
 		return false;
@@ -857,6 +860,22 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
 		printf("\tDEBUG: itc_send_zz - The sending message is NULL!\n");
 		return false;
 	}
+
+	/* If namespace is specified and it differs from our namespace, forward the message to itcgw to send it outside */
+	if(namespace != NULL && (strcmp(namespace, itc_inst.namespace) != 0))
+	{
+		printf("\tDEBUG: itc_send_zz - Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x\n", namespace, from, to, (*msg)->msgno);
+		if(handle_forward_itc_msg_to_itcgw(msg, to, namespace) == false)
+		{
+			printf("\tDEBUG: itc_send_zz - Failed to send message to itcgw!\n");
+			return false;
+		}
+
+		return true;
+	}
+
+	/* Otherwise send message locally within our host */
+	printf("\tDEBUG: itc_send_zz - Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x\n", from, to, (*msg)->msgno);
 
 	message = CONVERT_TO_MESSAGE(*msg);
 	message->sender = my_threadlocal_mbox->mbox_id;
@@ -1171,19 +1190,19 @@ bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name)
 	return true;
 }
 
-itc_mbox_id_t itc_locate_sync_zz(const char *name)
+itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace)
 {
 	itc_mbox_id_t mbox_id = ITC_NO_MBOX_ID;
 	struct itc_mailbox *mbox;
 	union itc_msg *msg;
 	pid_t pid;
 
-	if(itc_inst.mboxes == NULL)
+	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
 		// Not initialized yet
 		// ERROR trace is needed
 		printf("\tDEBUG: itc_locate_sync_zz - Not initialized yet!\n");
-		return -1;
+		return ITC_NO_MBOX_ID;
 	}
 
 	/* First search for local mailboxes in the current process. */
@@ -1191,22 +1210,33 @@ itc_mbox_id_t itc_locate_sync_zz(const char *name)
 	if(mbox != NULL)
 	{
 		printf("\tDEBUG: itc_locate_sync_zz - Mailbox \"%s\" was found in this process pid = %d!\n", name, itc_inst.pid);
+		if(!find_only_internal)
+		{
+			*is_external = false;
+			strcpy(namespace, "");
+		}
 		return mbox->mbox_id;
 	}
 
 	/* If cannot find locally, send a message ITC_LOCATE_MBOX_SYNC_REQ to itc_coord asking for seeking across processes. */
 	msg = itc_alloc(offsetof(struct itc_locate_mbox_sync_request, mbox_name) + strlen(name) + 1, ITC_LOCATE_MBOX_SYNC_REQUEST);
 	msg->itc_locate_mbox_sync_request.from_mbox = my_threadlocal_mbox->mbox_id;
+	msg->itc_locate_mbox_sync_request.timeout = timeout;
+	msg->itc_locate_mbox_sync_request.find_only_internal = find_only_internal;
 	strcpy(msg->itc_locate_mbox_sync_request.mbox_name, name);
-	if(itc_send(&msg, itc_inst.itccoord_mbox_id, ITC_MY_MBOX_ID) == false)
+	if(itc_send(&msg, itc_inst.itccoord_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
 		printf("\tDEBUG: itc_locate_sync_zz - Failed to send ITC_LOCATE_MBOX_SYNC_REQUEST to itccoord!\n");
 		itc_free(&msg);
 		return ITC_NO_MBOX_ID;
 	}
 
-	msg = itc_receive(ITC_WAIT_FOREVER);
-	if(msg->msgno != ITC_LOCATE_MBOX_SYNC_REPLY)
+	msg = itc_receive(timeout);
+	if(msg == NULL)
+	{
+		printf("\tDEBUG: itc_get_namespace_zz - Failed to ITC_LOCATE_MBOX_SYNC_REQUEST even after %d ms!\n", timeout);
+		return false;
+	} else if(msg->msgno != ITC_LOCATE_MBOX_SYNC_REPLY)
 	{
 		printf("\tDEBUG: itc_locate_sync_zz - Received unknown message 0x%08x, expecting ITC_LOCATE_MBOX_SYNC_REPLY!\n", msg->msgno);
 		itc_free(&msg);
@@ -1214,11 +1244,76 @@ itc_mbox_id_t itc_locate_sync_zz(const char *name)
 	}
 
 	mbox_id = msg->itc_locate_mbox_sync_reply.mbox_id;
-	pid = msg->itc_locate_mbox_sync_reply.pid;
 
+	if(!find_only_internal)
+	{
+		*is_external = msg->itc_locate_mbox_sync_reply.is_external;
+		strcpy(namespace, msg->itc_locate_mbox_sync_reply.namespace);
+	}
+
+	pid = msg->itc_locate_mbox_sync_reply.pid;
 	printf("\tDEBUG: itc_locate_sync_zz - Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!\n", name, mbox_id, pid);
 	itc_free(&msg);
 	return mbox_id;
+}
+
+bool itc_get_namespace_zz(int32_t timeout, char *name)
+{
+	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
+	{
+		// Not initialized yet
+		// ERROR trace is needed
+		printf("\tDEBUG: itc_get_namespace_zz - Not initialized yet!\n");
+		return false;
+	}
+
+	if(strcmp(itc_inst.namespace, "") != 0)
+	{
+		printf("\tDEBUG: itc_get_namespace_zz - Namespace already available \"%s\"\n", itc_inst.namespace);
+		strcpy(name, itc_inst.namespace);
+		return true;
+	}
+
+	/* We will need to retrieve our host's namespace from itc gateway */
+	union itc_msg *req;
+	req = itc_alloc(sizeof(struct itc_get_namespace_request), ITC_GET_NAMESPACE_REQUEST);
+	req->itc_get_namespace_request.mbox_id = my_threadlocal_mbox->mbox_id;
+
+	/* Instead of sending get namespace request to TCP client mailbox of itc gateway, we will send it to UDP mailbox to secure performance for TCP client thread */
+	itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_UDP_NAME, 1, NULL, NULL);
+	if(itcgw_mboxid == ITC_NO_MBOX_ID)
+	{
+		printf("\tDEBUG: itc_get_namespace_zz - Failed to locate mailbox %s even after %d ms!\n", ITC_GATEWAY_MBOX_UDP_NAME, timeout);
+		itc_free(&req);
+		return false;
+	}
+
+	if(itc_send(&req, itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
+	{
+		printf("\tDEBUG: itc_get_namespace_zz - Failed to send message to mailbox %s!\n", ITC_GATEWAY_MBOX_UDP_NAME);
+		itc_free(&req);
+		return false;
+	}
+
+	union itc_msg *rep;
+	rep = itc_receive(timeout);
+
+	if(rep == NULL)
+	{
+		printf("\tDEBUG: itc_get_namespace_zz - Failed to retrieve namespace from itc gateway even after %d ms!\n", timeout);
+		return false;
+	} else if(rep->msgno != ITC_GET_NAMESPACE_REPLY)
+	{
+		printf("\tDEBUG: itc_get_namespace_zz - Not receiving ITC_GET_NAMESPACE_REPLY as expected, msgno = 0x%08x\n", rep->msgno);
+		itc_free(&rep);
+		return false;
+	}
+
+	strcpy(itc_inst.namespace, rep->itc_get_namespace_reply.namespace);
+	strcpy(name, itc_inst.namespace);
+	itc_free(&rep);
+	printf("\tDEBUG: itc_get_namespace_zz - Retrieve namespace \"%s\" from itc gateway successfully!\n", itc_inst.namespace);
+	return true;
 }
 
 
@@ -1394,5 +1489,38 @@ static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct i
 	return !found;
 }
 
+static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t to, char *namespace)
+{
+	struct itc_message* message;
 
+	message = CONVERT_TO_MESSAGE(*msg);
+	message->sender 	= my_threadlocal_mbox->mbox_id;
+	message->receiver 	= to;
+
+	size_t payload_len = message->size + ITC_HEADER_SIZE; // No need to carry the ENDPOINT
+	union itc_msg *req;
+	req = itc_alloc(offsetof(struct itc_fwd_data_to_itcgws, payload) + payload_len, ITC_FWD_DATA_TO_ITCGWS);
+
+	strcpy(req->itc_fwd_data_to_itcgws.to_namespace, namespace);
+	req->itc_fwd_data_to_itcgws.payload_length = payload_len;
+	memcpy(req->itc_fwd_data_to_itcgws.payload, message, payload_len);
+
+	int32_t timeout = 1000; // Wait max 1000 ms for locating mailbox name
+	itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_TCP_CLI_NAME, 1, NULL, NULL);
+	if(itcgw_mboxid == ITC_NO_MBOX_ID)
+	{
+		printf("\tDEBUG: handle_forward_itc_msg_to_itcgw - Failed to locate mailbox %s even after %d ms!\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME, timeout);
+		itc_free(&req);
+		return false;
+	}
+
+	if(itc_send(&req, itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
+	{
+		printf("\tDEBUG: handle_forward_itc_msg_to_itcgw - Failed to send message to mailbox %s!\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+		itc_free(&req);
+		return false;
+	}
+
+	return true;
+}
 

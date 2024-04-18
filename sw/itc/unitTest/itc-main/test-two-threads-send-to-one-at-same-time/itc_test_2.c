@@ -43,13 +43,13 @@ static void receiving_thread_destructor();
 static void* receiving_thread(void* data);
 static void* sending2_thread(void* data);
 
-void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags);
+void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init_flags);
 void test_itc_exit(void);
 union itc_msg* test_itc_alloc(size_t size, uint32_t msgno);
 void test_itc_free(union itc_msg **msg);
 itc_mbox_id_t test_itc_create_mailbox(const char *name, uint32_t flags);
 void test_itc_delete_mailbox(itc_mbox_id_t mbox_id);
-void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from);
+void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace);
 union itc_msg *test_itc_receive(int32_t tmo);
 
 itc_mbox_id_t test_itc_sender(union itc_msg *msg);
@@ -58,7 +58,7 @@ size_t test_itc_size(union itc_msg *msg);
 itc_mbox_id_t test_itc_current_mbox(void);
 int test_itc_get_fd(itc_mbox_id_t mbox_id);
 void test_itc_get_name(itc_mbox_id_t mbox_id, char *name);
-itc_mbox_id_t test_itc_locate_sync(const char *name);
+itc_mbox_id_t test_itc_locate_sync(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace);
 
 /* Expect main call:    ./itc_test_2 */
 int main(int argc, char* argv[])
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 	
 	PRINT_DASH_END;
 
-	test_itc_init(10, ITC_MALLOC, NULL, 0);
+	test_itc_init(10, ITC_MALLOC, 0);
 
 	msg_1 = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
 
@@ -154,10 +154,10 @@ int main(int argc, char* argv[])
 	(void)test_itc_get_fd(mbox_id_sending1_thread);
 	char name[255];
 	test_itc_get_name(mbox_id_sending1_thread, name);
-	itc_mbox_id_t mbox_id_receiving_thread_located = test_itc_locate_sync("teamServerMailbox1");
+	itc_mbox_id_t mbox_id_receiving_thread_located = test_itc_locate_sync(1000, "teamServerMailbox1", 1, NULL, NULL);
 
 	clock_gettime(CLOCK_MONOTONIC, &t_start);
-	test_itc_send(&msg_1, mbox_id_receiving_thread_located, ITC_MY_MBOX_ID);
+	test_itc_send(&msg_1, mbox_id_receiving_thread_located, ITC_MY_MBOX_ID, NULL);
 	clock_gettime(CLOCK_MONOTONIC, &t_end);
 	unsigned long int difftime = calc_time_diff(t_start, t_end);
 	printf("\tDEBUG: main - Time needed to send smg_1 = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
@@ -200,9 +200,9 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, char *namespace, uint32_t init_flags)
+void test_itc_init(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init_flags)
 {
-	if(itc_init(nr_mboxes, alloc_scheme, namespace, init_flags) == false)
+	if(itc_init(nr_mboxes, alloc_scheme, init_flags) == false)
 	{
 		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_itc_init>\t\t Failed to itc_init()!\n");
@@ -297,9 +297,9 @@ void test_itc_delete_mailbox(itc_mbox_id_t mbox_id)
 	PRINT_DASH_END;
 }
 
-void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from)
+void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
 {
-	if(itc_send(msg, to, from) == false)
+	if(itc_send(msg, to, from, NULL) == false)
 	{
 		PRINT_DASH_START;
 		printf("[FAILED]:\t<test_itc_send>\t\t Failed to itc_send()!\n");
@@ -452,11 +452,11 @@ void test_itc_get_name(itc_mbox_id_t mbox_id, char *name)
 	PRINT_DASH_END;
 }
 
-itc_mbox_id_t test_itc_locate_sync(const char *name)
+itc_mbox_id_t test_itc_locate_sync(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace)
 {
 	itc_mbox_id_t ret;
 
-	ret = itc_locate_sync(name);
+	ret = itc_locate_sync(timeout, name, find_only_internal, is_external, namespace);
 
 	if(ret == ITC_NO_MBOX_ID)
 	{
