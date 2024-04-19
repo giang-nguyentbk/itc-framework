@@ -79,7 +79,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	sd = socket(AF_LOCAL, SOCK_STREAM, 0);
 	if(sd < 0)
 	{
-		perror("\tDEBUG: lsock_locate_coord - socket");
+		ITC_DEBUG("Failed to socket()!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -91,7 +91,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(coord_addr));
 	if(res < 0)
 	{
-		perror("\tDEBUG: lsock_locate_coord - connect");
+		ITC_DEBUG("Failed to connect()!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -99,7 +99,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	lrequest = (struct itc_locate_coord_request*)malloc(sizeof(struct itc_locate_coord_request));
 	if(lrequest == NULL)
 	{
-		perror("\tDEBUG: lsock_locate_coord - malloc");
+		ITC_DEBUG("Failed to malloc locate_coord_request due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -111,7 +111,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	free(lrequest);
 	if(res < 0)
 	{
-		perror("\tDEBUG: lsock_locate_coord - send");
+		ITC_DEBUG("Failed to send locate_coord_request!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -119,7 +119,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	lreply = (struct itc_locate_coord_reply*)malloc(RXBUF_LEN);
 	if(lreply == NULL)
 	{
-		perror("\tDEBUG: lsock_locate_coord - malloc");
+		ITC_DEBUG("Failed to malloc locate_coord_reply due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}
@@ -127,7 +127,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	rx_len = recv(sd, lreply, RXBUF_LEN, 0);
 	if(rx_len < (int)sizeof(struct itc_locate_coord_reply))
 	{
-		printf("\tDEBUG: lsock_locate_coord - Message received too small, rx_len = %u!\n", rx_len);
+		ITC_DEBUG("Message received too small, rx_len = %u!", rx_len);
 		free(lreply);
 		rc->flags |= ITC_INVALID_MSG_SIZE;
 		return false;
@@ -146,7 +146,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 		} else
 		{
 			/* Indicate that no more process can be added, limited number of processes 255 has been reached */
-			printf("\tDEBUG: lsock_locate_coord - No more process can be added by itccoord!\n");
+			ITC_DEBUG("No more process can be added by itccoord!");
 			rc->flags |= ITC_OUT_OF_RANGE;
 			free(lreply);
 			return false;
@@ -155,7 +155,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	} else
 	{
 		/* Indicate that we have received a strange message type in response */
-		printf("\tDEBUG: lsock_locate_coord - Unknown message received!\n");
+		ITC_DEBUG("Unknown message received!");
 		rc->flags |= ITC_INVALID_ARGUMENTS;
 		free(lreply);
 		return false;
@@ -178,14 +178,14 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 
 	if(lsock_inst.is_coord_running)
 	{
-		printf("\tDEBUG: lsock_init - itccoord is running!\n");
+		ITC_DEBUG("itccoord is running!");
 		if(!lsock_inst.is_path_created)
 		{
-			printf("\tDEBUG: lsock_init - lsockpath not created yet, create it!\n");
+			ITC_DEBUG("lsockpath not created yet, create it!");
 			generate_lsockpath(rc);
 			if(rc->flags != ITC_OK)
 			{
-				printf("\tDEBUG: lsock_init - Failed to generate lsockpath!\n");
+				ITC_DEBUG("Failed to generate lsockpath!");
 				return;
 			}
 		}	
@@ -193,7 +193,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		sd = socket(AF_LOCAL, SOCK_STREAM, 0);
 		if(sd < 0)
 		{
-			perror("\tDEBUG: lsock_init - socket");
+			ITC_DEBUG("Failed to socket()!");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -207,7 +207,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(coord_addr));
 		if(res < 0)
 		{
-			printf("\tDEBUG: lsock_init - Failed to connect to address %s, res = %d, errno = %d!\n", coord_addr.sun_path, res, errno);
+			ITC_DEBUG("Failed to connect to address %s, res = %d, errno = %d!", coord_addr.sun_path, res, errno);
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -221,7 +221,7 @@ static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 		
 		if(rx_len < 0)
 		{
-			printf("\tDEBUG: lsock_init - ACK from itccoord not received, rx_len = %u!\n", rx_len);
+			ITC_DEBUG("ACK from itccoord not received, rx_len = %u!", rx_len);
 			rc->flags |= ITC_SYSCALL_ERROR;
 		} else if(rx_len != 4 && strcmp("ack", str_ack) != 0)
 		{
@@ -242,7 +242,7 @@ static void lsock_exit(struct result_code* rc)
 		res = close(lsock_inst.sd);
 		if(res < 0)
 		{
-			perror("\tDEBUG: lsock_exit - close");
+			ITC_DEBUG("Failed to close()");
 			rc->flags |= ITC_SYSCALL_ERROR;
 			return;
 		}
@@ -264,18 +264,18 @@ static void generate_lsockpath(struct result_code* rc)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		perror("\tDEBUG: generate_lsockpath - mkdir 2");
+		ITC_DEBUG("Failed to mkdir() %s", ITC_SOCKET_FOLDER);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	} else if(res < 0 && errno == EEXIST)
 	{
-		printf("\tDEBUG: generate_lsockpath - lsockpath %s already exists!\n", ITC_SOCKET_FOLDER);
+		ITC_DEBUG("lsockpath %s already exists!", ITC_SOCKET_FOLDER);
 	}
 
 	res = chmod(ITC_SOCKET_FOLDER, 0777);
 	if(res < 0)
 	{
-		printf("\tDEBUG: generate_lsockpath - Failed to chmod %s, errno = %d!\n", ITC_SOCKET_FOLDER, errno);
+		ITC_DEBUG("Failed to chmod %s, errno = %d!", ITC_SOCKET_FOLDER, errno);
 		return;
 	}
 

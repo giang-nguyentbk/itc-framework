@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 
 	if(is_daemon)
 	{
-		printf(">>> Starting itccoord daemon...\n");
+		printf(">>> Starting itcgws daemon...\n");
 
 		if(!setup_log_file())
 		{
@@ -210,14 +210,14 @@ int main(int argc, char* argv[])
 
 		if(daemon(1, 1))
 		{
-			ITC_ERROR("Failed to start itccoord as a daemon!");
+			ITC_ERROR("Failed to start itcgws as a daemon!");
 			exit(EXIT_FAILURE);
 		}
 
-		ITC_INFO("Starting itccoord daemon...");
+		ITC_INFO("Starting itcgws daemon...");
 	} else
 	{
-		ITC_INFO("Starting itccoord, but not as a daemon...");
+		ITC_INFO("Starting itcgws, but not as a daemon...");
 	}
 
 	// At normal termination we just clean up our resources by registration a exit_handler
@@ -374,7 +374,7 @@ static bool setup_log_file(void)
 
 	fprintf(stdout, "========================================================================================================================\n");
 	fflush(stdout);
-	fprintf(stdout, "=======                                             START NEW SESSION                                            =======\n");
+	fprintf(stdout, ">>>>>>>                                             START NEW SESSION                                            <<<<<<<\n");
 	fflush(stdout);
 	fprintf(stdout, "========================================================================================================================\n");
 	fflush(stdout);

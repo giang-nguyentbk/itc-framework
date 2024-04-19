@@ -36,7 +36,7 @@ struct itc_queue* q_init(struct result_code* rc)
 	if(q == NULL)
 	{
 		// Print out a ERROR trace here is needed.
-		perror("\tDEBUG: q_init - malloc");
+		ITC_DEBUG("Failed to malloc queue due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -50,7 +50,7 @@ struct itc_queue* q_init(struct result_code* rc)
 	if(q->q_mtx == NULL)
 	{
 		free(q);
-		perror("\tDEBUG: q_init - malloc - q_mtx");
+		ITC_DEBUG("Failed to malloc queue mutex due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -60,7 +60,7 @@ struct itc_queue* q_init(struct result_code* rc)
 	{
 		free(q->q_mtx);
 		free(q);
-		printf("\tDEBUG: q_init - pthread_key_delete error code = %d\n", ret);
+		ITC_DEBUG("Failed to pthread_key_delete, error code = %d", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -74,14 +74,14 @@ void q_exit(struct result_code* rc, struct itc_queue* q)
 
 	if(q == NULL)
 	{
-		printf("\tDEBUG: q_exit - Queue null!\n");
+		ITC_DEBUG("Queue null!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return;
 	}
 
 	if(q->size > 0)
 	{
-		printf("\tDEBUG: q_exit - Queue still has items, removing them!\n");
+		ITC_DEBUG("Queue still has items, removing them!");
 		// Go through and discard all data pointed to by all nodes in the queue
 		while((data = q_dequeue(rc, q)) != NULL)
 		{
@@ -97,7 +97,7 @@ void q_exit(struct result_code* rc, struct itc_queue* q)
 		int ret = pthread_mutex_destroy(q->q_mtx);
 		if(ret != 0)
 		{
-			printf("\tDEBUG: q_exit - pthread_mutex_destroy error code = %d\n", ret);
+			ITC_DEBUG("Failed to pthread_mutex_destroy, error code = %d", ret);
 			rc->flags |= ITC_SYSCALL_ERROR;
 		}
 		free(q->q_mtx);
@@ -115,7 +115,7 @@ void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data)
 	if(rc->flags != ITC_OK)
 	{
 		// q_createnode() failed due to out of memory
-		printf("\tDEBUG: q_enqueue - q_createnode failed, rc = %d!\n", rc->flags);
+		ITC_DEBUG("Failed to q_createnode(), rc = %d!", rc->flags);
 		return;
 	}
 
@@ -126,7 +126,7 @@ void q_enqueue(struct result_code* rc, struct itc_queue*q, void* data)
 	// If not, just update the last item to point to new item and move q->tail to new item as well. 
 	if(q->tail == NULL)
 	{
-		printf("\tDEBUG: q_enqueue - Queue now is empty, add the first node!\n");
+		ITC_DEBUG("Queue now is empty, add the first node!");
 		q->head = new_node;
 		q->tail = new_node;
 	} else
@@ -149,7 +149,7 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 	// Queue empty
 	if(q->head == NULL)
 	{
-		printf("\tDEBUG: q_dequeue - Queue empty!\n");
+		ITC_DEBUG("Queue empty!");
 		rc->flags |= ITC_QUEUE_EMPTY;
 		MUTEX_UNLOCK(q->q_mtx);
 		return NULL;
@@ -160,7 +160,7 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 	// In case queue has only one item
 	if(q->head == q->tail)
 	{
-		printf("\tDEBUG: q_dequeue - Queue has only one item!\n");
+		ITC_DEBUG("Queue has only one item!");
 		q_removenode(rc, &q->head);
 		// Both head and tail should be moved to NULL
 		q->head = NULL;
@@ -169,7 +169,7 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 		// Sanity check
 		if(q->size > 1)
 		{
-			printf("\tDEBUG: q_dequeue - Queue got messed up, q->size = %d!\n", q->size);
+			ITC_DEBUG("Queue got messed up, q->size = %d!", q->size);
 		}
 	} else
 	{
@@ -179,11 +179,11 @@ void* q_dequeue(struct result_code* rc, struct itc_queue*q)
 		{
 			if((q->size % 25) == 0)
 			{
-				printf("\tDEBUG: q_dequeue - Queue currently has %d items!\n", q->size);
+				ITC_DEBUG("Queue currently has %d items!", q->size);
 			}
 		} else
 		{
-			printf("\tDEBUG: q_dequeue - Queue currently has %d items!\n", q->size);
+			ITC_DEBUG("Queue currently has %d items!", q->size);
 		}
 
 		q->head = q->head->next;
@@ -254,14 +254,14 @@ void q_clear(struct result_code* rc, struct itc_queue* q)
 
 	if(q == NULL)
 	{
-		printf("\tDEBUG: q_clear - Queue null!\n");
+		ITC_DEBUG("Queue null!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return;
 	}
 
 	if(q->size > 0)
 	{
-		printf("\tDEBUG: q_clear - Queue still has items, removing them!\n");
+		ITC_DEBUG("Queue still has items, removing them!");
 		// Go through and discard all data pointed to by all nodes in the queue
 		while((data = q_dequeue(rc, q)) != NULL)
 		{
@@ -282,7 +282,7 @@ static struct itcq_node* q_createnode(struct result_code* rc, void* data)
 	if(retnode == NULL)
 	{
 		// Print out an ERROR trace here is needed.
-		perror("\tDEBUG: q_createnode - malloc");
+		ITC_DEBUG("Failed to malloc node for queue due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}

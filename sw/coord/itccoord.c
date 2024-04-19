@@ -499,7 +499,7 @@ static bool setup_log_file(void)
 
 	fprintf(stdout, "========================================================================================================================\n");
 	fflush(stdout);
-	fprintf(stdout, "=======                                             START NEW SESSION                                            =======\n");
+	fprintf(stdout, ">>>>>>>                                             START NEW SESSION                                            <<<<<<<\n");
 	fflush(stdout);
 	fprintf(stdout, "========================================================================================================================\n");
 	fflush(stdout);

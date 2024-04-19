@@ -138,16 +138,16 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
 		if(difftime/1000000 > 5)							\
 		{										\
-			printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"			\
-				"time_elapsed = %lu (ms)!\n",					\
+			ITC_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"				\
+				"time_elapsed = %lu (ms)!",					\
 				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
-			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_sec = %lu!\n", 		\
+			ITC_DEBUG("MUTEX_LOCK - t_start.tv_sec = %lu!", 			\
 				t_start.tv_sec);						\
-			printf("\tDEBUG: MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 		\
+			ITC_DEBUG("MUTEX_LOCK - t_start.tv_nsec = %lu!", 			\
 				t_start.tv_nsec);						\
-			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_sec = %lu!\n", 			\
+			ITC_DEBUG("MUTEX_LOCK - t_end.tv_sec = %lu!", 				\
 				t_end.tv_sec);							\
-			printf("\tDEBUG: MUTEX_LOCK - t_end.tv_nsec = %lu!\n",			\
+			ITC_DEBUG("MUTEX_LOCK - t_end.tv_nsec = %lu!",				\
 				t_end.tv_nsec);							\
 		}										\
 	} while(0)
@@ -163,16 +163,16 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
 		if(difftime/1000000 > 5)							\
 		{										\
-			printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"			\
-				"time_elapsed = %lu (ms)!\n",					\
+			ITC_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"				\
+				"time_elapsed = %lu (ms)!",					\
 				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_sec = %lu!\n", 		\
+			ITC_DEBUG("MUTEX_UNLOCK - t_start.tv_sec = %lu!", 			\
 				t_start.tv_sec);						\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_start.tv_nsec = %lu!\n", 		\
+			ITC_DEBUG("MUTEX_UNLOCK - t_start.tv_nsec = %lu!", 			\
 				t_start.tv_nsec);						\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_sec = %lu!\n", 		\
+			ITC_DEBUG("MUTEX_UNLOCK - t_end.tv_sec = %lu!", 			\
 				t_end.tv_sec);							\
-			printf("\tDEBUG: MUTEX_UNLOCK - t_end.tv_nsec = %lu!\n",		\
+			ITC_DEBUG("MUTEX_UNLOCK - t_end.tv_nsec = %lu!",			\
 				t_end.tv_nsec);							\
 		}										\
 	} while(0)
@@ -180,7 +180,7 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 #define MUTEX_LOCK(lock)								\
 	do										\
 	{										\
-		printf("\tDEBUG: MUTEX_LOCK\t0x%08lx,\t%s:%d\n", 			\
+		ITC_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d", 				\
 			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_lock(lock);						\
 	} while(0)
@@ -188,7 +188,7 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 #define MUTEX_UNLOCK(lock)								\
 	do										\
 	{										\
-		printf("\tDEBUG: MUTEX_UNLOCK\t0x%08lx,\t%s:%d\n", 			\
+		ITC_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d", 				\
 			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_unlock(lock);						\
 	} while(0)
