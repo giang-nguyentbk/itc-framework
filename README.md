@@ -9,6 +9,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 8237 lines (updated 27/3/2024)
 -> Total: 10164 lines (updated 1/4/2024)
 -> Total: 19406 lines (updated 19/4/2024)
+-> Total: 22682 lines (updated 20/4/2024)
 ```
 
 ## Fundamental knowledge:
@@ -134,7 +135,19 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 
 ![](./assets/queue-UT.png?raw=true)
 
-### 5. Future Improvements
+
+### 5. Daemon and Logging
++ itccoord:
+
+![](./assets/itccoord_log.png?raw=true)
+
++ itcgws:
+
+![](./assets/itcgws_log.png?raw=true)
+
+
+
+### 6. Future Improvements
 ```
 1. One message can be only sent to one receiver:
 	+ The current implementation is implicitly understood as Single Input Single Out SISO, which means a sender

@@ -32,7 +32,7 @@ void set_sched_params(struct result_code* rc, int policy, int selflimit_prio, in
 {
 	if(policy == SCHED_OTHER)
 	{
-		printf("\tDEBUG: set_sched_params - Configure SCHED_OTHER for this thread!\n");
+		ITC_DEBUG("Configure SCHED_OTHER for this thread!");
 		m_sched_policy = SCHED_OTHER;
 		m_sched_selflimit_prio = sched_get_priority_max(SCHED_OTHER);
 		m_sched_priority = sched_get_priority_min(SCHED_OTHER);
@@ -42,7 +42,7 @@ void set_sched_params(struct result_code* rc, int policy, int selflimit_prio, in
 		check_sched_params(rc, policy, selflimit_prio, priority);
 		if(rc->flags != ITC_OK)
 		{
-			printf("\tDEBUG: set_sched_params - check_sched_params failed!\n");
+			ITC_DEBUG("Failed to check_sched_params()!");
 			return;
 		}
 
@@ -59,7 +59,7 @@ void add_itcthread(struct result_code* rc, void* (*worker)(void*), void* arg, bo
 	thr = (struct itc_threads*)malloc(sizeof(struct itc_threads));
 	if(thr == NULL)
 	{
-		perror("\tDEBUG: add_itcthread - malloc");
+		ITC_DEBUG("Failed to malloc itc_threads due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -98,7 +98,7 @@ void start_itcthreads(struct result_code* rc)
 			(thr->use_highest_prio ? m_sched_selflimit_prio : m_sched_priority));
 		if(rc_tmp->flags != ITC_OK)
 		{
-			printf("\tDEBUG: start_itcthreads - Failed to start a thread!\n");
+			ITC_DEBUG("Failed to start a thread!");
 			rc->flags |= rc_tmp->flags;
 			break; // Failed to start some thread, stop here.
 		}
@@ -116,7 +116,7 @@ void start_itcthreads(struct result_code* rc)
 			MUTEX_UNLOCK(thr->start_mtx);
 		}
 
-		printf("\tDEBUG: start_itcthreads - Starting a thread, tid = %ld!\n", thr->tid);
+		ITC_DEBUG("Starting a thread, tid = %ld!", thr->tid);
 		thr->is_running = true;
 		thr = thr->next;
 	}
@@ -138,7 +138,7 @@ void terminate_itcthreads(struct result_code* rc)
 		int ret = pthread_cancel(thr->tid);
 		if(ret != 0)
 		{
-			printf("\tDEBUG: terminate_itcthreads - pthread_cancel error code = %d\n", ret);
+			ITC_DEBUG("Failed to pthread_cancel, error code = %d", ret);
 			rc->flags |= ITC_SYSCALL_ERROR;
 			break;
 		}
@@ -146,12 +146,12 @@ void terminate_itcthreads(struct result_code* rc)
 		ret = pthread_join(thr->tid, NULL);
 		if(ret != 0)
 		{
-			printf("\tDEBUG: terminate_itcthreads - pthread_join error code = %d\n", ret);
+			ITC_DEBUG("Failed to pthread_join, error code = %d", ret);
 			rc->flags |= ITC_SYSCALL_ERROR;
 			break;
 		}
 
-		printf("\tDEBUG: terminate_itcthreads - Terminating a thread, tid = %ld!\n", thr->tid);
+		ITC_DEBUG("Terminating a thread, tid = %ld!", thr->tid);
 		thrtmp = thr;
 		thr->is_running = false;
 		thr = thr->next;
@@ -172,8 +172,7 @@ static void check_sched_params(struct result_code* rc, int policy, int selflimit
 
 	if(priority < min_prio || priority > max_prio || selflimit_prio < min_prio || selflimit_prio > max_prio)
 	{
-		printf("\tDEBUG: check_sched_params - Invalid priority config, prio = %d, min_prio = %d, max_prio = %d, " \
-			"selflimit_prio = %d!\n", priority, min_prio, max_prio, selflimit_prio);
+		ITC_DEBUG("Invalid priority config, prio = %d, min_prio = %d, max_prio = %d, selflimit_prio = %d!", priority, min_prio, max_prio, selflimit_prio);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
 		return;
 	}
@@ -187,7 +186,7 @@ static void config_itcthread(struct result_code* rc, void* (*worker)(void*), voi
 	int ret = pthread_attr_init(&t_attr);
 	if(ret != 0)
 	{
-		printf("\tDEBUG: config_itcthread - pthread_attr_init error code = %d\n", ret);
+		ITC_DEBUG("Failed to pthread_attr_init, error code = %d", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -195,7 +194,7 @@ static void config_itcthread(struct result_code* rc, void* (*worker)(void*), voi
 	ret = pthread_attr_setschedpolicy(&t_attr, policy);
 	if(ret != 0)
 	{
-		printf("\tDEBUG: config_itcthread - pthread_attr_setschedpolicy error code = %d\n", ret);
+		ITC_DEBUG("Failed to pthread_attr_setschedpolicy, error code = %d", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -204,7 +203,7 @@ static void config_itcthread(struct result_code* rc, void* (*worker)(void*), voi
 	ret = pthread_attr_setschedparam(&t_attr, &sched_params);
 	if(ret != 0)
 	{
-		printf("\tDEBUG: config_itcthread - pthread_attr_setschedparam error code = %d\n", ret);
+		ITC_DEBUG("Failed to pthread_attr_setschedparam, error code = %d", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -212,7 +211,7 @@ static void config_itcthread(struct result_code* rc, void* (*worker)(void*), voi
 	ret = pthread_attr_setinheritsched(&t_attr, PTHREAD_EXPLICIT_SCHED);
 	if(ret != 0)
 	{
-		printf("\tDEBUG: config_itcthread - pthread_attr_setinheritsched error code = %d\n", ret);
+		ITC_DEBUG("Failed to pthread_attr_setinheritsched, error code = %d", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
@@ -220,7 +219,7 @@ static void config_itcthread(struct result_code* rc, void* (*worker)(void*), voi
 	ret = pthread_create(t_id, &t_attr, worker, arg);
 	if(ret != 0)
 	{
-		printf("\tDEBUG: config_itcthread - pthread_create error code = %d\n", ret);
+		ITC_DEBUG("Failed to pthread_create, error code = %d", ret);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
