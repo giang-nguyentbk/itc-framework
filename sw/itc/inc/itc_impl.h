@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
@@ -52,33 +55,40 @@ extern "C" {
 #endif
 
 #ifndef ITC_BASE_PATH
-#define ITC_BASE_PATH "/tmp/itc/"
+#define ITC_BASE_PATH 			"/tmp/itc/"
 #endif
 
 #ifndef ITC_ITCCOORD_FOLDER
-#define ITC_ITCCOORD_FOLDER "/tmp/itc/itccoord/"
+#define ITC_ITCCOORD_FOLDER 		"/tmp/itc/itccoord/"
 #endif
 
 #ifndef ITC_ITCCOORD_FILENAME
-#define ITC_ITCCOORD_FILENAME "/tmp/itc/itccoord/itc_coordinator"
+#define ITC_ITCCOORD_FILENAME 		"/tmp/itc/itccoord/itc_coordinator"
 #endif
 
 #ifndef ITC_SOCKET_FOLDER
-#define ITC_SOCKET_FOLDER "/tmp/itc/socket/"
+#define ITC_SOCKET_FOLDER 		"/tmp/itc/socket/"
 #endif
 
 #ifndef ITC_LSOCKET_FILENAME
-#define ITC_LSOCKET_FILENAME "/tmp/itc/socket/lsocket"
+#define ITC_LSOCKET_FILENAME 		"/tmp/itc/socket/lsocket"
 #endif
 
 #ifndef ITC_SYSVMSQ_FOLDER
-#define ITC_SYSVMSQ_FOLDER "/tmp/itc/sysvmsq/"
+#define ITC_SYSVMSQ_FOLDER 		"/tmp/itc/sysvmsq/"
 #endif
 
 #ifndef ITC_SYSVMSQ_FILENAME
-#define ITC_SYSVMSQ_FILENAME "/tmp/itc/sysvmsq/sysvmsq_file"
+#define ITC_SYSVMSQ_FILENAME 		"/tmp/itc/sysvmsq/sysvmsq_file"
 #endif
 
+#ifndef ITC_ITCGWS_LOGFILE
+#define ITC_ITCGWS_LOGFILE 		"itcgws.log"
+#endif
+
+#ifndef ITC_ITCCOORD_LOGFILE
+#define ITC_ITCCOORD_LOGFILE 		"itccoord.log"
+#endif
 
 #ifdef LOCAL_TRANS_UNITTEST
 #define ITC_NR_INTERNAL_USED_MBOXES 0 // Unittest for local trans so sock and sysvmq not used yet
@@ -102,6 +112,18 @@ extern "C" {
 
 
 unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end);
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+void ITC_INFO_ZZ(const char *file, int line, const char *format, ...);
+void ITC_ERROR_ZZ(const char *file, int line, const char *format, ...);
+void ITC_ABN_ZZ(const char *file, int line, const char *format, ...);
+void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
+
+#define ITC_INFO(format, ...) ITC_INFO_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
+#define ITC_ERROR(format, ...) ITC_ERROR_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
+#define ITC_ABN(format, ...) ITC_ABN_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
+#define ITC_DEBUG(format, ...) ITC_DEBUG_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
 
 #if defined MUTEX_TRACE_TIME_UNITTEST
 /* Tracing prolong locking mutex, > 5ms */

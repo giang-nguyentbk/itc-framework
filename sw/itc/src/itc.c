@@ -1524,3 +1524,54 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	return true;
 }
 
+void ITC_INFO_ZZ(const char *file, int line, const char *format, ...)
+{
+	va_list args;
+	char buffer[256];
+
+	va_start(args, format);
+	vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	fprintf(stdout, "INFO:\t%s:%d\t\tmsg: %s\n", file, line, buffer);
+	fflush(stdout);
+}
+
+void ITC_ERROR_ZZ(const char *file, int line, const char *format, ...)
+{
+	va_list args;
+	char buffer[256];
+
+	va_start(args, format);
+	vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	fprintf(stdout, "ERROR:\t%s:%d\t\tmsg: %s\n", file, line, buffer);
+	fflush(stdout);
+}
+
+void ITC_ABN_ZZ(const char *file, int line, const char *format, ...)
+{
+	va_list args;
+	char buffer[256];
+
+	va_start(args, format);
+	vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	fprintf(stdout, "ABN:\t%s:%d\t\tmsg: %s\n", file, line, buffer);
+	fflush(stdout);
+}
+
+void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...)
+{
+	va_list args;
+	char buffer[256];
+
+	va_start(args, format);
+	vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	fprintf(stdout, "DEBUG:\t%s:%d\t\tmsg: %s\n", file, line, buffer);
+	fflush(stdout);
+}

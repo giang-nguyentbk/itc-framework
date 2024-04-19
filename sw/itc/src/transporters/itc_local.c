@@ -204,8 +204,8 @@ static void local_exit(struct result_code* rc)
 	}
 
 	free(local_inst.localmbx_data);
-	memset(&local_inst.localmbx_data, 0, sizeof(struct local_instance));
 	local_inst.localmbx_data = NULL;
+	memset(&local_inst, 0, sizeof(struct local_instance));
 }
 
 static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbox, uint32_t flags)
@@ -404,8 +404,8 @@ static void release_localmbx_resources(struct result_code* rc)
         }
 
         free(local_inst.localmbx_data);
-	memset(&local_inst.localmbx_data, 0, sizeof(struct local_instance));
 	local_inst.localmbx_data = NULL;
+	memset(&local_inst, 0, sizeof(struct local_instance));
 }
 
 static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mbox_id_t mbox_id)

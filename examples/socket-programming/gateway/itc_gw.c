@@ -308,9 +308,10 @@ static void itcgw_exit_handler(void)
 	tdestroy(itcgw_inst.tcp_client_tree, do_nothing);
 
 	printf("\tINFO: itcgw_exit_handler - Deleting UDP, TCP server, TCP client mailboxes...\n");
-	itc_delete_mailbox(itcgw_inst.udp_mbox_id);
-	itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
-	itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
+	if(itcgw_inst.udp_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.udp_mbox_id);
+	}
 
 	int ret = pthread_cancel(itcgw_inst.tcp_server_tid);
 	if(ret != 0)
@@ -755,6 +756,11 @@ static void tcp_server_thread_destructor(void* data)
 	(void)data;
 
 	printf("\tINFO: tcp_server_thread_destructor - Calling tcp server thread destructor...\n");
+	printf("\tINFO: tcp_server_thread_destructor - Deleting tcp server mailbox...\n");
+	if(itcgw_inst.tcp_server_mbox_id != 0 || itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
+	}
 }
 
 static bool start_tcp_server_thread(void)
@@ -1052,6 +1058,11 @@ static void tcp_client_thread_destructor(void* data)
 	(void)data;
 
 	printf("\tINFO: tcp_client_thread_destructor - Calling tcp client thread destructor...\n");
+	printf("\tINFO: tcp_client_thread_destructor - Deleting tcp client mailbox...\n");
+	if(itcgw_inst.tcp_client_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
+	}
 }
 
 static bool start_tcp_client_thread(void)

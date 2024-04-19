@@ -29,7 +29,7 @@ create_bin:
 	@mkdir -p $(BIN)
 
 # Build itc gateway's executable files
-$(TARGET_1): $(BIN)/itc_gw.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+$(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_1)
 
@@ -42,7 +42,7 @@ $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/it
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_3)
 
 # Build itc gateway's object files
-$(BIN)/itc_gw.o: itc_gw.c itc.h itc_impl.h itc_proto.h itc_gw_proto.h
+$(BIN)/itc_gw_daemon.o: itc_gw_daemon.c itc.h itc_impl.h itc_proto.h itc_gw_proto.h
 	$(CC) -c  $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 $(BIN)/itc_gw_2.o: itc_gw_2.c itc.h itc_impl.h itc_proto.h itc_gw_proto.h
@@ -75,23 +75,36 @@ $(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanage
 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 
+# Use "ps -xj" to find the daemon PID and kill it 
 r1:
-	$(BIN)/$(TARGET_1) "/host_1/"
+	@$(BIN)/$(TARGET_1) -n "/host_1/" -d
 
 v1:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_1) "/host_1/"
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_1) -n "/host_1/"
 
 r2:
-	$(BIN)/$(TARGET_2) "/host_2/"
+	@$(BIN)/$(TARGET_2) "/host_2/"
 
 v2:
 	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_2) "/host_2/"
 
 rc:
-	$(BIN)/$(TARGET_3)
+	@$(BIN)/$(TARGET_3) -d
 
 vc:
 	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_3)
 
-clean:
+clean-exe:
 	rm -rf $(BIN)
+
+cle:
+	rm -rf $(BIN)
+
+clear-log:
+	rm -rf *.log
+
+cll:
+	rm -rf *.log
+
+cla:
+	rm -rf $(BIN) *.log

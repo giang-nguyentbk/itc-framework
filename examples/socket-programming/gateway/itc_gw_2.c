@@ -45,12 +45,12 @@
 #define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itc_gw_tcp_client_mailbox2"
 
 union itc_msg {
-	uint32_t				msgno;
+	uint32_t					msgno;
 
-	struct itc_fwd_data_to_itcgws		itc_fwd_data_to_itcgws;
-	struct itcgw_udp_add_rmv_peer		itcgw_udp_add_rmv_peer;
-	struct itc_get_namespace_request	itc_get_namespace_request;
-	struct itc_get_namespace_reply		itc_get_namespace_reply;
+	struct itc_fwd_data_to_itcgws			itc_fwd_data_to_itcgws;
+	struct itcgw_udp_add_rmv_peer			itcgw_udp_add_rmv_peer;
+	struct itc_get_namespace_request		itc_get_namespace_request;
+	struct itc_get_namespace_reply			itc_get_namespace_reply;
 	struct itc_locate_mbox_from_itcgws_request	itc_locate_mbox_from_itcgws_request;
 	struct itc_locate_mbox_from_itcgws_reply	itc_locate_mbox_from_itcgws_reply;
 };
@@ -311,9 +311,10 @@ static void itcgw_exit_handler(void)
 	tdestroy(itcgw_inst.tcp_client_tree, do_nothing);
 
 	printf("\tINFO: itcgw_exit_handler - Deleting UDP, TCP server, TCP client mailboxes...\n");
-	itc_delete_mailbox(itcgw_inst.udp_mbox_id);
-	itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
-	itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
+	if(itcgw_inst.udp_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.udp_mbox_id);
+	}
 
 	int ret = pthread_cancel(itcgw_inst.tcp_server_tid);
 	if(ret != 0)
@@ -758,6 +759,11 @@ static void tcp_server_thread_destructor(void* data)
 	(void)data;
 
 	printf("\tINFO: tcp_server_thread_destructor - Calling tcp server thread destructor...\n");
+	printf("\tINFO: tcp_server_thread_destructor - Deleting tcp server mailbox...\n");
+	if(itcgw_inst.tcp_server_mbox_id != 0 || itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
+	}
 }
 
 static bool start_tcp_server_thread(void)
@@ -1055,6 +1061,11 @@ static void tcp_client_thread_destructor(void* data)
 	(void)data;
 
 	printf("\tINFO: tcp_client_thread_destructor - Calling tcp client thread destructor...\n");
+	printf("\tINFO: tcp_client_thread_destructor - Deleting tcp client mailbox...\n");
+	if(itcgw_inst.tcp_client_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
+	}
 }
 
 static bool start_tcp_client_thread(void)

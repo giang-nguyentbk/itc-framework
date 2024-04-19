@@ -1,0 +1,194 @@
+========================================================================================================================
+=======                                             START NEW SESSION                                            =======
+========================================================================================================================
+INFO:	itccoord.c:203		msg: Starting itccoord daemon...
+	DEBUG: itc_init_zz - q_init the first mailbox to itc_inst.free_mbox_queue!
+	DEBUG: itc_init_zz - q_enqueue mailbox 0 to itc_inst.free_mbox_queue!
+	DEBUG: q_enqueue - Queue now is empty, add the first node!
+	DEBUG: itc_init_zz - q_enqueue mailbox 1 to itc_inst.free_mbox_queue!
+	DEBUG: itc_init_zz - q_enqueue mailbox 2 to itc_inst.free_mbox_queue!
+	DEBUG: local_init - ENTER!
+	DEBUG: generate_msqfile - Open file /tmp/itc/sysvmsq/sysvmsq_file successfully!
+	DEBUG: itc_create_mailbox_zz - Creating mailbox name itc_rx_sysvmq_0x00100000
+	DEBUG: q_dequeue - Queue currently has 3 items!
+	DEBUG: sysvmq_rx_thread - Starting sysvmq_rx_thread itc_rx_sysvmq_0x00100000...!
+	DEBUG: sysvmq_maxmsgsize - Get max msg size successfully, max_msgsize = 8192!
+	DEBUG: start_itcthreads - Starting a thread, tid = 140668282918464!
+	DEBUG: itc_create_mailbox_zz - Creating mailbox name itc_coord_mailbox
+	DEBUG: q_dequeue - Queue currently has 2 items!
+INFO:	itccoord.c:270		msg: Enqueue process index = 2 to free_list!
+INFO:	itccoord.c:271		msg: Enqueue process n-th to free_list!
+	DEBUG: q_enqueue - Queue now is empty, add the first node!
+INFO:	itccoord.c:283		msg: Enqueue process index = 254 to free_list!
+INFO:	itccoord.c:647		msg: Dequeue a process from free_list!
+INFO:	itccoord.c:658		msg: Enqueue process mbox_id = 0x00200000 to used_list!
+	DEBUG: q_enqueue - Queue now is empty, add the first node!
+INFO:	itccoord.c:746		msg: Sent itc_locate_coord_reply successfully!
+INFO:	itccoord.c:375		msg: Process with fd 6 is in state PROC_LISTENING!
+INFO:	itccoord.c:862		msg: Connecting to the process with pid = 222403
+INFO:	itccoord.c:911		msg: Sending ACK signature to the process successfully, pid = 222403
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 33
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00200000
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 27
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00200001
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200000
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_rx_sysvmq_0x00200000!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200001
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_udp_mailbox!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 34
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00200002
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200002
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_tcp_server_mailbox!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 34
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00200003
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200003
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_tcp_client_mailbox!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+INFO:	itccoord.c:647		msg: Dequeue a process from free_list!
+INFO:	itccoord.c:658		msg: Enqueue process mbox_id = 0x00300000 to used_list!
+INFO:	itccoord.c:746		msg: Sent itc_locate_coord_reply successfully!
+INFO:	itccoord.c:375		msg: Process with fd 7 is in state PROC_LISTENING!
+INFO:	itccoord.c:862		msg: Connecting to the process with pid = 222441
+INFO:	itccoord.c:911		msg: Sending ACK signature to the process successfully, pid = 222441
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 33
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300000
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300000
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_rx_sysvmq_0x00300000!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 28
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300001
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300001
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_udp_mailbox2!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 35
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300002
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300002
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_tcp_server_mailbox2!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 35
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300003
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:924		msg: ITC_NOTIFY_COORD_ADD_MBOX received!
+INFO:	itccoord.c:925		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300003
+INFO:	itccoord.c:926		msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_tcp_client_mailbox2!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 28
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300001
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:931		msg: ITC_NOTIFY_COORD_RMV_MBOX received!
+INFO:	itccoord.c:932		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300001
+INFO:	itccoord.c:933		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_gw_udp_mailbox2!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000504
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 35
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300002
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:931		msg: ITC_NOTIFY_COORD_RMV_MBOX received!
+INFO:	itccoord.c:932		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300002
+INFO:	itccoord.c:933		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_gw_tcp_server_mailbox2!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000504
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 35
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300003
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:931		msg: ITC_NOTIFY_COORD_RMV_MBOX received!
+INFO:	itccoord.c:932		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300003
+INFO:	itccoord.c:933		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_gw_tcp_client_mailbox2!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000504
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000000, size = 33
+	DEBUG: forward_sysvmq_msg - Forwarding a message to local mailbox from external mbox = 0x00300000
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itccoord.c:382		msg: Process with fd 6 is in state PROC_CONNECTED!
+INFO:	itccoord.c:765		msg: Remove process mbox_id = 0x00300000 from used_list!
+INFO:	itccoord.c:795		msg: Remove socket on process pid = 222441
+INFO:	itccoord.c:834		msg: Unlink /tmp/itc/socket/lsocket successfully!
+INFO:	itccoord.c:779		msg: Enqueue process mbox_id = 0x00300000 to free_list!
+INFO:	itccoord.c:409		msg: Calling handle_incoming_request()!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itccoord.c:931		msg: ITC_NOTIFY_COORD_RMV_MBOX received!
+INFO:	itccoord.c:932		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300000
+INFO:	itccoord.c:933		msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_rx_sysvmq_0x00300000!
+ABN:	itccoord.c:1003		msg: Mailbox 0x00300000 from a just-terminated process!
