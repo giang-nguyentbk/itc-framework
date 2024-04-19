@@ -8,6 +8,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 7257 lines (updated 26/3/2024)
 -> Total: 8237 lines (updated 27/3/2024)
 -> Total: 10164 lines (updated 1/4/2024)
+-> Total: 19406 lines (updated 19/4/2024)
 ```
 
 ## Fundamental knowledge:

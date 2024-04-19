@@ -38,6 +38,9 @@
 /*****************************************************************************\/
 *****                      INTERNAL TYPES IN ITC.C                         *****
 *******************************************************************************/
+#define BROADCAST_PORT2		11112 // TEST ONLY
+#define TCP_LISTENING_PORT2	22223 // TEST ONLY
+
 union itc_msg {
 	uint32_t					msgno;
 
@@ -472,7 +475,7 @@ static bool setup_udp_peer(void)
 	/* This is address configuration of peer broadcast UDP */
 	memset(&itcgw_inst.udp_peer_addr, 0, sizeof(struct sockaddr_in));
 	itcgw_inst.udp_peer_addr.sin_family = AF_INET;
-	itcgw_inst.udp_peer_addr.sin_port = htons((short)(ITC_GATEWAY_BROADCAST_PORT & 0xFFFF));
+	itcgw_inst.udp_peer_addr.sin_port = htons((short)(BROADCAST_PORT2 & 0xFFFF)); // TEST ONLY
 	itcgw_inst.udp_peer_addr.sin_addr.s_addr = INADDR_BROADCAST;
 
 	for(int i = 0; i < ITC_GATEWAY_MAX_PEERS; i++)
@@ -480,7 +483,7 @@ static bool setup_udp_peer(void)
 		strcpy(itcgw_inst.udp_peers[i].addr, ITC_GATEWAY_NO_ADDR_STRING); 
 	}
 
-	ITC_INFO("Setup UDP peer successfully on %s:%d", inet_ntoa(itcgw_inst.udp_peer_addr.sin_addr), ITC_GATEWAY_BROADCAST_PORT);
+	ITC_INFO("Setup UDP peer successfully on %s:%d", inet_ntoa(itcgw_inst.udp_peer_addr.sin_addr), BROADCAST_PORT2); // TEST ONLY
 	return true;
 }
 
@@ -505,7 +508,8 @@ static bool setup_tcp_server(void)
 	memset(&itcgw_inst.tcp_server_addr, 0, sizeof(struct sockaddr_in));
 	size_t size = sizeof(struct sockaddr_in);
 	itcgw_inst.tcp_server_addr.sin_family = AF_INET;
-	itcgw_inst.tcp_server_addr.sin_addr = get_ip_address_from_network_interface(tcpfd, ITC_GATEWAY_NET_INTERFACE_ETH0);
+	// itcgw_inst.tcp_server_addr.sin_addr = get_ip_address_from_network_interface(tcpfd, ITC_GATEWAY_NET_INTERFACE_ETH0);
+	itcgw_inst.tcp_server_addr.sin_addr = get_ip_address_from_network_interface(tcpfd, ITC_GATEWAY_NET_INTERFACE_LO); // TEST ONLY
 	itcgw_inst.tcp_server_addr.sin_port = htons(ITC_GATEWAY_TCP_LISTENING_PORT);
 
 	res = bind(tcpfd, (struct sockaddr *)&itcgw_inst.tcp_server_addr, size);
@@ -952,7 +956,8 @@ static bool handle_accept_new_connection(int sockfd)
 	struct tcp_peer_info **iter;
 	char addr[30];
 	ITC_INFO("Receiving new connection from a peer client tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
-	snprintf(addr, 30, "tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ITC_GATEWAY_TCP_LISTENING_PORT);
+	// snprintf(addr, 30, "tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ITC_GATEWAY_TCP_LISTENING_PORT);
+	snprintf(addr, 30, "tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), TCP_LISTENING_PORT2); // TEST ONLY
 
 	iter = tfind(addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
 	if(iter != NULL)

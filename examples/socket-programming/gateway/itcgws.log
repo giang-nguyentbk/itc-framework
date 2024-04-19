@@ -1,0 +1,147 @@
+========================================================================================================================
+=======                                             START NEW SESSION                                            =======
+========================================================================================================================
+INFO:	itc_gw_daemon.c:220		msg: Starting itccoord daemon...
+	DEBUG: itc_init_zz - Start locating itccoord!
+	DEBUG: itc_init_zz - q_init the first mailbox to itc_inst.free_mbox_queue!
+	DEBUG: itc_init_zz - q_enqueue mailbox 0 to itc_inst.free_mbox_queue!
+	DEBUG: q_enqueue - Queue now is empty, add the first node!
+	DEBUG: itc_init_zz - q_enqueue mailbox 1 to itc_inst.free_mbox_queue!
+	DEBUG: itc_init_zz - q_enqueue mailbox 2 to itc_inst.free_mbox_queue!
+	DEBUG: itc_init_zz - q_enqueue mailbox 3 to itc_inst.free_mbox_queue!
+	DEBUG: itc_init_zz - q_enqueue mailbox 4 to itc_inst.free_mbox_queue!
+	DEBUG: local_init - ENTER!
+	DEBUG: generate_msqfile - Open file /tmp/itc/sysvmsq/sysvmsq_file successfully!
+	DEBUG: lsock_init - itccoord is running!
+	DEBUG: lsock_init - lsockpath not created yet, create it!
+	DEBUG: generate_lsockpath - lsockpath /tmp/itc/socket/ already exists!
+	DEBUG: itc_create_mailbox_zz - Creating mailbox name itc_rx_sysvmq_0x00200000
+	DEBUG: q_dequeue - Queue currently has 5 items!
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x90000503, size = 33
+	DEBUG: itc_send_zz - Prepare to send message from 0x00200000 to 0x00100001, msgno = 0x90000503
+	DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 0x00100001
+	DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+	DEBUG: local_send - Not belong to this process, mbox_id = 0x00100001
+	DEBUG: get_sysvmq_cl - Add contact list!
+	DEBUG: get_sysvmq_id - proj_id = 1!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[1]!
+	DEBUG: itc_create_mailbox_zz - Sent notification to itccoord regarding ADD mailbox id = 0x00200000
+	DEBUG: sysvmq_rx_thread - Starting sysvmq_rx_thread itc_rx_sysvmq_0x00200000...!
+	DEBUG: sysvmq_maxmsgsize - Get max msg size successfully, max_msgsize = 8192!
+	DEBUG: start_itcthreads - Starting a thread, tid = 139736620418624!
+	DEBUG: itc_create_mailbox_zz - Creating mailbox name itc_gw_udp_mailbox
+	DEBUG: q_dequeue - Queue currently has 4 items!
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x90000503, size = 27
+	DEBUG: itc_send_zz - Prepare to send message from 0x00200001 to 0x00100001, msgno = 0x90000503
+	DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 0x00100001
+	DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+	DEBUG: local_send - Not belong to this process, mbox_id = 0x00100001
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[1]!
+	DEBUG: itc_create_mailbox_zz - Sent notification to itccoord regarding ADD mailbox id = 0x00200001
+INFO:	itc_gw_daemon.c:422		msg: Setup UDP mailbox "itc_gw_udp_mailbox" successfully!
+INFO:	itc_gw_daemon.c:469		msg: Setup my UDP successfully on 0.0.0.0:11111
+INFO:	itc_gw_daemon.c:486		msg: Setup UDP peer successfully on 255.255.255.255:11112
+INFO:	itc_gw_daemon.c:546		msg: Broadcast timer fd 6 created successfully!
+INFO:	itc_gw_daemon.c:611		msg: Retrieve address from network interface "lo" -> tcp://127.0.0.1:0
+INFO:	itc_gw_daemon.c:533		msg: Setup TCP server successfully on 127.0.0.1:22222
+INFO:	itc_gw_daemon.c:619		msg: Broadcasting message created successfully -> "Broadcast Message: ITCGW listening on tcp://127.0.0.1:22222/"
+	DEBUG: itc_create_mailbox_zz - Creating mailbox name itc_gw_tcp_server_mailbox
+	DEBUG: q_dequeue - Queue currently has 3 items!
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x90000503, size = 34
+	DEBUG: itc_send_zz - Prepare to send message from 0x00200002 to 0x00100001, msgno = 0x90000503
+	DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 0x00100001
+	DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+	DEBUG: local_send - Not belong to this process, mbox_id = 0x00100001
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[1]!
+	DEBUG: itc_create_mailbox_zz - Sent notification to itccoord regarding ADD mailbox id = 0x00200002
+INFO:	itc_gw_daemon.c:916		msg: Create TCP server mailbox "itc_gw_tcp_server_mailbox" successfully!
+INFO:	itc_gw_daemon.c:842		msg: Starting tcp server loop...
+	DEBUG: itc_create_mailbox_zz - Creating mailbox name itc_gw_tcp_client_mailbox
+	DEBUG: q_dequeue - Queue currently has 2 items!
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x90000503, size = 34
+	DEBUG: itc_send_zz - Prepare to send message from 0x00200003 to 0x00100001, msgno = 0x90000503
+	DEBUG: find_mbox - Mailbox not belong to this process, mbox_id = 0x00100001
+	DEBUG: find_localmbx_data - Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+	DEBUG: local_send - Not belong to this process, mbox_id = 0x00100001
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x90000503
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[1]!
+	DEBUG: itc_create_mailbox_zz - Sent notification to itccoord regarding ADD mailbox id = 0x00200003
+INFO:	itc_gw_daemon.c:1223		msg: Create TCP client mailbox "itc_gw_tcp_client_mailbox" successfully!
+INFO:	itc_gw_daemon.c:1146		msg: Starting tcp client loop...
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:650		msg: Received a greeting message from tcp://127.0.0.1:22223/
+INFO:	itc_gw_daemon.c:671		msg: Adding new TCP peer connection successfully from tcp://127.0.0.1:22223/
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000103, size = 27
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00200003, msgno = 0x00000103
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+INFO:	itc_gw_daemon.c:698		msg: Sent ITCGW_UDP_ADD_PEER to mailbox "itc_gw_tcp_client_mailbox" successfully!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 7.628 seconds!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itc_gw_daemon.c:1254		msg: Received ITCGW_UDP_ADD_PEER addr = tcp://127.0.0.1:22223/
+INFO:	itc_gw_daemon.c:1375		msg: Connect to new TCP peer successfully from tcp://127.0.0.1:22223/
+INFO:	itc_gw_daemon.c:1603		msg: Sending ITCGW_GET_NAMESPACE_REQUEST successfully!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x00000103
+INFO:	itc_gw_daemon.c:1305		msg: Receiving 20 bytes from fd 10
+INFO:	itc_gw_daemon.c:1306		msg: Re-interpret TCP packet: msgno: 0x00000102
+INFO:	itc_gw_daemon.c:1307		msg: Re-interpret TCP packet: payloadLen: 13
+INFO:	itc_gw_daemon.c:1308		msg: Re-interpret TCP packet: protRev: 15
+INFO:	itc_gw_daemon.c:1309		msg: Re-interpret TCP packet: receiver: 222
+INFO:	itc_gw_daemon.c:1310		msg: Re-interpret TCP packet: sender: 222441
+INFO:	itc_gw_daemon.c:1315		msg: Received ITCGW_GET_NAMESPACE_REPLY!
+INFO:	itc_gw_daemon.c:1657		msg: Receiving 13 bytes from fd 10
+INFO:	itc_gw_daemon.c:1658		msg: Re-interpret TCP packet: errorcode: 0
+INFO:	itc_gw_daemon.c:1659		msg: Re-interpret TCP packet: namespace: "/host_2/"
+INFO:	itc_gw_daemon.c:1670		msg: Set namespace "/host_2/" to respective peer info in client list successfully!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:958		msg: Receiving new connection from a peer client tcp://127.0.0.1:33162/
+INFO:	itc_gw_daemon.c:974		msg: Accepting new tcp connection from tcp://127.0.0.1:22223/
+INFO:	itc_gw_daemon.c:1023		msg: Receiving 20 bytes from fd 11
+INFO:	itc_gw_daemon.c:1024		msg: Re-interpret TCP packet: msgno: 0x00000101
+INFO:	itc_gw_daemon.c:1025		msg: Re-interpret TCP packet: payloadLen: 4
+INFO:	itc_gw_daemon.c:1026		msg: Re-interpret TCP packet: protRev: 15
+INFO:	itc_gw_daemon.c:1027		msg: Re-interpret TCP packet: receiver: 111
+INFO:	itc_gw_daemon.c:1028		msg: Re-interpret TCP packet: sender: 222441
+INFO:	itc_gw_daemon.c:1033		msg: Received ITCGW_GET_NAMESPACE_REQUEST!
+INFO:	itc_gw_daemon.c:1564		msg: Receiving 4 bytes from fd 11
+INFO:	itc_gw_daemon.c:1565		msg: Re-interpret TCP packet: errorcode: 0
+INFO:	itc_gw_daemon.c:1635		msg: Sent ITCGW_GET_NAMESPACE_REPLY successfully!
+INFO:	itc_gw_daemon.c:650		msg: Received a greeting message from tcp://127.0.0.1:22223/
+INFO:	itc_gw_daemon.c:661		msg: Already connected, ignore broadcasting message from this peer!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 7.629 seconds!
+INFO:	itc_gw_daemon.c:1003		msg: Peer from this socket fd 11 disconnected, remove it from server list!
+INFO:	itc_gw_daemon.c:1288		msg: Peer from this socket fd 10 disconnected, remove it from client list!
+	DEBUG: itc_alloc_zz - Allocating itc msg msgno 0x00000104, size = 27
+	DEBUG: itc_send_zz - Prepare to send message from 0xfff00000 to 0x00200001, msgno = 0x00000104
+	DEBUG: enqueue_message - RX queue is empty, add a new one!
+	DEBUG: itc_send_zz - Sent successfully on trans_mechanism[0]!
+	DEBUG: itc_send_zz - Notify receiver about sent messages!
+	DEBUG: dequeue_message - RX queue has only one item, dequeue it!
+	DEBUG: itc_receive_zz - Received a message on trans_mechanisms[0]!
+INFO:	itc_gw_daemon.c:1490		msg: Received ITCGW_UDP_RMV_PEER addr = tcp://127.0.0.1:22223/
+INFO:	itc_gw_daemon.c:1522		msg: Remove peer "tcp://127.0.0.1:22223/" from udp tree successfully!
+	DEBUG: itc_free_zz - Freeing itc msg msgno 0x00000104
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 6.651 seconds!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
+INFO:	itc_gw_daemon.c:563		msg: Broadcast timer will expire in: 0.0 seconds!
+INFO:	itc_gw_daemon.c:568		msg: Reset timer 10s, send broadcasting message...!
