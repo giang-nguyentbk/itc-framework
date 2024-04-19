@@ -74,6 +74,9 @@ process (lsock)	:	rx_len = recv(sd, str_ack, 4, 0) ---> CONNECTING TO A PROCESS 
 #define NR_PROC_ALIVENESS_CHECK_RETRIES	10 // After 10 while true loop of itccoord main function, check zombie processes.
 #define FREELIST_LOW_THRESHOLD		10 // When number of processes remaining in free_list decreases down to 10 -> used_list count should be 255 - 10 = 245, check zombie processes.
 
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itc_gw_tcp_client_mailbox2" // TEST ONLY
+#define ITC_ITCCOORD_LOGFILE2 		"itccoord.log" // TEST ONLY
+
 union itc_msg {
 	uint32_t					msgno;
 
@@ -493,7 +496,7 @@ static void itccoord_exit_handler(void)
 static bool setup_log_file(void)
 {
 	/* Setup a log file for our itcgws daemon */
-	freopen(ITC_ITCCOORD_LOGFILE, "a+", stdout);
+	freopen(ITC_ITCCOORD_LOGFILE2, "a+", stdout); // TEST ONLY
 	freopen("/dev/null", "r", stdin);
 	freopen("/dev/null", "w", stderr);
 
@@ -1040,10 +1043,10 @@ static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool fi
 			req->itc_locate_mbox_from_itcgws_request.itccoord_mboxid = itccoord_inst.mbox_id;
 			strcpy(req->itc_locate_mbox_from_itcgws_request.mboxname, mbox_name);
 
-			iter = tfind(ITC_GATEWAY_MBOX_TCP_CLI_NAME, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
+			iter = tfind(ITC_GATEWAY_MBOX_TCP_CLI_NAME2, &itccoord_inst.mbox_tree, mbox_name_cmpfunc); // TEST ONLY
 			if(iter == NULL)
 			{
-				ITC_ERROR("Failed to locate mailbox \"%s\"", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+				ITC_ERROR("Failed to locate mailbox \"%s\"", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
 				itc_free(&req);
 				return;
 			} else

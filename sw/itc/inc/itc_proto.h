@@ -79,13 +79,14 @@ struct itc_get_namespace_reply {
 	char		namespace[1];
 };
 
-#define ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST	(ITC_PROTO_MSG_BASE + 0x8)
+#define ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST	(ITC_PROTO_MSG_BASE + 0xA)
 struct itc_locate_mbox_from_itcgws_request {
 	uint32_t	msgno;
+	itc_mbox_id_t	itccoord_mboxid;
 	char		mboxname[1];
 };
 
-#define ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY	(ITC_PROTO_MSG_BASE + 0x9)
+#define ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY	(ITC_PROTO_MSG_BASE + 0xB)
 struct itc_locate_mbox_from_itcgws_reply {
 	uint32_t	msgno;
 	itc_mbox_id_t	mbox_id;

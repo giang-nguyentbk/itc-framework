@@ -40,6 +40,10 @@
 *******************************************************************************/
 #define BROADCAST_PORT2		11112 // TEST ONLY
 #define TCP_LISTENING_PORT2	22223 // TEST ONLY
+#define ITC_GATEWAY_MBOX_UDP_NAME2	"itc_gw_udp_mailbox2" // TEST ONLY
+#define ITC_GATEWAY_MBOX_TCP_SER_NAME2	"itc_gw_tcp_server_mailbox2" // TEST ONLY
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itc_gw_tcp_client_mailbox2" // TEST ONLY
+#define ITC_ITCGWS_LOGFILE2 		"itcgws.log" // TEST ONLY
 
 union itc_msg {
 	uint32_t					msgno;
@@ -65,6 +69,7 @@ struct tcp_peer_info {
 struct itcgw_instance {
 	/* Our own host stuff's part */
 	char					namespace[ITC_MAX_NAME_LENGTH];
+	itc_mbox_id_t				itccoord_mbox_id;
 
 	/* UDP part */
 	int					udp_fd;
@@ -371,7 +376,7 @@ static void itcgw_exit_handler(void)
 static bool setup_log_file(void)
 {
 	/* Setup a log file for our itcgws daemon */
-	freopen(ITC_ITCGWS_LOGFILE, "a+", stdout);
+	freopen(ITC_ITCGWS_LOGFILE2, "a+", stdout); // TEST ONLY
 	freopen("/dev/null", "r", stdin);
 	freopen("/dev/null", "w", stderr);
 
@@ -411,15 +416,15 @@ static bool setup_udp_mailbox(void)
 		return false;
 	}
 
-	itcgw_inst.udp_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_UDP_NAME, ITC_NO_NAMESPACE);
+	itcgw_inst.udp_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_UDP_NAME2, ITC_NO_NAMESPACE); // TEST ONLY
 	if(itcgw_inst.udp_mbox_id == ITC_NO_MBOX_ID)
 	{
-		ITC_ERROR("Failed to create mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME);
+		ITC_ERROR("Failed to create mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
 		return false;
 	}
 
 	itcgw_inst.udp_mbox_fd = itc_get_fd(itcgw_inst.udp_mbox_id);
-	ITC_INFO("Setup UDP mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_UDP_NAME);
+	ITC_INFO("Setup UDP mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
 	return true;
 }
 
@@ -454,7 +459,7 @@ static bool setup_udp_server(void)
 	memset(&myUDPaddr, 0, size);
 	myUDPaddr.sin_family = AF_INET;
 	myUDPaddr.sin_addr.s_addr = INADDR_ANY;
-	myUDPaddr.sin_port = htons(ITC_GATEWAY_BROADCAST_PORT);
+	myUDPaddr.sin_port = htons(BROADCAST_PORT2); // TEST ONLY
 
 	res = bind(itcgw_inst.udp_fd, (struct sockaddr *)((void *)&myUDPaddr), size);
 	if(res < 0)
@@ -475,7 +480,7 @@ static bool setup_udp_peer(void)
 	/* This is address configuration of peer broadcast UDP */
 	memset(&itcgw_inst.udp_peer_addr, 0, sizeof(struct sockaddr_in));
 	itcgw_inst.udp_peer_addr.sin_family = AF_INET;
-	itcgw_inst.udp_peer_addr.sin_port = htons((short)(BROADCAST_PORT2 & 0xFFFF)); // TEST ONLY
+	itcgw_inst.udp_peer_addr.sin_port = htons((short)(ITC_GATEWAY_BROADCAST_PORT & 0xFFFF));
 	itcgw_inst.udp_peer_addr.sin_addr.s_addr = INADDR_BROADCAST;
 
 	for(int i = 0; i < ITC_GATEWAY_MAX_PEERS; i++)
@@ -483,7 +488,7 @@ static bool setup_udp_peer(void)
 		strcpy(itcgw_inst.udp_peers[i].addr, ITC_GATEWAY_NO_ADDR_STRING); 
 	}
 
-	ITC_INFO("Setup UDP peer successfully on %s:%d", inet_ntoa(itcgw_inst.udp_peer_addr.sin_addr), BROADCAST_PORT2); // TEST ONLY
+	ITC_INFO("Setup UDP peer successfully on %s:%d", inet_ntoa(itcgw_inst.udp_peer_addr.sin_addr), ITC_GATEWAY_BROADCAST_PORT);
 	return true;
 }
 
@@ -508,9 +513,9 @@ static bool setup_tcp_server(void)
 	memset(&itcgw_inst.tcp_server_addr, 0, sizeof(struct sockaddr_in));
 	size_t size = sizeof(struct sockaddr_in);
 	itcgw_inst.tcp_server_addr.sin_family = AF_INET;
-	// itcgw_inst.tcp_server_addr.sin_addr = get_ip_address_from_network_interface(tcpfd, ITC_GATEWAY_NET_INTERFACE_ETH0);
-	itcgw_inst.tcp_server_addr.sin_addr = get_ip_address_from_network_interface(tcpfd, ITC_GATEWAY_NET_INTERFACE_LO); // TEST ONLY
-	itcgw_inst.tcp_server_addr.sin_port = htons(ITC_GATEWAY_TCP_LISTENING_PORT);
+	itcgw_inst.tcp_server_addr.sin_addr = get_ip_address_from_network_interface(tcpfd, ITC_GATEWAY_NET_INTERFACE_ETH0);
+	// itcgw_inst.tcp_server_addr.sin_addr = get_ip_address_from_network_interface(tcpfd, ITC_GATEWAY_NET_INTERFACE_LO); // TEST ONLY
+	itcgw_inst.tcp_server_addr.sin_port = htons(TCP_LISTENING_PORT2); // TEST ONLY
 
 	res = bind(tcpfd, (struct sockaddr *)&itcgw_inst.tcp_server_addr, size);
 	if(res < 0)
@@ -690,7 +695,7 @@ static bool handle_receive_broadcast_msg(int sockfd)
 
 	if(itc_send(&req, itcgw_inst.tcp_client_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		ITC_ERROR("Failed to send ITCGW_UDP_ADD_PEER to mailbox %s!", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+		ITC_ERROR("Failed to send ITCGW_UDP_ADD_PEER to mailbox %s!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2);
 		itc_free(&req);
 		return false;
 	}
@@ -905,15 +910,15 @@ static void* tcp_server_loop(void *data)
 
 static bool setup_tcp_server_mailbox(void)
 {
-	itcgw_inst.tcp_server_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_TCP_SER_NAME, ITC_NO_NAMESPACE);
+	itcgw_inst.tcp_server_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_TCP_SER_NAME2, ITC_NO_NAMESPACE); // TEST ONLY
 	if(itcgw_inst.tcp_server_mbox_id == ITC_NO_MBOX_ID)
 	{
-		ITC_ERROR("Failed to create mailbox %s", ITC_GATEWAY_MBOX_TCP_SER_NAME);
+		ITC_ERROR("Failed to create mailbox %s", ITC_GATEWAY_MBOX_TCP_SER_NAME2); // TEST ONLY
 		return false;
 	}
 
 	itcgw_inst.tcp_server_mbox_fd = itc_get_fd(itcgw_inst.tcp_server_mbox_id);
-	ITC_INFO("Create TCP server mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_SER_NAME);
+	ITC_INFO("Create TCP server mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_SER_NAME2); // TEST ONLY
 	return true;
 }
 
@@ -957,7 +962,7 @@ static bool handle_accept_new_connection(int sockfd)
 	char addr[30];
 	ITC_INFO("Receiving new connection from a peer client tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
 	// snprintf(addr, 30, "tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ITC_GATEWAY_TCP_LISTENING_PORT);
-	snprintf(addr, 30, "tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), TCP_LISTENING_PORT2); // TEST ONLY
+	snprintf(addr, 30, "tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ITC_GATEWAY_TCP_LISTENING_PORT);
 
 	iter = tfind(addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
 	if(iter != NULL)
@@ -1079,7 +1084,7 @@ static bool delete_tcp_peer_resource(int sockfd)
 
 			if(itc_send(&req, itcgw_inst.udp_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 			{
-				ITC_INFO("Failed to send ITCGW_UDP_RMV_PEER to mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME);
+				ITC_INFO("Failed to send ITCGW_UDP_RMV_PEER to mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
 				itc_free(&req);
 				return false;
 			}
@@ -1212,15 +1217,15 @@ static void* tcp_client_loop(void *data)
 
 static bool setup_tcp_client_mailbox(void)
 {
-	itcgw_inst.tcp_client_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_TCP_CLI_NAME, ITC_NO_NAMESPACE);
+	itcgw_inst.tcp_client_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_TCP_CLI_NAME2, ITC_NO_NAMESPACE); // TEST ONLY
 	if(itcgw_inst.tcp_client_mbox_id == ITC_NO_MBOX_ID)
 	{
-		ITC_ERROR("Failed to create mailbox %s", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+		ITC_ERROR("Failed to create mailbox %s", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
 		return false;
 	}
 
 	itcgw_inst.tcp_client_mbox_fd = itc_get_fd(itcgw_inst.tcp_client_mbox_id);
-	ITC_INFO("Create TCP client mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+	ITC_INFO("Create TCP client mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
 	return true;
 }
 
@@ -1261,7 +1266,9 @@ static bool handle_receive_itcmsg_at_client(int sockfd)
 		break;
 	
 	case ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST:
-		ITC_INFO("Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to for mbox_name \"%s\"", msg->itc_locate_mbox_from_itcgws_request.mboxname);
+		ITC_INFO("Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST from itccoord mbox_id 0x%08x", msg->itc_locate_mbox_from_itcgws_request.itccoord_mboxid);
+		ITC_INFO("Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST asked to locate mbox_name \"%s\"", msg->itc_locate_mbox_from_itcgws_request.mboxname);
+		itcgw_inst.itccoord_mbox_id = msg->itc_locate_mbox_from_itcgws_request.itccoord_mboxid;
 		handle_locate_mbox_request(msg);
 		break;
 
@@ -1764,7 +1771,7 @@ static bool handle_locate_mbox_request(union itc_msg *msg)
 	}
 
 	free(rep);
-	ITC_INFO("Sent ITCGW_LOCATE_MBOX_REQUEST successfully!");
+	ITC_INFO("Broadcast ITCGW_LOCATE_MBOX_REQUEST to all peers successfully!");
 	return true;
 }
 
@@ -1876,16 +1883,7 @@ static bool handle_receive_locate_mbox_reply(int sockfd, struct itcgw_header *he
 	msg->itc_locate_mbox_from_itcgws_reply.mbox_id = rep->mbox_id;
 	strcpy(msg->itc_locate_mbox_from_itcgws_reply.namespace, (*iter)->namespace);
 
-	int32_t timeout = 1000;
-	itc_mbox_id_t itccoord_mbox_id = itc_locate_sync(timeout, ITC_COORD_MBOX_NAME, 1, NULL, NULL);
-	if(itccoord_mbox_id == ITC_NO_MBOX_ID)
-	{
-		ITC_ERROR("Failed to locate mailbox \"%s\" even after %d ms!", ITC_COORD_MBOX_NAME, timeout);
-		itc_free(&msg);
-		return false;
-	}
-
-	if(itc_send(&msg, itccoord_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
+	if(itc_send(&msg, itcgw_inst.itccoord_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
 		ITC_ERROR("Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itccoord!");
 		itc_free(&msg);
