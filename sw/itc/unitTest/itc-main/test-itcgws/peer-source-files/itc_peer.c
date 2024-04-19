@@ -27,6 +27,9 @@
 /*****************************************************************************\/
 *****                      INTERNAL TYPES IN ITC.C                         *****
 *******************************************************************************/
+#define ITC_GATEWAY_MBOX_UDP_NAME2	"itc_gw_udp_mailbox2" // TEST ONLY
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itc_gw_tcp_client_mailbox2" // TEST ONLY
+
 union itc_msg {
 	uint32_t				msgno;
 
@@ -1281,17 +1284,17 @@ bool itc_get_namespace_zz(int32_t timeout, char *name)
 	req->itc_get_namespace_request.mbox_id = my_threadlocal_mbox->mbox_id;
 
 	/* Instead of sending get namespace request to TCP client mailbox of itc gateway, we will send it to UDP mailbox to secure performance for TCP client thread */
-	itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_UDP_NAME, 1, NULL, NULL);
+	itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_UDP_NAME2, 1, NULL, NULL); // TEST ONLY
 	if(itcgw_mboxid == ITC_NO_MBOX_ID)
 	{
-		ITC_DEBUG("Failed to locate mailbox %s even after %d ms!", ITC_GATEWAY_MBOX_UDP_NAME, timeout);
+		ITC_DEBUG("Failed to locate mailbox %s even after %d ms!", ITC_GATEWAY_MBOX_UDP_NAME2, timeout); // TEST ONLY
 		itc_free(&req);
 		return false;
 	}
 
 	if(itc_send(&req, itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		ITC_DEBUG("Failed to send message to mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME);
+		ITC_DEBUG("Failed to send message to mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
 		itc_free(&req);
 		return false;
 	}
@@ -1507,17 +1510,17 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	memcpy(req->itc_fwd_data_to_itcgws.payload, message, payload_len);
 
 	int32_t timeout = 1000; // Wait max 1000 ms for locating mailbox name
-	itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_TCP_CLI_NAME, 1, NULL, NULL);
+	itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_TCP_CLI_NAME2, 1, NULL, NULL); // TEST ONLY
 	if(itcgw_mboxid == ITC_NO_MBOX_ID)
 	{
-		ITC_DEBUG("Failed to locate mailbox %s even after %d ms!", ITC_GATEWAY_MBOX_TCP_CLI_NAME, timeout);
+		ITC_DEBUG("Failed to locate mailbox %s even after %d ms!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2, timeout); // TEST ONLY
 		itc_free(&req);
 		return false;
 	}
 
 	if(itc_send(&req, itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		ITC_DEBUG("Failed to send message to mailbox %s!", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+		ITC_DEBUG("Failed to send message to mailbox %s!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
 		itc_free(&req);
 		return false;
 	}
