@@ -79,7 +79,9 @@ int main(int argc, char* argv[])
 
 	itc_mbox_id_t sender_mbox_id = test_itc_create_mailbox("senderMailbox", 0);
 
-	clock_gettime(CLOCK_REALTIME, &t_start);
+
+	printf("\tDEBUG: sender - Waiting a bit to ensure two host are connected!\n");
+	sleep(10); // Wait a bit before two itcgws connected, ready to locating mailbox outside our host
 
 	// itc_mbox_id_t receiver_mbox_id = 0x00200001;
 	bool is_external = false;
@@ -88,6 +90,7 @@ int main(int argc, char* argv[])
 
 	if(receiver_mbox_id != ITC_NO_MBOX_ID)
 	{
+		clock_gettime(CLOCK_REALTIME, &t_start);
 		if(is_external)
 		{
 			test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, namespace);
@@ -95,15 +98,13 @@ int main(int argc, char* argv[])
 		{
 			test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, NULL);
 		}
+		clock_gettime(CLOCK_REALTIME, &t_end);
 	} else
 	{
-		printf("\tDEBUG: sender - Failed to locate receiver mailbox!");
-		return -1;
+		printf("\tDEBUG: sender - Failed to locate receiver mailbox!\n");
+		isTerminated = true;
 	}
-
 	
-
-	clock_gettime(CLOCK_REALTIME, &t_end);
 	unsigned long int difftime = calc_time_diff(t_start, t_end);
 	printf("\tDEBUG: sender - Time needed to send message = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
 
@@ -134,7 +135,8 @@ int main(int argc, char* argv[])
 						send_msg->InterfaceAbcModuleXyzActivateReq.temperature = 1;
 					} else
 					{
-						return -1;
+						isTerminated = true;
+						break;
 					}
 					test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, namespace);
 					break;

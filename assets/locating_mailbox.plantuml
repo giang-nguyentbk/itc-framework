@@ -1,0 +1,45 @@
+@startuml
+!pragma teoz true
+box "System Architecture" #Lavender
+box "Host 1" #Azure
+participant sender_thread
+participant itc_system
+participant itccoord
+participant itcgws
+end box
+
+box "Host Nth" #LemonChiffon
+participant itcgws_nth
+participant itccoord_nth
+participant itc_system_nth
+participant receiver_thread
+end box
+end box
+
+== Locating Mailbox Procedure ==
+sender_thread -> itc_system: itc_locate_sync(external)
+itc_system -> itc_system: locate_local_mbox()
+itc_system --> sender_thread: mailbox_id
+itc_system -> itccoord: **ITC_LOCATE_MBOX_SYNC_REQUEST**
+itccoord -> itccoord: handle_locate_mbox()
+itccoord -> itcgws: **ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST**
+
+itcgws -> itcgws_nth: broadcast **ITCGW_LOCATE_MBOX_REQUEST**
+
+itcgws_nth -> itc_system_nth: itc_locate_sync(internal)
+itc_system_nth -> itc_system_nth: locate_local_mbox()
+itc_system_nth -> itccoord_nth: **ITC_LOCATE_MBOX_SYNC_REQUEST**
+itccoord_nth-> itccoord_nth: handle_locate_mbox()
+itccoord_nth -> itcgws_nth: **ITC_LOCATE_MBOX_SYNC_REPLY**
+
+itcgws_nth -> itcgws: **ITCGW_LOCATE_MBOX_REPLY**
+
+itcgws -> itccoord: **ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY**
+itccoord -> itc_system: **ITC_LOCATE_MBOX_SYNC_REPLY**
+itc_system --> sender_thread: mailbox_id
+note right of sender_thread
+    + "namespace" if from other host
+end note
+== Locating Mailbox Procedure ==
+
+@enduml
