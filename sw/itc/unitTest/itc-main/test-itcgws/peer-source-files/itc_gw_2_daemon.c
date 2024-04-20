@@ -168,6 +168,7 @@ static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header);
 static bool handle_receive_locate_mbox(int sockfd, struct itcgw_header *header);
 static bool send_locate_mbox_reply(int sockfd, itc_mbox_id_t mbox_id);
 static bool handle_receive_locate_mbox_reply(int sockfd, struct itcgw_header *header);
+static bool itcgws_config(void);
 
 
 /*****************************************************************************\/
@@ -228,23 +229,14 @@ int main(int argc, char* argv[])
 		ITC_INFO("Starting itcgws, but not as a daemon...");
 	}
 
-	// At normal termination we just clean up our resources by registration a exit_handler
-	atexit(itcgw_exit_handler);
-
-	if(!setup_rc() || !setup_udp_mailbox() ||		\
-	!setup_udp_server() || !setup_udp_peer() ||		\
-	!setup_broadcast_timer() || !setup_tcp_server() ||	\
-	!create_broadcast_message() || !setup_tcp_threads())
+	if(!itcgws_config())
 	{
 		ITC_ERROR("Failed to setup necessary modules for itcgw!");
 		exit(EXIT_FAILURE);
 	}
 
-	if(!start_tcp_server_thread() || !start_tcp_client_thread())
-	{
-		ITC_ERROR("Failed to start tcp threads!");
-		exit(EXIT_FAILURE);
-	}
+	// At normal termination we just clean up our resources by registration a exit_handler
+	atexit(itcgw_exit_handler);
 
 	int res;
 	fd_set fdset;
@@ -325,8 +317,6 @@ static void itcgw_sig_handler(int signo)
 
 static void itcgw_exit_handler(void)
 {
-	free(rc);
-
 	ITC_INFO("Closing file descriptors...");
 	close(itcgw_inst.udp_fd);
 	close(itcgw_inst.tcp_server_fd);
@@ -370,7 +360,23 @@ static void itcgw_exit_handler(void)
 	ITC_INFO("Exiting ITC system...");
 	itc_exit();
 
+	free(rc);
 	ITC_INFO("ITCGW exit handler finished!");
+}
+
+static bool itcgws_config(void)
+{
+	if(!setup_rc())
+	{
+		free(rc);
+		return false;
+	} else if(!setup_udp_mailbox() || !setup_udp_server() || !setup_udp_peer() || !setup_broadcast_timer() || !setup_tcp_server() \
+		|| !create_broadcast_message() || !setup_tcp_threads() || !start_tcp_server_thread() || !start_tcp_client_thread())
+	{
+		return false;
+	}
+
+	return true;
 }
 
 static bool setup_log_file(void)
@@ -779,6 +785,7 @@ static bool setup_tcp_threads(void)
 	if(res != 0)
 	{
 		ITC_ERROR("Failed to pthread_mutex_init server, error code = %d", res);
+		pthread_key_delete(itcgw_inst.tcp_server_destruct_key);
 		return false;
 	}
 
@@ -786,6 +793,8 @@ static bool setup_tcp_threads(void)
 	if(res != 0)
 	{
 		ITC_ERROR("Failed to pthread_key_create client, error code = %d", res);
+		pthread_key_delete(itcgw_inst.tcp_server_destruct_key);
+		pthread_mutex_destroy(&itcgw_inst.tcp_server_mtx);
 		return false;
 	}
 
@@ -793,6 +802,9 @@ static bool setup_tcp_threads(void)
 	if(res != 0)
 	{
 		ITC_ERROR("Failed to pthread_mutex_init client, error code = %d", res);
+		pthread_key_delete(itcgw_inst.tcp_server_destruct_key);
+		pthread_mutex_destroy(&itcgw_inst.tcp_server_mtx);
+		pthread_key_delete(itcgw_inst.tcp_client_destruct_key);
 		return false;
 	}
 
@@ -1757,6 +1769,7 @@ static bool handle_locate_mbox_request(union itc_msg *msg)
 	strcpy(rep->payload.itcgw_locate_mbox_request.mboxname, msg->itc_locate_mbox_from_itcgws_request.mboxname);
 
 	/* Send this locate mbox request to all connected TCP peers asking them to see if they have this mboxname */
+	int count = 0;
 	for(int i = 0; i < ITC_GATEWAY_MAX_PEERS; i++)
 	{
 		if(itcgw_inst.tcp_client_peers[i].fd != -1)
@@ -1766,12 +1779,36 @@ static bool handle_locate_mbox_request(union itc_msg *msg)
 			{
 				ITC_ERROR("Failed to send ITCGW_LOCATE_MBOX_REQUEST, errno = %d!", errno);
 				continue;
+			} else
+			{
+				count++;
 			}
 		}
 	}
 
+	if(count == 0)
+	{
+		free(rep);
+		ITC_ABN("Could not send ITCGW_LOCATE_MBOX_REQUEST since client list have no connected hosts yet!", count);
+		union itc_msg *msg;
+		msg = itc_alloc(offsetof(struct itc_locate_mbox_from_itcgws_reply, namespace) + 1, ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY);
+
+		msg->itc_locate_mbox_from_itcgws_reply.mbox_id = ITC_NO_MBOX_ID;
+		strcpy(msg->itc_locate_mbox_from_itcgws_reply.namespace, "");
+
+		if(itc_send(&msg, itcgw_inst.itccoord_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
+		{
+			ITC_ERROR("Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord!");
+			itc_free(&msg);
+			return false;
+		}
+		
+		ITC_INFO("Sent back ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord without any results!");
+		return true;
+	}
+
 	free(rep);
-	ITC_INFO("Broadcast ITCGW_LOCATE_MBOX_REQUEST to all peers successfully!");
+	ITC_INFO("Broadcast ITCGW_LOCATE_MBOX_REQUEST to all %d peers successfully!", count);
 	return true;
 }
 
@@ -1885,12 +1922,12 @@ static bool handle_receive_locate_mbox_reply(int sockfd, struct itcgw_header *he
 
 	if(itc_send(&msg, itcgw_inst.itccoord_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		ITC_ERROR("Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itccoord!");
+		ITC_ERROR("Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord!");
 		itc_free(&msg);
 		return false;
 	}
 	
-	ITC_INFO("Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itccoord successfully!");
+	ITC_INFO("Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord successfully!");
 	return true;
 }
 

@@ -209,9 +209,6 @@ int main(int argc, char* argv[])
 		ITC_INFO("Starting itccoord, but not as a daemon...");
 	}
 
-	// At normal termination we just clean up our resources by registration a exit_handler
-	atexit(itccoord_exit_handler);
-
 	if(!setup_rc())
 	{
 		ITC_ERROR("Failed to setup rc!");
@@ -222,9 +219,12 @@ int main(int argc, char* argv[])
 	{
 		/* itccoord is already running 
 		** If it has died unexpectedly, you may need to remove /tmp/itc/itccoord/itc_coordinator and restart it again */
-		ITC_ERROR("ITCCOORD already running, no need to start again!");
+		ITC_ABN("ITCCOORD already running, no need to start again!");
 		exit(EXIT_FAILURE);
 	}
+
+	// At normal termination we just clean up our resources by registration a exit_handler
+	atexit(itccoord_exit_handler);
 
 	if(create_itccoord_dir() == false)
 	{
@@ -470,6 +470,7 @@ static void itccoord_exit_handler(void)
 		}
 	}
 
+	close(itccoord_inst.sockfd);
 
 	unlink(ITC_ITCCOORD_FILENAME);
 	rmdir(ITC_SOCKET_FOLDER);
@@ -491,6 +492,7 @@ static void itccoord_exit_handler(void)
 	itc_exit();
 
 	free(rc);
+	ITC_INFO("ITCCOORD exit handler finished!");
 }
 
 static bool setup_log_file(void)

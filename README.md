@@ -10,6 +10,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 10164 lines (updated 1/4/2024)
 -> Total: 19406 lines (updated 19/4/2024)
 -> Total: 22682 lines (updated 20/4/2024)
+-> Total: 28381 lines (updated 20/4/2024)
 ```
 
 ## Fundamental knowledge:
@@ -114,7 +115,21 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
         also called pools, which will help you efficiently ultilize heap memories.
 ```
 
-### 4. Unit Test
+## 4. Sequence Diagram
+
++ [ITC API](https://www.plantuml.com/plantuml/png/dLPVRzis47_NfxYw3tDK5tatuA6QxNG1ajYpdNN5DX2CT9A9IgHBKawSJp_Ib2bGje9W3qMj-tFt-zsVOxueJQMkgpBwi9Eqg2Xe5A-WPOtHatY1mVgWD5QGo7JBDAQwbZW0f_fTA3s0ZychaK6qCt5OodQKQz1RYJHBdDdjPWekYZ6-mqhmwPRbkU212zCfgIYx92nBaPw9ZOoMPr9rKFlgvxcn4kcF27a61b5NcmeXiwwmU5OdU_z_D9c09PCiRs4oYGefwfqF08mp7VclpxzwpHWih-5LZx9aIYDdl031mU94_GyVNEjgTssCha-6zWSv_cASQY47xmZdnHP1QPkHPvPDr68dHzXDlqmatuUnrrhaZH0-__rHOlPlaD1YFhP3emDe7BZG298LMmqYRuiC0COT52iuBO4fWujdb1iw1uiBh9ldvPC5c9pk5-Dg-12MmIUW7EoCQ8sPb-P2WjwQ33ifKbIgfM0v-aaPmzhElosN4n3vGbmrejQgwpCrUesDnwcstSAcHoFIQFjB7DeDEQsmBNXWxbW2zHa3Az-GE3P3IXuMczkRxsIwMAnc99dDoFrlYx_Yk6TgagoT4Is0mXFZL1v08JMB3reY1jaQDkEJ4s5dW-NMje-sKmyLUyKHLAhWuX9fQsF0bMwwW78dHwLeWJ01cbN6V6ioe8HFJgcAg7NkvFNEFMngpWI7k8dJPQJiToyXg-tduq_M66xp9g42erEqGZ-atghZignrm5mBq5GMg5qakmxo1NxMM6DlZ0UXMNu0YIcoFKfuEi3EUPDKy0oe-OTxv9haMT-sMEn2Rr6U4AFghhetjiiEQxlLBUhGsK2mfLBSNWo__c5gUuYFQUrUg1rD4JvCuE7nxcxK3FhDjncP9Pk4R1R4V7_zjevZ1qfOcYw41sETh94rTMx6FuuRRDxUm-dEG5E-lZ7m1aFDAXIrlkhjnuR-mA2fkHHLNnjzYZU6vus3jNAW84XrgHSotPjUT0Dvp3T2FbCPTDHXT9Xi4ByAL_qKpcOeSbLlM-uXz_JBEmJmPfYA364pNSAEseSKj0XAR6SyRpXObUSvCYelEb52FdetexQYi1LAg-Z_79WCItpFan7Q3Pith_VWp92UBcZZuiUivmcvz8Qixlzy-mrPOINsFeMhY9Puja85QkAtkPzaO3RiUnA3oq1B6-i0T6ymqASIhQr4NKj-yQmiRB-UcS8HA7yRoDVvXZmaz_FrCfdEoMh-n-DylN4dmZd2uspfts0d2a3rn5dUVO_ZosFXARXQXNzdVZ6okYh_0m00)
+
+![](./assets/locating_mbox_procedure.png?raw=true)
+
++ [Locating Mailbox Procedure](https://www.plantuml.com/plantuml/png/ZLDDRnen4BtxLqpf9QNgeLSagb14FoG8QQ1gSx8Sxu0jhMra3scQNr-lKTmrHjfmGkFtyVncVHr8U3gQbhqvUB4t0WZTCv0_8djmJp3Q_0s41cPUAaqewUXn16-NuX5jW_w4-UO2mSSudZt7OtQ8YbhgWx048S4uAO-YAKuqIHwI-FbOEkShxFvFO54BeY7hkTwGwkAWSNQkz6xdx0KYjwGkcjG7ELHrv56YVintoM5ogEaKbauAqdOFAw7RBkIjTnARM0fCfwpe0ZvywhbDql-sesCSMNc5JuJUYlOT-uywvvpmYTPo4_skIdI45vuJCATSN3UrR6fa0kFnz-sSBzVpsNR1Lv_Nl_dc_cRExnO_VYuss_6OlK1BcXAsQV7b2ZbC0OshkAJ_vMwzud7uzTUcPyDEX4nDMvp0WtUYaI9G54gSlbH5JwIojcvIrwrjNVTbxa3jVLR-nbxVQeAViGVAJOQvfG6xs-LzNKvUJTteEQL_i-5T9ceEMdOv5FBrNx9rXE3rNX6uNObZ47_lOMI5mN0G4aUWTx3ppe0ZXHwK2vIUS2So_8Il8_Hesdy0)
+
+![](./assets/itc_api.png?raw=true)
+
++ [ITC Gateway](https://www.plantuml.com/plantuml/png/hLP_Rzis4FtVd-Bg04CR8Cae8CLc84KLMqaBnArdA-kweI0OwMmJaqYNelkZdxud4QwfMapTnWQI83pUktVlxab-NbbXxBeiUezMHYnA0HRr5x1cZRqx_Gdwiy-LnH9YaosbnSok3VRXw4PyG9MZSNTUwCe2w_TM12KpkHBAmbZ8We8yRfs-J8VS8NBcSka4heN5Z-8pC4AElr25Lax_TZJXtw7tq-643mk9odQ6PcW-eAb3H1EeqBU_7kEelqiXgfl3KglXKixdMWMXep2XTiZnZxPC0df4dV9TxZPmSG4-uukB-cIebSBCmWpVhr5bM1ytki79CsW83E3IQ95dWZeliQh40Ykm6gBpyrFlPy3g3o3rI0FvlUefRH4q_GiDNWy0FAInGneqnqJh-WqKalfHKYr0g-ROPgl1sHdxCpfbJ_yuPQTF1r7zEMjQgk5xlT-WNIPg4kCy1t-QM-WcBFBSO5KtuNBWSfQ2DOWkIk1oeRH144K1TnlATN0hmDpe4knILh2abV0OEKGIpn_i08wFcoPv7Ov78pv9akdniIUITxsxYGrj9urk9JJiFHAjsCd9VqSBYgjtprg00yZSy1y_wNb4_2i-4P-Th-56lN3zTjcj5jT9ob_5usGsYOS9doP_tIQpr1CbmALUTqL19MWQAv6viNKIyVDtPnBYCRbv6nxDBx08GC6HUByMJTeBKSmtqv1QGRLnOwuLFkhOBkUfmrWpEe0rsVcFlScwrZgwtvliqDxSsGFsKzuCDH7s9hl76opapUZ7teowlCa2tWpNRvVzHMz63_Hc59Z9ptcJ7SwRpFFcrReezl9cu6rAvnjBGV8fMmgrmFQ5RrzvI0RlpUva6ByUtTua_9-t__ANhz9aUbNh45_IfIIzdR1wD2I8dnKGar-z6V5HdCOyVSqRSMSj9Nq8rtWXh4L5Ja8GTtG7fCsuSzdMZYJl_vXJ2AIosjck8e-AmX_rFYj7lnq_8dh_Z2STDUcIusBRZw3mlaxnXDBHh0nQFvr23jThjscr8k3D9fLkPl2H7Z48VOCPIeBkD_6I8bnImWepEPSrLIUZGskviUs2xVUt_MU_nuRHXP6iigxjR1EWnv71_Dtt2vGLrENZ9_VDP8eb1O9FHVTGtlMVX-ELzs02vRsuNzw3swkyZ-EzLlqtmdJyz-uRWG8FwpiyagulwiyfRrqMNm40)
+
+![](./assets/itc_gateway.png?raw=true)
+
+### 5. Unit Test
 + Generalised Malloc:
 
 ![](./assets/malloc-UT.png?raw=true)
@@ -136,7 +151,7 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 ![](./assets/queue-UT.png?raw=true)
 
 
-### 5. Daemon and Logging
+### 6. Daemon and Logging
 + itccoord:
 
 ![](./assets/itccoord_log.png?raw=true)
@@ -147,7 +162,7 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 
 
 
-### 6. Future Improvements
+### 7. Future Improvements
 ```
 1. One message can be only sent to one receiver:
 	+ The current implementation is implicitly understood as Single Input Single Out SISO, which means a sender

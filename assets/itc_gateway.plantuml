@@ -1,0 +1,159 @@
+@startuml
+!pragma teoz true
+box "System Architecture" #Lavender
+box "Host 1"
+participant Mailbox_A
+participant ITC_System_1
+box "ITC Gateway 1" #Azure
+participant "UDP_1"
+participant "TCP_Client_1"
+participant "TCP_Server_1"
+end box
+end box
+
+box "Host 2"
+box "ITC Gateway 2" #LemonChiffon
+participant "TCP_Server_2"
+participant "TCP_Client_2"
+participant "UDP_2"
+end box
+participant ITC_System_2
+participant Mailbox_B
+end box
+end box
+
+== ITC Gateway ==
+== Connect Sequence ==
+UDP_1 -> UDP_2: Broadcast messages to 255.255.255.255:11111 every 10s
+note over UDP_1
+    Broadcast Message:
+    ITCGW listening on
+    tcp://192.168.1.6:22222/
+end note
+
+& note over UDP_2
+    Add TCP_Server_1 listening
+    address to UDP_2 BST tree
+    and ignore all broadcast
+    messages from this host
+end note
+
+UDP_2 -> TCP_Client_2: **ITCGW_UDP_ADD_PEER**
+note over TCP_Client_2
+    Add TCP_Server_1 address
+    to TCP_Client_2 tree
+end note
+
+TCP_Client_2 --[#green]> TCP_Server_1: connect()
+
+note over TCP_Server_1
+    Add TCP_Client_2
+    address to BST tree
+end note
+
+TCP_Client_2 -> TCP_Server_1: **ITCGW_GET_NAMESPACE_REQUEST**
+note over TCP_Server_1
+    Add partner namespace
+    to BST tree
+end note
+TCP_Server_1 -> TCP_Client_2: **ITCGW_GET_NAMESPACE_REPLY**
+note over TCP_Client_2
+    Add partner namespace
+    to BST tree
+end note
+
+note over TCP_Client_2 #aqua
+    Half connection sequence done!
+end note
+
+UDP_2 -> UDP_1: Broadcast messages to 255.255.255.255:11111 every 10s
+note over UDP_2
+    Broadcast Message:
+    ITCGW listening on
+    tcp://192.168.1.15:22222/
+end note
+
+& note over UDP_1
+    Add TCP_Server_2 listening
+    address to UDP_1 BST tree
+    and ignore all broadcast
+    messages from this host
+end note
+
+UDP_1 -> TCP_Client_1: **ITCGW_UDP_ADD_PEER**
+note over TCP_Client_1
+    Add TCP_Server_2 address
+    to TCP_Client_1 tree
+end note
+
+TCP_Client_1 --[#green]> TCP_Server_2: connect()
+
+note over TCP_Server_2
+    Add TCP_Client_1
+    address to BST tree
+end note
+
+TCP_Client_1 -> TCP_Server_2: **ITCGW_GET_NAMESPACE_REQUEST**
+note over TCP_Server_2
+    Add partner namespace
+    to BST tree
+end note
+TCP_Server_2 -> TCP_Client_1: **ITCGW_GET_NAMESPACE_REPLY**
+note over TCP_Client_1
+    Add partner namespace
+    to BST tree
+end note
+
+note over TCP_Client_1 #aqua
+    Full connection sequence done!
+end note
+
+== Connect Sequence ==
+
+== Message Exchange Sequence ==
+
+Mailbox_A -> ITC_System_1: **MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ**
+ITC_System_1 -> TCP_Client_1: **ITC_FWD_DATA_TO_ITCGWS**
+note over ITC_System_1
+    Flatten the above itc_message
+    and packed it into this signal
+end note
+TCP_Client_1 -> TCP_Server_2: **ITCGW_ITC_DATA_FWD**
+note over TCP_Client_1
+    Packed it into this TCP packet
+end note
+
+& note over TCP_Server_2
+    Re-interpret TCP packet
+    into itc_message and send
+    to mailbox whose "receiver"
+    mbox_id specified in the message
+end note
+
+TCP_Server_2 -> Mailbox_B: **MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ**
+
+
+== Message Exchange Sequence ==
+
+== Disconnect Sequence ==
+
+TCP_Server_2 --[#red]> TCP_Client_1: close()
+note over TCP_Client_1
+    Remove TCP_Server_2 address
+    from BST tree
+end note
+TCP_Client_2 --[#red]> TCP_Server_1: close()
+note over TCP_Server_1
+    Remove TCP_Client_2 address
+    from BST tree
+end note
+TCP_Server_1 -> UDP_1: **ITCGW_UDP_RMV_PEER**
+note over UDP_1
+    Remove TCP_Server_2 address
+    from BST tree
+end note
+
+== Disconnect Sequence ==
+
+== ITC Gateway ==
+@enduml

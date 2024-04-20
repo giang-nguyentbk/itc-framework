@@ -1,0 +1,98 @@
+@startuml
+!pragma teoz true
+box "System Architecture" 
+box "Host" #Azure 
+participant threadA
+box "ITC System" #LemonChiffon
+participant itc_main
+participant itc_malloc
+participant itc_local
+participant itc_sysvmq
+participant itc_lsock
+end box
+participant itccoord
+participant itcgws
+end box
+end box
+
+== ITC API ==
+group itccoord init
+itccoord -> itccoord: main()
+itccoord -> itccoord: listening on socket\n"/tmp/itc/itccoord/itc_coordinator"
+itccoord -> itccoord: listening on itccoord mailbox fd
+end
+
+group itc_init
+threadA -> itc_main: itc_init()
+itc_main -[#red]> itccoord: lsock_locate_coord()
+note right of itccoord
+   red signal is mandantory
+end note
+itccoord -[#red]> itc_main: itccoord's mbox_id + an allotted mbox_id for this process
+itc_main -> itc_sysvmq: Starting sysvmq_rx_thread
+itc_sysvmq -> itc_sysvmq: Create sysvmq mailbox
+end
+
+group itc_create_mailbox
+threadA -> itc_main: itc_create_mailbox(name)
+itc_main -> itc_main: allot a mailbox
+itc_main -> itccoord: **ITC_NOTIFY_COORD_ADD_MBOX**
+itccoord -> itccoord: Add mailbox to a binary search tree
+itc_main -> threadA: mailbox_id
+end
+
+group itc_alloc
+threadA -> itc_main: itc_alloc(size, msgno)
+itc_main -> itc_malloc: Allocate an itc_message = admin header + itc_msg
+itc_malloc -> itc_main: itc_message
+itc_main -> threadA: union *itc_msg
+end
+
+group itc_send
+threadA -> itc_main: itc_send(size, msgno)
+itc_main -> itc_local: If threads in same process
+itc_local -> itc_local: Put itc_message to target thread's rx queue
+itc_local -> itc_local: Notify receiver by pthread_cond and event_fd
+itc_main -> itc_sysvmq: If other processes
+note right of itc_sysvmq
+    Send message to other process by msgsnd()
+end note
+itc_main -> itcgws: If namespace != NULL, **ITC_FWD_DATA_TO_ITCGWS**
+note over itcgws
+    Send **ITCGW_ITC_DATA_FWD** to other itcgws
+end note
+end
+
+group itc_receive
+threadA -> itc_main: itc_receive(timeout)
+itc_local -> itc_local: Take itc_message from rx queue
+itc_local -> itc_main: If threads in same process
+
+itc_sysvmq -> itc_sysvmq: Receive message from other process by msgrcv()
+itc_sysvmq -> itc_local: Forward message to local thread by itc_send()
+itc_local -> itc_main: If other processes
+
+itcgws -> itcgws: Receive **ITCGW_ITC_DATA_FWD**
+itcgws -> itc_local: Decode TCP packet to itc_message and forward to itc_sysvmq, and to itc_local then, by itc_send()
+itc_local -> itc_main: If from other hosts
+
+itc_main -> threadA: union *itc_msg
+end
+
+group itc_delete_mailbox
+threadA -> itc_main: itc_delete_mailbox(mbox_id)
+itc_main -> itc_local: Deallocate mailbox rx queue
+itc_main -> itccoord:  **ITC_NOTIFY_COORD_RMV_MBOX**
+itccoord -> itccoord: Remove mailbox from tree
+end
+
+group itc_get_namespace
+threadA -> itc_main: itc_get_namespace()
+itc_main -> itc_main: If namespace already available -> return
+itc_main -> itcgws: Otherwise, send **ITC_GET_NAMESPACE_REQUEST** to itcgws UDP mailbox
+itcgws -> itc_main: **ITC_GET_NAMESPACE_REPLY**
+itc_main -> threadA: namespace
+end
+
+== ITC API ==
+@enduml

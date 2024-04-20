@@ -42,7 +42,7 @@ $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BI
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_1)
 
-$(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+$(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_2)
 
@@ -58,7 +58,7 @@ $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_SENDER)
 
-$(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+$(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
 	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_RECEIVER)
 
@@ -147,17 +147,31 @@ vr:
 	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_RECEIVER)
 
 # After this we have to manually "ps -xj" to find the daemon PID and kill it
-runr:
-	@$(BIN)/$(TARGET_4) -d
-	@$(BIN)/$(TARGET_2) -n "/host_2/" -d
-	$(BIN)/$(TARGET_RECEIVER)
-
 runs:
 	@$(BIN)/$(TARGET_3) -d
-	@$(BIN)/$(TARGET_1) -n "/host_1/" -d
-	$(BIN)/$(TARGET_SENDER)
+	@sleep 1
+	@$(BIN)/$(TARGET_1) -n "/ubuntu/" -d
+	@sleep 1
+	@$(BIN)/$(TARGET_SENDER)
 
-# After this we have to manually "ps -xj" to find the daemon PID and kill it
+runr:
+	@$(BIN)/$(TARGET_4) -d
+	@sleep 1
+	@$(BIN)/$(TARGET_2) -n "/debian/" -d
+	@sleep 1
+	@$(BIN)/$(TARGET_RECEIVER)
+
+
+# After this we have to manually "ps -xj" to find the daemon PID and kill it or kill it automatically by
+proc_itcgws = $(shell ps -ef | grep itc_gw | grep -v grep | awk '{ print $$2 ; }')
+proc_itccoord = $(shell ps -ef | grep itc_coord | grep -v grep | awk '{ print $$2 ; }')
+kill_itcgws = $(if $(proc_itcgws), "kill" "-15" $(proc_itcgws), "echo" "no matching processes")
+kill_itccoord = $(if $(proc_itccoord), "kill" "-15" $(proc_itccoord), "echo" "no matching processes")
+killa:
+	@echo 'proc_itcgws == ['$(proc_itcgws)']'
+	@$(kill_itcgws)
+	@echo 'proc_itccoord == ['$(proc_itccoord)']'
+	@$(kill_itccoord)
 
 
 clean-exe:

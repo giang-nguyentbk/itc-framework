@@ -91,7 +91,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 	res = connect(sd, (struct sockaddr*)&coord_addr, sizeof(coord_addr));
 	if(res < 0)
 	{
-		ITC_DEBUG("Failed to connect()!");
+		ITC_DEBUG("Failed to connect(), errno = %d!", errno);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return false;
 	}

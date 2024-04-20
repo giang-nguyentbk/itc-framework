@@ -97,7 +97,6 @@ static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mai
 static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox);
 static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t to, char *namespace);
 
-
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
@@ -1537,9 +1536,16 @@ void ITC_INFO_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
+	time_t timer;
+	char timestamp[26];
+	struct tm* tm_info;
+	timer = time(NULL);
+	tm_info = localtime(&timer);
+	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
-	fprintf(stdout, "%-10s %-40s msg: %-s\n", "INFO:", fileline, buffer);
+	fprintf(stdout, "%-25s %-10s %-40s msg: %-s\n", timestamp, "INFO:", fileline, buffer);
 	fflush(stdout);
 }
 
@@ -1552,9 +1558,16 @@ void ITC_ERROR_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
+	time_t timer;
+	char timestamp[26];
+	struct tm* tm_info;
+	timer = time(NULL);
+	tm_info = localtime(&timer);
+	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
-	fprintf(stdout, "%-10s %-40s msg: %-s\n", "ERROR:", fileline, buffer);
+	fprintf(stdout, "%-25s %-10s %-40s msg: %-s\n", timestamp, "ERROR:", fileline, buffer);
 	fflush(stdout);
 }
 
@@ -1567,9 +1580,16 @@ void ITC_ABN_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
+	time_t timer;
+	char timestamp[26];
+	struct tm* tm_info;
+	timer = time(NULL);
+	tm_info = localtime(&timer);
+	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
-	fprintf(stdout, "%-10s %-40s msg: %-s\n", "ABN:", fileline, buffer);
+	fprintf(stdout, "%-25s %-10s %-40s msg: %-s\n", timestamp, "ABN:", fileline, buffer);
 	fflush(stdout);
 }
 
@@ -1582,8 +1602,15 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
+	time_t timer;
+	char timestamp[26];
+	struct tm* tm_info;
+	timer = time(NULL);
+	tm_info = localtime(&timer);
+	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
-	fprintf(stdout, "%-10s %-40s msg: %-s\n", "DEBUG:", fileline, buffer);
+	fprintf(stdout, "%-25s %-10s %-40s msg: %-s\n", timestamp, "DEBUG:", fileline, buffer);
 	fflush(stdout);
 }
