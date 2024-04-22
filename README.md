@@ -11,6 +11,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 19406 lines (updated 19/4/2024)
 -> Total: 22682 lines (updated 20/4/2024)
 -> Total: 28381 lines (updated 20/4/2024)
+-> Total: 28385 lines (updated 22/4/2024)
 ```
 
 ## Fundamental knowledge:
@@ -160,9 +161,17 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 
 ![](./assets/itcgws_log.png?raw=true)
 
+### 7. Build static and dynamic library
 
+![](./assets/compilation.png?raw=true)
 
-### 7. Future Improvements
+![](./assets/libitc.png?raw=true)
+
+![](./assets/itccoord_exe.png?raw=true)
+
+![](./assets/itcgws_exe.png?raw=true)
+
+### 8. Future Improvements
 ```
 1. One message can be only sent to one receiver:
 	+ The current implementation is implicitly understood as Single Input Single Out SISO, which means a sender

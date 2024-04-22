@@ -1534,12 +1534,13 @@ void ITC_INFO_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
-	time_t timer;
-	char timestamp[26];
-	struct tm* tm_info;
-	timer = time(NULL);
-	tm_info = localtime(&timer);
-	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	char timestamp[50];
+	struct timespec tv;
+	clock_gettime(CLOCK_REALTIME, &tv);
+	struct tm *timePointerEnd = localtime(&tv.tv_sec);
+	size_t nbytes = strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", timePointerEnd);
+	snprintf(timestamp + nbytes, sizeof(timestamp) - nbytes,
+		"%.9ld", tv.tv_nsec);
 
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
@@ -1556,12 +1557,13 @@ void ITC_ERROR_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
-	time_t timer;
-	char timestamp[26];
-	struct tm* tm_info;
-	timer = time(NULL);
-	tm_info = localtime(&timer);
-	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	char timestamp[50];
+	struct timespec tv;
+	clock_gettime(CLOCK_REALTIME, &tv);
+	struct tm *timePointerEnd = localtime(&tv.tv_sec);
+	size_t nbytes = strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", timePointerEnd);
+	snprintf(timestamp + nbytes, sizeof(timestamp) - nbytes,
+		"%.9ld", tv.tv_nsec);
 
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
@@ -1578,12 +1580,13 @@ void ITC_ABN_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
-	time_t timer;
-	char timestamp[26];
-	struct tm* tm_info;
-	timer = time(NULL);
-	tm_info = localtime(&timer);
-	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	char timestamp[50];
+	struct timespec tv;
+	clock_gettime(CLOCK_REALTIME, &tv);
+	struct tm *timePointerEnd = localtime(&tv.tv_sec);
+	size_t nbytes = strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", timePointerEnd);
+	snprintf(timestamp + nbytes, sizeof(timestamp) - nbytes,
+		"%.9ld", tv.tv_nsec);
 
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
@@ -1600,12 +1603,13 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...)
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
-	time_t timer;
-	char timestamp[26];
-	struct tm* tm_info;
-	timer = time(NULL);
-	tm_info = localtime(&timer);
-	strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	char timestamp[50];
+	struct timespec tv;
+	clock_gettime(CLOCK_REALTIME, &tv);
+	struct tm *timePointerEnd = localtime(&tv.tv_sec);
+	size_t nbytes = strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", timePointerEnd);
+	snprintf(timestamp + nbytes, sizeof(timestamp) - nbytes,
+		"%.9ld", tv.tv_nsec);
 
 	char fileline[40];
 	snprintf(fileline, 40, "%s:%d", file, line);
