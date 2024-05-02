@@ -42,7 +42,8 @@ union itc_msg {
 	uint32_t					msgno;
 
 	struct itc_fwd_data_to_itcgws			itc_fwd_data_to_itcgws;
-	struct itcgw_udp_add_rmv_peer			itcgw_udp_add_rmv_peer;
+	struct itcgw_udp_add_peer			itcgw_udp_add_peer;
+	struct itcgw_udp_rmv_peer			itcgw_udp_rmv_peer;
 	struct itc_get_namespace_request		itc_get_namespace_request;
 	struct itc_get_namespace_reply			itc_get_namespace_reply;
 	struct itc_locate_mbox_from_itcgws_request	itc_locate_mbox_from_itcgws_request;
@@ -69,7 +70,7 @@ struct itcgw_instance {
 	struct sockaddr_in			udp_addr;
 	struct sockaddr_in			udp_peer_addr;
 	int					udp_broadcast_timer_fd;
-	char					udp_broadtcast_msg[ITC_MAX_NAME_LENGTH];
+	char					udp_broadtcast_msg[ITC_MAX_NAME_LENGTH*2];
 	struct udp_peer_info			udp_peers[ITC_GATEWAY_MAX_PEERS];
 	void					*udp_tree;
 	int					udp_mbox_fd;
@@ -145,17 +146,13 @@ static bool handle_receive_tcp_packet_at_server(int sockfd);
 static bool delete_tcp_peer_resource(int sockfd);
 static bool handle_receive_itcmsg_at_client(int sockfd);
 static bool handle_receive_tcp_packet_at_client(int sockfd);
-static bool handle_tcp_client_add_peer(char *addr);
+static bool handle_tcp_client_add_peer(char *addr, char *namespace);
 static bool handle_tcp_client_rmv_peer(int sockfd);
 static bool handle_fwd_data_out(union itc_msg *msg);
 static bool handle_locate_mbox_request(union itc_msg *msg);
 static bool handle_receive_itcmsg_at_udp(int sockfd);
 static bool handle_udp_rmv_peer(char *addr);
 static int recv_data(int sockfd, void *rx_buff, int nr_bytes_to_read);
-static bool handle_receive_get_namespace_request(int sockfd, struct itcgw_header *header);
-static bool handle_receive_get_namespace_reply(int sockfd, struct itcgw_header *header);
-static bool send_get_namespace_request(int sockfd);
-static bool send_get_namespace_reply(int sockfd);
 static bool handle_udp_get_namespace_request(itc_mbox_id_t mbox_id);
 static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header);
 static bool handle_receive_locate_mbox(int sockfd, struct itcgw_header *header);
@@ -173,6 +170,7 @@ int main(int argc, char* argv[])
 
 	int opt = 0;
 	bool is_daemon = false;
+	strcpy(itcgw_inst.namespace, "");
 
 	while((opt = getopt(argc, argv, "dn:")) != -1)
 	{
@@ -198,6 +196,12 @@ int main(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 			break;
 		}
+	}
+
+	if(strcmp(itcgw_inst.namespace, "") == 0)
+	{
+		printf("ERROR: Namespace was not provided!\n");
+		exit(EXIT_FAILURE);
 	}
 
 	if(is_daemon)
@@ -618,7 +622,7 @@ static struct in_addr get_ip_address_from_network_interface(int sockfd, char *in
 
 static bool create_broadcast_message(void)
 {
-	snprintf((char *)itcgw_inst.udp_broadtcast_msg, 255, "Broadcast Message: ITCGW listening on tcp://%s:%hu/", inet_ntoa(itcgw_inst.tcp_server_addr.sin_addr), ntohs(itcgw_inst.tcp_server_addr.sin_port));
+	snprintf((char *)itcgw_inst.udp_broadtcast_msg, ITC_MAX_NAME_LENGTH*2, "Broadcast Message: ITCGW from host <%s> listening on tcp://%s:%hu/", itcgw_inst.namespace, inet_ntoa(itcgw_inst.tcp_server_addr.sin_addr), ntohs(itcgw_inst.tcp_server_addr.sin_port));
 
 	ITC_INFO("Broadcasting message created successfully -> \"%s\"", itcgw_inst.udp_broadtcast_msg);
 	return true;
@@ -647,16 +651,17 @@ static bool handle_receive_broadcast_msg(int sockfd)
 
 	rx_buff[res] = '\0';
 
-	char tcp_ip[20];
+	char tcp_ip[25];
+	char namespace[ITC_MAX_NAME_LENGTH];
 	uint16_t tcp_port;
 	/* Instead of format string "%s" as usual, we must use "%[^:]" meaning read to string tcp_ip until character ':'. */
-	res = sscanf(rx_buff, "Broadcast Message: ITCGW listening on tcp://%[^:]:%hu/", tcp_ip, &tcp_port);
-	ITC_INFO("Received a greeting message from tcp://%s:%hu/", tcp_ip, tcp_port);
+	res = sscanf(rx_buff, "Broadcast Message: ITCGW from host <%[^>]> listening on tcp://%[^:]:%hu/", namespace, tcp_ip, &tcp_port);
+	ITC_INFO("Received a greeting message from hostname <%s> on tcp://%s:%hu/", namespace, tcp_ip, tcp_port);
 
 
 	struct udp_peer_info **iter;
-	char m_addr[30];
-	snprintf(m_addr, 30, "tcp://%s:%hu/", tcp_ip, tcp_port);
+	char m_addr[40];
+	snprintf(m_addr, 40, "tcp://%s:%hu/", tcp_ip, tcp_port);
 	iter = tfind(m_addr, &itcgw_inst.udp_tree, compare_addr_udp_tree);
 
 	if(iter != NULL)
@@ -688,9 +693,10 @@ static bool handle_receive_broadcast_msg(int sockfd)
 
 	/* Notify TCP client about adding new peer */
 	union itc_msg *req;
-	req = itc_alloc(offsetof(struct itcgw_udp_add_rmv_peer, addr) + strlen(m_addr) + 1, ITCGW_UDP_ADD_PEER);
+	req = itc_alloc(offsetof(struct itcgw_udp_add_peer, namespace) + strlen(namespace) + 1, ITCGW_UDP_ADD_PEER);
 
-	strcpy(req->itcgw_udp_add_rmv_peer.addr, m_addr);
+	strcpy(req->itcgw_udp_add_peer.addr, m_addr);
+	strcpy(req->itcgw_udp_add_peer.namespace, namespace);
 
 	if(itc_send(&req, itcgw_inst.tcp_client_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
@@ -700,6 +706,15 @@ static bool handle_receive_broadcast_msg(int sockfd)
 	}
 
 	ITC_INFO("Sent ITCGW_UDP_ADD_PEER to mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+	
+	/* 1. Force broadcasting greeting messages */
+	res = sendto(itcgw_inst.udp_fd, itcgw_inst.udp_broadtcast_msg, strlen(itcgw_inst.udp_broadtcast_msg), 0, (struct sockaddr *)((void *)&itcgw_inst.udp_peer_addr), sizeof(struct sockaddr_in));
+	if(res < 0)
+	{
+		ITC_ERROR("Failed to force broadcasting greeting message, errno = %d!", errno);
+		return false;
+	}
+
 	return true;
 }
 
@@ -1038,11 +1053,6 @@ static bool handle_receive_tcp_packet_at_server(int sockfd)
 
 	switch (header->msgno)
 	{
-	case ITCGW_GET_NAMESPACE_REQUEST:
-		ITC_INFO("Received ITCGW_GET_NAMESPACE_REQUEST!");
-		handle_receive_get_namespace_request(sockfd, header);
-		break;
-	
 	case ITCGW_ITC_DATA_FWD:
 		ITC_INFO("Received ITCGW_ITC_DATA_FWD!");
 		handle_receive_data_fwd(sockfd, header);
@@ -1083,8 +1093,8 @@ static bool delete_tcp_peer_resource(int sockfd)
 
 			/* Notify UDP thread about our disconnected peer as well */
 			union itc_msg *req;
-			req = itc_alloc(offsetof(struct itcgw_udp_add_rmv_peer, addr) + strlen(itcgw_inst.tcp_server_peers[i].addr) + 1, ITCGW_UDP_RMV_PEER);
-			strcpy(req->itcgw_udp_add_rmv_peer.addr, itcgw_inst.tcp_server_peers[i].addr);
+			req = itc_alloc(offsetof(struct itcgw_udp_rmv_peer, addr) + strlen(itcgw_inst.tcp_server_peers[i].addr) + 1, ITCGW_UDP_RMV_PEER);
+			strcpy(req->itcgw_udp_rmv_peer.addr, itcgw_inst.tcp_server_peers[i].addr);
 
 			if(itc_send(&req, itcgw_inst.udp_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 			{
@@ -1260,8 +1270,9 @@ static bool handle_receive_itcmsg_at_client(int sockfd)
 	switch (msg->msgno)
 	{
 	case ITCGW_UDP_ADD_PEER:
-		ITC_INFO("Received ITCGW_UDP_ADD_PEER addr = %s", msg->itcgw_udp_add_rmv_peer.addr);
-		handle_tcp_client_add_peer(msg->itcgw_udp_add_rmv_peer.addr);
+		ITC_INFO("Received ITCGW_UDP_ADD_PEER addr = %s", msg->itcgw_udp_add_peer.addr);
+		ITC_INFO("Received ITCGW_UDP_ADD_PEER namespace = %s", msg->itcgw_udp_add_peer.namespace);
+		handle_tcp_client_add_peer(msg->itcgw_udp_add_peer.addr, msg->itcgw_udp_add_peer.namespace);
 		break;
 
 	case ITC_FWD_DATA_TO_ITCGWS:
@@ -1322,11 +1333,6 @@ static bool handle_receive_tcp_packet_at_client(int sockfd)
 
 	switch (header->msgno)
 	{
-	case ITCGW_GET_NAMESPACE_REPLY:
-		ITC_INFO("Received ITCGW_GET_NAMESPACE_REPLY!");
-		handle_receive_get_namespace_reply(sockfd, header);
-		break;
-	
 	case ITCGW_LOCATE_MBOX_REPLY:
 		ITC_INFO("Received ITCGW_LOCATE_MBOX_REPLY!");
 		handle_receive_locate_mbox_reply(sockfd, header);
@@ -1340,7 +1346,7 @@ static bool handle_receive_tcp_packet_at_client(int sockfd)
 	return true;
 }
 
-static bool handle_tcp_client_add_peer(char *addr)
+static bool handle_tcp_client_add_peer(char *addr, char *namespace)
 {
 	struct tcp_peer_info **iter;
 
@@ -1351,7 +1357,7 @@ static bool handle_tcp_client_add_peer(char *addr)
 		return false;
 	}
 
-	char tcp_ip[20];
+	char tcp_ip[25];
 	uint16_t tcp_port;
 	/* Instead of format string "%s" as usual, we must use "%[^:]" meaning read to string tcp_ip until character ':'. */
 	int res = sscanf(addr, "tcp://%[^:]:%hu/", tcp_ip, &tcp_port);
@@ -1383,8 +1389,9 @@ static bool handle_tcp_client_add_peer(char *addr)
 		if(itcgw_inst.tcp_client_peers[i].fd == -1)
 		{
 			/* Allocate a slot for this new connection */
-			ITC_INFO("Connect to new TCP peer successfully from tcp://%s:%hu/", tcp_ip, tcp_port);
+			ITC_INFO("Connect to new TCP peer successfully from hostname <%s> on tcp://%s:%hu/", namespace, tcp_ip, tcp_port);
 			strcpy(itcgw_inst.tcp_client_peers[i].addr, addr);
+			strcpy(itcgw_inst.tcp_client_peers[i].namespace, namespace);
 			itcgw_inst.tcp_client_peers[i].fd = new_fd;
 			tsearch(&itcgw_inst.tcp_client_peers[i], &itcgw_inst.tcp_client_tree, compare_peer_tcp_tree);
 			break;
@@ -1394,12 +1401,6 @@ static bool handle_tcp_client_add_peer(char *addr)
 	if(i == ITC_GATEWAY_MAX_PEERS)
 	{
 		ITC_ERROR("No more than %d peers is accepted!", ITC_GATEWAY_MAX_PEERS);
-		return false;
-	}
-
-	if(!send_get_namespace_request(new_fd))
-	{
-		ITC_ERROR("Failed to send get namespace request to fd %d!", new_fd);
 		return false;
 	}
 
@@ -1498,8 +1499,8 @@ static bool handle_receive_itcmsg_at_udp(int sockfd)
 	switch (msg->msgno)
 	{
 	case ITCGW_UDP_RMV_PEER:
-		ITC_INFO("Received ITCGW_UDP_RMV_PEER addr = %s", msg->itcgw_udp_add_rmv_peer.addr);
-		handle_udp_rmv_peer(msg->itcgw_udp_add_rmv_peer.addr);
+		ITC_INFO("Received ITCGW_UDP_RMV_PEER addr = %s", msg->itcgw_udp_rmv_peer.addr);
+		handle_udp_rmv_peer(msg->itcgw_udp_rmv_peer.addr);
 		break;
 
 	case ITC_GET_NAMESPACE_REQUEST:
@@ -1552,134 +1553,6 @@ static int recv_data(int sockfd, void *rx_buff, int nr_bytes_to_read)
 	} while(nr_bytes_to_read > 0);
 
 	return read_count;
-}
-
-static bool handle_receive_get_namespace_request(int sockfd, struct itcgw_header *header)
-{
-	struct itcgw_get_namespace_request *req;
-	uint32_t payloadLen = header->payloadLen;
-	char rxbuff[payloadLen];
-	int size = 0;
-
-	size = recv_data(sockfd, rxbuff, payloadLen);
-
-	if(size <= 0)
-	{
-		ITC_ERROR("Failed to receive data from this peer, fd = %d!", sockfd);
-		return false;
-	}
-
-	req = (struct itcgw_get_namespace_request *)rxbuff;
-	req->errorcode = ntohl(req->errorcode);
-
-	ITC_INFO("Receiving %d bytes from fd %d", size, sockfd);
-	ITC_INFO("Re-interpret TCP packet: errorcode: %u", req->errorcode);
-
-	if(!send_get_namespace_reply(sockfd))
-	{
-		ITC_ERROR("Failed to send_get_namespace_reply()!");
-		return false;
-	}
-
-	return true;
-}
-
-static bool send_get_namespace_request(int sockfd)
-{
-	size_t msg_len = offsetof(struct itcgw_msg, payload) + sizeof(struct itcgw_get_namespace_request);
-	struct itcgw_msg *req = malloc(msg_len);
-	if(req == NULL)
-	{
-		ITC_ERROR("Failed to malloc get namespace request message!");
-		return false;
-	}
-
-	uint32_t payload_length = sizeof(struct itcgw_get_namespace_request);
-	req->header.sender 					= htonl((uint32_t)getpid());
-	req->header.receiver 					= htonl(111);
-	req->header.protRev 					= htonl(15);
-	req->header.msgno 					= htonl(ITCGW_GET_NAMESPACE_REQUEST);
-	req->header.payloadLen 					= htonl(payload_length);
-
-	req->payload.itcgw_get_namespace_request.errorcode	= htonl(ITCGW_STATUS_OK);
-
-	int res = send(sockfd, req, msg_len, 0);
-	if(res < 0)
-	{
-		ITC_ERROR("Failed to send ITCGW_GET_NAMESPACE_REQUEST, errno = %d!", errno);
-		return false;
-	}
-
-	free(req);
-	ITC_INFO("Sending ITCGW_GET_NAMESPACE_REQUEST successfully!");
-	return true;
-}
-
-static bool send_get_namespace_reply(int sockfd)
-{
-	size_t msg_len = offsetof(struct itcgw_msg, payload) + offsetof(struct itcgw_get_namespace_reply, namespace) + strlen(itcgw_inst.namespace) + 1;
-	struct itcgw_msg *rep = malloc(msg_len);
-	if(rep == NULL)
-	{
-		ITC_ERROR("Failed to malloc get namespace request message!");
-		return false;
-	}
-
-	uint32_t payload_length = offsetof(struct itcgw_get_namespace_reply, namespace) + strlen(itcgw_inst.namespace) + 1;
-	rep->header.sender 					= htonl((uint32_t)getpid());
-	rep->header.receiver 					= htonl(222);
-	rep->header.protRev 					= htonl(15);
-	rep->header.msgno 					= htonl(ITCGW_GET_NAMESPACE_REPLY);
-	rep->header.payloadLen 					= htonl(payload_length);
-
-	rep->payload.itcgw_get_namespace_reply.errorcode	= htonl(ITCGW_STATUS_OK);
-	strcpy(rep->payload.itcgw_get_namespace_reply.namespace, itcgw_inst.namespace);
-
-	int res = send(sockfd, rep, msg_len, 0);
-	if(res < 0)
-	{
-		ITC_ERROR("Failed to send ITCGW_GET_NAMESPACE_REPLY, errno = %d!", errno);
-		return false;
-	}
-
-	free(rep);
-	ITC_INFO("Sent ITCGW_GET_NAMESPACE_REPLY successfully!");
-	return true;
-}
-
-static bool handle_receive_get_namespace_reply(int sockfd, struct itcgw_header *header)
-{
-	struct itcgw_get_namespace_reply *rep;
-	uint32_t payloadLen = header->payloadLen;
-	char rxbuff[payloadLen];
-	int size = 0;
-
-	size = recv_data(sockfd, rxbuff, payloadLen);
-
-	if(size <= 0)
-	{
-		ITC_ERROR("Failed to receive data from this peer, fd = %d!", sockfd);
-		return false;
-	}
-
-	rep = (struct itcgw_get_namespace_reply *)rxbuff;
-	rep->errorcode = ntohl(rep->errorcode);
-
-	ITC_INFO("Receiving %d bytes from fd %d", size, sockfd);
-	ITC_INFO("Re-interpret TCP packet: errorcode: %u", rep->errorcode);
-	ITC_INFO("Re-interpret TCP packet: namespace: \"%s\"", rep->namespace);
-
-	struct tcp_peer_info **iter;
-	iter = tfind(&sockfd, &itcgw_inst.tcp_client_tree, compare_sockfd_tcp_tree);
-	if(iter == NULL)
-	{
-		ITC_ERROR("Peer with fd = %d not found in client tree, something wrong!", sockfd);
-		return false;
-	}
-
-	strcpy((*iter)->namespace, rep->namespace);
-	ITC_INFO("Set namespace \"%s\" to respective peer info in client list successfully!", rep->namespace);
-	return true;
 }
 
 static bool handle_udp_get_namespace_request(itc_mbox_id_t mbox_id)
