@@ -114,25 +114,25 @@ r1:
 	@$(BIN)/$(TARGET_1) -n "/host_1/"
 
 v1:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_1) -n "/host_1/"
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/$(TARGET_1) -n "/host_1/"
 
 r2:
 	@$(BIN)/$(TARGET_2) -n "/host_2/"
 
 v2:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_2) -n "/host_2/"
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/$(TARGET_2) -n "/host_2/"
 
 rc:
 	@$(BIN)/$(TARGET_3)
 
 vc:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_3)
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/$(TARGET_3)
 
 rcp:
 	@$(BIN)/$(TARGET_4)
 
 vcp:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_4)
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/$(TARGET_4)
 
 rs:
 	$(BIN)/$(TARGET_SENDER)
@@ -141,10 +141,10 @@ rr:
 	$(BIN)/$(TARGET_RECEIVER)
 
 vs:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_SENDER)
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/$(TARGET_SENDER)
 
 vr:
-	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all $(BIN)/$(TARGET_RECEIVER)
+	sudo valgrind --leak-check=yes --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/$(TARGET_RECEIVER)
 
 # After this we have to manually "ps -xj" to find the daemon PID and kill it
 runs:

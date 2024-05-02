@@ -871,6 +871,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 			return false;
 		}
 
+		itc_free(msg);
 		return true;
 	}
 
@@ -1503,6 +1504,10 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	req = itc_alloc(offsetof(struct itc_fwd_data_to_itcgws, payload) + payload_len, ITC_FWD_DATA_TO_ITCGWS);
 
 	strcpy(req->itc_fwd_data_to_itcgws.to_namespace, namespace);
+	// Fix valgrind using of uninitialized bytes
+	size_t ns_unfilled_size = offsetof(struct itc_fwd_data_to_itcgws, payload_length) - offsetof(struct itc_fwd_data_to_itcgws, to_namespace) - strlen(namespace) - 1;
+	memset(req->itc_fwd_data_to_itcgws.to_namespace + strlen(namespace) + 1, 0, ns_unfilled_size);
+	
 	req->itc_fwd_data_to_itcgws.payload_length = payload_len;
 	memcpy(req->itc_fwd_data_to_itcgws.payload, message, payload_len);
 

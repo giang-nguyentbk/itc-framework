@@ -22,27 +22,21 @@ extern "C" {
 
 #define ITCGW_PAYLOAD_TYPE_BASE			0x100
 
-#define ITCGW_GET_NAMESPACE_REQUEST		(ITCGW_PAYLOAD_TYPE_BASE + 0x1)
-struct itcgw_get_namespace_request {
-	// uint32_t	payload_startpoint;
-	uint32_t	errorcode;
-};
-
-#define ITCGW_GET_NAMESPACE_REPLY		(ITCGW_PAYLOAD_TYPE_BASE + 0x2)
-struct itcgw_get_namespace_reply {
-	// uint32_t	payload_startpoint;
-	uint32_t	errorcode;
+#define ITCGW_UDP_ADD_PEER			(ITCGW_PAYLOAD_TYPE_BASE + 0x1)
+struct itcgw_udp_add_peer {
+	uint32_t	msgno;
+	char		addr[25]; // Max possible 255.255.255.255:65535 address has 21 characters
 	char		namespace[1];
 };
 
-#define ITCGW_UDP_ADD_PEER			(ITCGW_PAYLOAD_TYPE_BASE + 0x3)
-#define ITCGW_UDP_RMV_PEER			(ITCGW_PAYLOAD_TYPE_BASE + 0x4)
-struct itcgw_udp_add_rmv_peer {
+
+#define ITCGW_UDP_RMV_PEER			(ITCGW_PAYLOAD_TYPE_BASE + 0x2)
+struct itcgw_udp_rmv_peer {
 	uint32_t	msgno;
 	char		addr[1];
 };
 
-#define ITCGW_ITC_DATA_FWD			(ITCGW_PAYLOAD_TYPE_BASE + 0x5)
+#define ITCGW_ITC_DATA_FWD			(ITCGW_PAYLOAD_TYPE_BASE + 0x3)
 struct itcgw_itc_data_fwd {
 	// uint32_t	payload_startpoint;
 	uint32_t	errorcode;
@@ -50,14 +44,14 @@ struct itcgw_itc_data_fwd {
 	char		payload[1];
 };
 
-#define ITCGW_LOCATE_MBOX_REQUEST		(ITCGW_PAYLOAD_TYPE_BASE + 0x6)
+#define ITCGW_LOCATE_MBOX_REQUEST		(ITCGW_PAYLOAD_TYPE_BASE + 0x4)
 struct itcgw_locate_mbox_request {
 	// uint32_t	payload_startpoint;
 	uint32_t	errorcode;
 	char		mboxname[1];
 };
 
-#define ITCGW_LOCATE_MBOX_REPLY			(ITCGW_PAYLOAD_TYPE_BASE + 0x7)
+#define ITCGW_LOCATE_MBOX_REPLY			(ITCGW_PAYLOAD_TYPE_BASE + 0x5)
 struct itcgw_locate_mbox_reply {
 	// uint32_t	payload_startpoint;
 	uint32_t	errorcode;
@@ -88,8 +82,6 @@ struct itcgw_msg {
 	union {
 		// uint32_t					payload_startpoint;
 		uint32_t					errorcode;
-		struct itcgw_get_namespace_request		itcgw_get_namespace_request;
-		struct itcgw_get_namespace_reply		itcgw_get_namespace_reply;
 		struct itcgw_itc_data_fwd			itcgw_itc_data_fwd;
 		struct itcgw_locate_mbox_request		itcgw_locate_mbox_request;
 		struct itcgw_locate_mbox_reply			itcgw_locate_mbox_reply;
