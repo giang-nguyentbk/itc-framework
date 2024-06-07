@@ -830,11 +830,15 @@ static void tcp_server_thread_destructor(void* data)
 
 	LOG_INFO("Calling tcp server thread destructor...\n");
 
-	if(itcgw_inst.tcp_server_mbox_id != 0 || itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
-	{
-		LOG_INFO("Deleting tcp server mailbox...\n");
-		itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
-	}
+	/* Do not need to delete mailboxes manually here because ITC system already helped you do that.
+	   Let's recall, when we call itc_create_mailbox(), ITC system actually associates the mailbox_id with your current thread's destructor.
+	   So right once your thread destructor gets called at exit, ITC system helped you delete the related mailbox. */
+
+	// if(itcgw_inst.tcp_server_mbox_id != 0 || itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
+	// {
+	// 	LOG_INFO("Deleting tcp server mailbox...\n");
+	// 	itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
+	// }
 }
 
 static bool start_tcp_server_thread(void)
