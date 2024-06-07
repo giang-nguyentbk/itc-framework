@@ -30,7 +30,7 @@
 *****                      INTERNAL TYPES IN ITC.C                         *****
 *******************************************************************************/
 #define ITC_GATEWAY_MBOX_UDP_NAME2	"itc_gw_udp_mailbox2" // TEST ONLY
-#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itc_gw_tcp_client_mailbox2" // TEST ONLY
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itcgw_tcpclient_mailbox2" // TEST ONLY
 
 union itc_msg {
 	uint32_t				msgno;

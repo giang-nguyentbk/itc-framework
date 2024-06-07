@@ -42,8 +42,8 @@
 #define BROADCAST_PORT2		11112 // TEST ONLY
 #define TCP_LISTENING_PORT2	22223 // TEST ONLY
 #define ITC_GATEWAY_MBOX_UDP_NAME2	"itc_gw_udp_mailbox2" // TEST ONLY
-#define ITC_GATEWAY_MBOX_TCP_SER_NAME2	"itc_gw_tcp_server_mailbox2" // TEST ONLY
-#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itc_gw_tcp_client_mailbox2" // TEST ONLY
+#define ITC_GATEWAY_MBOX_TCP_SER_NAME2	"itcgw_tcpserver_mailbox2" // TEST ONLY
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itcgw_tcpclient_mailbox2" // TEST ONLY
 #define ITC_ITCGWS_LOGFILE2 		"itcgws.log" // TEST ONLY
 
 union itc_msg {
@@ -864,7 +864,7 @@ static void* tcp_server_loop(void *data)
 {
 	(void)data;
 
-	if(prctl(PR_SET_NAME, "itc_gw_tcp_server", 0, 0, 0) == -1)
+	if(prctl(PR_SET_NAME, "itcgw_tcpserver", 0, 0, 0) == -1)
 	{
 		// ERROR trace is needed here
 		TPT_TRACE(TRACE_ERROR, "Failed to prctl() TCP server loop!");
@@ -1162,7 +1162,7 @@ static void* tcp_client_loop(void *data)
 {
 	(void)data;
 
-	if(prctl(PR_SET_NAME, "itc_gw_tcp_client", 0, 0, 0) == -1)
+	if(prctl(PR_SET_NAME, "itcgw_tcpclient", 0, 0, 0) == -1)
 	{
 		// ERROR trace is needed here
 		TPT_TRACE(TRACE_ERROR, "Failed to prctl() TCP client!");

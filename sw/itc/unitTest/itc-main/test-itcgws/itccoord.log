@@ -1,376 +1,257 @@
 ========================================================================================================================
 >>>>>>>                                             START NEW SESSION                                            <<<<<<<
 ========================================================================================================================
-2024-06-07 16:55:33.345291749  INFO       cpu=8     "itc_coord"          itccoord.c:205            msg: Starting itccoord daemon...
-2024-06-07 16:55:33.345584291  INFO       cpu=8     "itc_coord"          itc.c:299                 msg: Running q_init for the first mailbox to itc_inst.free_mbox_queue!
-2024-06-07 16:55:33.345605857  INFO       cpu=8     "itc_coord"          itc.c:304                 msg: Running q_enqueue mailbox 0 to itc_inst.free_mbox_queue!
-2024-06-07 16:55:33.345610054  INFO       cpu=8     "itc_coord"          itc_queue.c:131           msg: Queue now is empty, add the first node!
-2024-06-07 16:55:33.345612923  INFO       cpu=8     "itc_coord"          itc.c:304                 msg: Running q_enqueue mailbox 1 to itc_inst.free_mbox_queue!
-2024-06-07 16:55:33.345615873  INFO       cpu=8     "itc_coord"          itc.c:304                 msg: Running q_enqueue mailbox 2 to itc_inst.free_mbox_queue!
-2024-06-07 16:55:33.345619101  INFO       cpu=8     "itc_coord"          itc_local.c:124           msg: ENTER local_init()!
-2024-06-07 16:55:33.345696332  INFO       cpu=8     "itc_coord"          itc_sysvmq.c:495          msg: Open file /tmp/itc/sysvmsq/sysvmsq_file successfully!
-2024-06-07 16:55:33.345789420  INFO       cpu=6     "itc_rx_sysvmq"      itc.c:580                 msg: Creating mailbox name itc_rx_sysvmq_0x00100000
-2024-06-07 16:55:33.345817022  INFO       cpu=6     "itc_rx_sysvmq"      itc_queue.c:188           msg: Queue currently has 3 items!
-2024-06-07 16:55:33.345823318  INFO       cpu=6     "itc_rx_sysvmq"      itc_sysvmq.c:329          msg: Starting sysvmq_rx_thread itc_rx_sysvmq_0x00100000...!
-2024-06-07 16:55:33.345871860  INFO       cpu=6     "itc_rx_sysvmq"      itc_sysvmq.c:219          msg: Get max msg size successfully, max_msgsize = 8192!
-2024-06-07 16:55:33.345895842  INFO       cpu=8     "itc_coord"          itc_threadmanager.c:121   msg: Starting a thread, tid = 140037854594624!
-2024-06-07 16:55:33.345907771  INFO       cpu=8     "itc_coord"          itc.c:580                 msg: Creating mailbox name itc_coord_mailbox
-2024-06-07 16:55:33.345910937  INFO       cpu=8     "itc_coord"          itc_queue.c:188           msg: Queue currently has 2 items!
-2024-06-07 16:55:33.345918969  INFO       cpu=8     "itc_coord"          itccoord.c:272            msg: Enqueue process index = 2 to free_list!
-2024-06-07 16:55:33.345921330  INFO       cpu=8     "itc_coord"          itccoord.c:273            msg: Enqueue process n-th to free_list!
-2024-06-07 16:55:33.345923381  INFO       cpu=8     "itc_coord"          itc_queue.c:131           msg: Queue now is empty, add the first node!
-2024-06-07 16:55:33.345942931  INFO       cpu=8     "itc_coord"          itccoord.c:285            msg: Enqueue process index = 254 to free_list!
-2024-06-07 16:55:34.356740991  INFO       cpu=1     "itc_coord"          itccoord.c:651            msg: Dequeue a process from free_list!
-2024-06-07 16:55:34.356752206  INFO       cpu=1     "itc_coord"          itccoord.c:662            msg: Enqueue process mbox_id = 0x00200000 to used_list!
-2024-06-07 16:55:34.356755355  INFO       cpu=1     "itc_coord"          itc_queue.c:131           msg: Queue now is empty, add the first node!
-2024-06-07 16:55:34.356775287  INFO       cpu=1     "itc_coord"          itccoord.c:750            msg: Sent itc_locate_coord_reply successfully!
-2024-06-07 16:55:34.356875652  INFO       cpu=1     "itc_coord"          itccoord.c:377            msg: Process with fd 6 is in state PROC_LISTENING!
-2024-06-07 16:55:34.356881421  INFO       cpu=1     "itc_coord"          itccoord.c:866            msg: Connecting to the process with pid = 162532
-2024-06-07 16:55:34.356902603  INFO       cpu=1     "itc_coord"          itccoord.c:915            msg: Sending ACK signature to the process successfully, pid = 162532
-2024-06-07 16:55:34.357220847  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 33
-2024-06-07 16:55:34.357279434  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200000
-2024-06-07 16:55:34.357289920  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
-2024-06-07 16:55:34.357298765  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:34.357306161  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:34.357347743  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:34.357409305  INFO       cpu=1     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:34.357499271  INFO       cpu=1     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:34.357512243  INFO       cpu=1     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:34.357521121  INFO       cpu=1     "itc_coord"          itccoord.c:928            msg: ITC_NOTIFY_COORD_ADD_MBOX received!
-2024-06-07 16:55:34.357527687  INFO       cpu=1     "itc_coord"          itccoord.c:929            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200000
-2024-06-07 16:55:34.357533453  INFO       cpu=1     "itc_coord"          itccoord.c:930            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_rx_sysvmq_0x00200000!
-2024-06-07 16:55:34.357541495  INFO       cpu=1     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000503
-2024-06-07 16:55:34.357432998  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 27
-2024-06-07 16:55:34.357607789  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200001
-2024-06-07 16:55:34.357632663  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
-2024-06-07 16:55:34.357644967  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:34.357655104  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:34.357726402  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:34.357845128  INFO       cpu=1     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:34.357888672  INFO       cpu=1     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:34.357897872  INFO       cpu=1     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:34.357906186  INFO       cpu=1     "itc_coord"          itccoord.c:928            msg: ITC_NOTIFY_COORD_ADD_MBOX received!
-2024-06-07 16:55:34.357912741  INFO       cpu=1     "itc_coord"          itccoord.c:929            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200001
-2024-06-07 16:55:34.357918647  INFO       cpu=1     "itc_coord"          itccoord.c:930            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_udp_mailbox!
-2024-06-07 16:55:34.357926464  INFO       cpu=1     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000503
-2024-06-07 16:55:34.358193994  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 34
-2024-06-07 16:55:34.358248461  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200002
-2024-06-07 16:55:34.358258957  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
-2024-06-07 16:55:34.358266395  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:34.358272739  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:34.358333617  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:34.358377700  INFO       cpu=1     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:34.358405499  INFO       cpu=1     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:34.358416178  INFO       cpu=1     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:34.358428564  INFO       cpu=1     "itc_coord"          itccoord.c:928            msg: ITC_NOTIFY_COORD_ADD_MBOX received!
-2024-06-07 16:55:34.358438675  INFO       cpu=1     "itc_coord"          itccoord.c:929            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200002
-2024-06-07 16:55:34.358448095  INFO       cpu=1     "itc_coord"          itccoord.c:930            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_tcp_server_mailbox!
-2024-06-07 16:55:34.358459822  INFO       cpu=1     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000503
-2024-06-07 16:55:34.358761970  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 34
-2024-06-07 16:55:34.358777759  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200003
-2024-06-07 16:55:34.358784634  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
-2024-06-07 16:55:34.358790720  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:34.358797292  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:34.358832986  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:34.358885752  INFO       cpu=1     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:34.358901700  INFO       cpu=1     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:34.358909994  INFO       cpu=1     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:34.358919083  INFO       cpu=1     "itc_coord"          itccoord.c:928            msg: ITC_NOTIFY_COORD_ADD_MBOX received!
-2024-06-07 16:55:34.358925337  INFO       cpu=1     "itc_coord"          itccoord.c:929            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200003
-2024-06-07 16:55:34.358931189  INFO       cpu=1     "itc_coord"          itccoord.c:930            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_tcp_client_mailbox!
-2024-06-07 16:55:34.358939183  INFO       cpu=1     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000503
-2024-06-07 16:55:35.357872823  INFO       cpu=6     "itc_coord"          itccoord.c:651            msg: Dequeue a process from free_list!
-2024-06-07 16:55:35.357901364  INFO       cpu=6     "itc_coord"          itccoord.c:662            msg: Enqueue process mbox_id = 0x00300000 to used_list!
-2024-06-07 16:55:35.358014208  INFO       cpu=6     "itc_coord"          itccoord.c:750            msg: Sent itc_locate_coord_reply successfully!
-2024-06-07 16:55:35.358308988  INFO       cpu=10    "itc_coord"          itccoord.c:377            msg: Process with fd 7 is in state PROC_LISTENING!
-2024-06-07 16:55:35.358336002  INFO       cpu=10    "itc_coord"          itccoord.c:866            msg: Connecting to the process with pid = 162545
-2024-06-07 16:55:35.358360885  INFO       cpu=10    "itc_coord"          itccoord.c:915            msg: Sending ACK signature to the process successfully, pid = 162545
-2024-06-07 16:55:35.358613410  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 33
-2024-06-07 16:55:35.358653697  INFO       cpu=1     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300000
-2024-06-07 16:55:35.358671946  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
-2024-06-07 16:55:35.358676667  INFO       cpu=1     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.358680209  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.358695956  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.358707207  INFO       cpu=10    "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.358722235  INFO       cpu=10    "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.358731255  INFO       cpu=10    "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.358735839  INFO       cpu=10    "itc_coord"          itccoord.c:928            msg: ITC_NOTIFY_COORD_ADD_MBOX received!
-2024-06-07 16:55:35.358739450  INFO       cpu=10    "itc_coord"          itccoord.c:929            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300000
-2024-06-07 16:55:35.358742667  INFO       cpu=10    "itc_coord"          itccoord.c:930            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_rx_sysvmq_0x00300000!
-2024-06-07 16:55:35.358747691  INFO       cpu=10    "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000503
-2024-06-07 16:55:35.358850698  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 22
-2024-06-07 16:55:35.358877525  INFO       cpu=1     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300001
-2024-06-07 16:55:35.358883664  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503
-2024-06-07 16:55:35.358887565  INFO       cpu=1     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.358890781  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.358907691  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.358916695  INFO       cpu=7     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.358941346  INFO       cpu=7     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.358946422  INFO       cpu=7     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.358946845  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 29
-2024-06-07 16:55:35.358973701  INFO       cpu=1     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300001
-2024-06-07 16:55:35.358980523  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505
-2024-06-07 16:55:35.358951041  INFO       cpu=7     "itc_coord"          itccoord.c:928            msg: ITC_NOTIFY_COORD_ADD_MBOX received!
-2024-06-07 16:55:35.359001381  INFO       cpu=7     "itc_coord"          itccoord.c:929            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300001
-2024-06-07 16:55:35.359016605  INFO       cpu=7     "itc_coord"          itccoord.c:930            msg: ITC_NOTIFY_COORD_ADD_MBOX mbox_name = senderMailbox!
-2024-06-07 16:55:35.359042183  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000503
-2024-06-07 16:55:35.358985362  INFO       cpu=1     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.359068899  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.359090991  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.359099134  INFO       cpu=7     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.359106983  INFO       cpu=7     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.359110954  INFO       cpu=7     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.359114581  INFO       cpu=7     "itc_coord"          itccoord.c:942            msg: ITC_LOCATE_MBOX_SYNC_REQUEST received!
-2024-06-07 16:55:35.359117863  INFO       cpu=7     "itc_coord"          itccoord.c:943            msg: ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00300001
-2024-06-07 16:55:35.359121183  INFO       cpu=7     "itc_coord"          itccoord.c:944            msg: ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 5000 ms
-2024-06-07 16:55:35.359124446  INFO       cpu=7     "itc_coord"          itccoord.c:945            msg: ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = false
-2024-06-07 16:55:35.359127909  INFO       cpu=7     "itc_coord"          itccoord.c:946            msg: ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = receiverMailbox!
-2024-06-07 16:55:35.359131529  INFO       cpu=7     "itc_coord"          itccoord.c:1037           msg: Mailbox "receiverMailbox" not found in the mbox_tree, try to find it in other hosts!
-2024-06-07 16:55:35.359134092  INFO       cpu=7     "itc_coord"          itc.c:493                 msg: Allocating itc msg msgno 0x9000050a, size = 24
-2024-06-07 16:55:35.359136791  INFO       cpu=7     "itc_coord"          itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200003, msgno = 0x9000050a
-2024-06-07 16:55:35.359139481  ABN        cpu=7     "itc_coord"          itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00200003
-2024-06-07 16:55:35.359143668  ABN        cpu=7     "itc_coord"          itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00200000, my_mbox_id_in_itccoord = 0x00100000
-2024-06-07 16:55:35.359147102  ABN        cpu=7     "itc_coord"          itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00200003
-2024-06-07 16:55:35.359150323  INFO       cpu=7     "itc_coord"          itc_sysvmq.c:520          msg: Add contact list!
-2024-06-07 16:55:35.359153344  INFO       cpu=7     "itc_coord"          itc_sysvmq.c:567          msg: Get sysv message queue: proj_id = 2!
-2024-06-07 16:55:35.359174289  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x9000050a
-2024-06-07 16:55:35.359179833  INFO       cpu=7     "itc_coord"          itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
-2024-06-07 16:55:35.359186436  INFO       cpu=7     "itc_coord"          itccoord.c:1065           msg: Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itcgws successfully!
-2024-06-07 16:55:35.359825941  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 17
-2024-06-07 16:55:35.359839074  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200003
-2024-06-07 16:55:35.359844120  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x9000050b
-2024-06-07 16:55:35.359848814  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.359852719  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.359875115  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.359884816  INFO       cpu=7     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.359901608  INFO       cpu=7     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.359905980  INFO       cpu=7     "itc_coord"          itccoord.c:1079           msg: Received ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itcgws successfully!
-2024-06-07 16:55:35.359908894  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x9000050b
-2024-06-07 16:55:35.359911624  INFO       cpu=7     "itc_coord"          itc.c:493                 msg: Allocating itc msg msgno 0x90000506, size = 22
-2024-06-07 16:55:35.359914464  INFO       cpu=7     "itc_coord"          itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x90000506
-2024-06-07 16:55:35.359916925  ABN        cpu=7     "itc_coord"          itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00300001
-2024-06-07 16:55:35.359919902  ABN        cpu=7     "itc_coord"          itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00100000
-2024-06-07 16:55:35.359922260  ABN        cpu=7     "itc_coord"          itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00300001
-2024-06-07 16:55:35.359924872  INFO       cpu=7     "itc_coord"          itc_sysvmq.c:520          msg: Add contact list!
-2024-06-07 16:55:35.359927410  INFO       cpu=7     "itc_coord"          itc_sysvmq.c:567          msg: Get sysv message queue: proj_id = 3!
-2024-06-07 16:55:35.359946076  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000506
-2024-06-07 16:55:35.359950549  INFO       cpu=7     "itc_coord"          itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
-2024-06-07 16:55:35.359953153  INFO       cpu=7     "itc_coord"          itccoord.c:1123           msg: Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00300001
-2024-06-07 16:55:35.359955641  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000505
-2024-06-07 16:55:35.360279461  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 39
-2024-06-07 16:55:35.360321782  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300001
-2024-06-07 16:55:35.360327977  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505
-2024-06-07 16:55:35.360332574  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.360336564  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.360358226  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.360380825  INFO       cpu=7     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.360397618  INFO       cpu=7     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.360401478  INFO       cpu=7     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.360404889  INFO       cpu=7     "itc_coord"          itccoord.c:942            msg: ITC_LOCATE_MBOX_SYNC_REQUEST received!
-2024-06-07 16:55:35.360407460  INFO       cpu=7     "itc_coord"          itccoord.c:943            msg: ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00300001
-2024-06-07 16:55:35.360409912  INFO       cpu=7     "itc_coord"          itccoord.c:944            msg: ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 1000 ms
-2024-06-07 16:55:35.360412325  INFO       cpu=7     "itc_coord"          itccoord.c:945            msg: ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = true
-2024-06-07 16:55:35.360414638  INFO       cpu=7     "itc_coord"          itccoord.c:946            msg: ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = itc_gw_tcp_client_mailbox!
-2024-06-07 16:55:35.360417665  INFO       cpu=7     "itc_coord"          itc.c:493                 msg: Allocating itc msg msgno 0x90000506, size = 14
-2024-06-07 16:55:35.360420515  INFO       cpu=7     "itc_coord"          itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x90000506
-2024-06-07 16:55:35.360423496  ABN        cpu=7     "itc_coord"          itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00300001
-2024-06-07 16:55:35.360426566  ABN        cpu=7     "itc_coord"          itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00100000
-2024-06-07 16:55:35.360428979  ABN        cpu=7     "itc_coord"          itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00300001
-2024-06-07 16:55:35.360457190  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000506
-2024-06-07 16:55:35.360461119  INFO       cpu=7     "itc_coord"          itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
-2024-06-07 16:55:35.360463299  INFO       cpu=7     "itc_coord"          itccoord.c:1123           msg: Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00300001
-2024-06-07 16:55:35.360465315  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000505
-2024-06-07 16:55:35.361649480  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 27
-2024-06-07 16:55:35.361661026  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200002
-2024-06-07 16:55:35.361665321  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505
-2024-06-07 16:55:35.361669061  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.361684366  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.361698912  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.361708344  INFO       cpu=7     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.361721853  INFO       cpu=7     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.361726642  INFO       cpu=7     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.361735532  INFO       cpu=7     "itc_coord"          itccoord.c:942            msg: ITC_LOCATE_MBOX_SYNC_REQUEST received!
-2024-06-07 16:55:35.361739329  INFO       cpu=7     "itc_coord"          itccoord.c:943            msg: ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00200002
-2024-06-07 16:55:35.361741700  INFO       cpu=7     "itc_coord"          itccoord.c:944            msg: ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 1000 ms
-2024-06-07 16:55:35.361758440  INFO       cpu=7     "itc_coord"          itccoord.c:945            msg: ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = true
-2024-06-07 16:55:35.361762394  INFO       cpu=7     "itc_coord"          itccoord.c:946            msg: ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = senderMailbox!
-2024-06-07 16:55:35.361766504  INFO       cpu=7     "itc_coord"          itc.c:493                 msg: Allocating itc msg msgno 0x90000506, size = 14
-2024-06-07 16:55:35.361770733  INFO       cpu=7     "itc_coord"          itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200002, msgno = 0x90000506
-2024-06-07 16:55:35.361774290  ABN        cpu=7     "itc_coord"          itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00200002
-2024-06-07 16:55:35.361778725  ABN        cpu=7     "itc_coord"          itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00200000, my_mbox_id_in_itccoord = 0x00100000
-2024-06-07 16:55:35.361781826  ABN        cpu=7     "itc_coord"          itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00200002
-2024-06-07 16:55:35.361797459  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000506
-2024-06-07 16:55:35.361802960  INFO       cpu=7     "itc_coord"          itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
-2024-06-07 16:55:35.361807144  INFO       cpu=7     "itc_coord"          itccoord.c:1123           msg: Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00200002
-2024-06-07 16:55:35.361811313  INFO       cpu=7     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000505
-2024-06-07 16:55:35.363571240  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 39
-2024-06-07 16:55:35.363591403  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300001
-2024-06-07 16:55:35.363596254  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505
-2024-06-07 16:55:35.363599236  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.363601457  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.363610978  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.363719523  INFO       cpu=10    "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.363744836  INFO       cpu=10    "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.363750514  INFO       cpu=10    "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.363754835  INFO       cpu=10    "itc_coord"          itccoord.c:942            msg: ITC_LOCATE_MBOX_SYNC_REQUEST received!
-2024-06-07 16:55:35.363758430  INFO       cpu=10    "itc_coord"          itccoord.c:943            msg: ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00300001
-2024-06-07 16:55:35.363761649  INFO       cpu=10    "itc_coord"          itccoord.c:944            msg: ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 1000 ms
-2024-06-07 16:55:35.363770303  INFO       cpu=10    "itc_coord"          itccoord.c:945            msg: ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = true
-2024-06-07 16:55:35.363773517  INFO       cpu=10    "itc_coord"          itccoord.c:946            msg: ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = itc_gw_tcp_client_mailbox!
-2024-06-07 16:55:35.363777486  INFO       cpu=10    "itc_coord"          itc.c:493                 msg: Allocating itc msg msgno 0x90000506, size = 14
-2024-06-07 16:55:35.363781405  INFO       cpu=10    "itc_coord"          itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x90000506
-2024-06-07 16:55:35.363784726  ABN        cpu=10    "itc_coord"          itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00300001
-2024-06-07 16:55:35.363788603  ABN        cpu=10    "itc_coord"          itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00100000
-2024-06-07 16:55:35.363791815  ABN        cpu=10    "itc_coord"          itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00300001
-2024-06-07 16:55:35.363807177  INFO       cpu=10    "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000506
-2024-06-07 16:55:35.363812334  INFO       cpu=10    "itc_coord"          itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
-2024-06-07 16:55:35.363816108  INFO       cpu=10    "itc_coord"          itccoord.c:1123           msg: Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00300001
-2024-06-07 16:55:35.363819845  INFO       cpu=10    "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000505
-2024-06-07 16:55:35.417551835  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 22
-2024-06-07 16:55:35.417595838  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300001
-2024-06-07 16:55:35.417601169  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
-2024-06-07 16:55:35.417604301  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.417606634  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.417620048  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.417632117  INFO       cpu=10    "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.417648053  INFO       cpu=10    "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.417652793  INFO       cpu=10    "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.417656996  INFO       cpu=10    "itc_coord"          itccoord.c:935            msg: ITC_NOTIFY_COORD_RMV_MBOX received!
-2024-06-07 16:55:35.417660142  INFO       cpu=10    "itc_coord"          itccoord.c:936            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300001
-2024-06-07 16:55:35.417663218  INFO       cpu=10    "itc_coord"          itccoord.c:937            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = senderMailbox!
-2024-06-07 16:55:35.417667714  INFO       cpu=10    "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000504
-2024-06-07 16:55:35.418076370  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 33
-2024-06-07 16:55:35.418105013  INFO       cpu=1     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300000
-2024-06-07 16:55:35.418111493  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
-2024-06-07 16:55:35.418122484  INFO       cpu=1     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:55:35.418125824  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:55:35.418141474  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:55:35.418150546  INFO       cpu=11    "itc_coord"          itccoord.c:384            msg: Process with fd 6 is in state PROC_CONNECTED!
-2024-06-07 16:55:35.418168577  INFO       cpu=11    "itc_coord"          itccoord.c:769            msg: Remove process mbox_id = 0x00300000 from used_list!
-2024-06-07 16:55:35.418173384  INFO       cpu=11    "itc_coord"          itccoord.c:799            msg: Remove socket on process pid = 162545
-2024-06-07 16:55:35.418205796  INFO       cpu=11    "itc_coord"          itccoord.c:838            msg: Unlink /tmp/itc/socket/lsocket successfully!
-2024-06-07 16:55:35.418209503  INFO       cpu=11    "itc_coord"          itccoord.c:783            msg: Enqueue process mbox_id = 0x00300000 to free_list!
-2024-06-07 16:55:35.418213398  INFO       cpu=11    "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:55:35.418217160  INFO       cpu=11    "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:55:35.418220686  INFO       cpu=11    "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:55:35.418224676  INFO       cpu=11    "itc_coord"          itccoord.c:935            msg: ITC_NOTIFY_COORD_RMV_MBOX received!
-2024-06-07 16:55:35.418227891  INFO       cpu=11    "itc_coord"          itccoord.c:936            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300000
-2024-06-07 16:55:35.418231037  INFO       cpu=11    "itc_coord"          itccoord.c:937            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_rx_sysvmq_0x00300000!
-2024-06-07 16:55:35.418234398  ABN        cpu=11    "itc_coord"          itccoord.c:1007           msg: Mailbox 0x00300000 from a just-terminated process!
-2024-06-07 16:55:35.418238207  INFO       cpu=11    "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000504
-2024-06-07 16:56:05.741578324  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 27
-2024-06-07 16:56:05.741599056  INFO       cpu=1     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200001
-2024-06-07 16:56:05.741603879  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
-2024-06-07 16:56:05.741608458  INFO       cpu=1     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:56:05.741611835  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:56:05.741626482  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:56:05.741637550  INFO       cpu=11    "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:56:05.741654161  INFO       cpu=11    "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:56:05.741659095  INFO       cpu=11    "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:56:05.741663545  INFO       cpu=11    "itc_coord"          itccoord.c:935            msg: ITC_NOTIFY_COORD_RMV_MBOX received!
-2024-06-07 16:56:05.741666838  INFO       cpu=11    "itc_coord"          itccoord.c:936            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200001
-2024-06-07 16:56:05.741675637  INFO       cpu=11    "itc_coord"          itccoord.c:937            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_gw_udp_mailbox!
-2024-06-07 16:56:05.741679949  INFO       cpu=11    "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000504
-2024-06-07 16:56:05.741935287  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 34
-2024-06-07 16:56:05.741946546  INFO       cpu=1     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200002
-2024-06-07 16:56:05.741950589  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
-2024-06-07 16:56:05.741954573  INFO       cpu=1     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:56:05.741958157  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:56:05.741989431  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:56:05.742013706  INFO       cpu=6     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:56:05.742028986  INFO       cpu=6     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:56:05.742032459  INFO       cpu=6     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:56:05.742035439  INFO       cpu=6     "itc_coord"          itccoord.c:935            msg: ITC_NOTIFY_COORD_RMV_MBOX received!
-2024-06-07 16:56:05.742037691  INFO       cpu=6     "itc_coord"          itccoord.c:936            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200002
-2024-06-07 16:56:05.742039731  INFO       cpu=6     "itc_coord"          itccoord.c:937            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_gw_tcp_server_mailbox!
-2024-06-07 16:56:05.742042616  INFO       cpu=6     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000504
-2024-06-07 16:56:05.742134168  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 34
-2024-06-07 16:56:05.742148142  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200003
-2024-06-07 16:56:05.742153001  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
-2024-06-07 16:56:05.742156395  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:56:05.742159433  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:56:05.742177684  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:56:05.742215016  INFO       cpu=6     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:56:05.742229404  INFO       cpu=6     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:56:05.742232471  INFO       cpu=6     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:56:05.742235598  INFO       cpu=6     "itc_coord"          itccoord.c:935            msg: ITC_NOTIFY_COORD_RMV_MBOX received!
-2024-06-07 16:56:05.742237850  INFO       cpu=6     "itc_coord"          itccoord.c:936            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200003
-2024-06-07 16:56:05.742240043  INFO       cpu=6     "itc_coord"          itccoord.c:937            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_gw_tcp_client_mailbox!
-2024-06-07 16:56:05.742243060  INFO       cpu=6     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000504
-2024-06-07 16:56:05.742284695  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 33
-2024-06-07 16:56:05.742293644  INFO       cpu=0     "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00200000
-2024-06-07 16:56:05.742297593  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504
-2024-06-07 16:56:05.742301211  INFO       cpu=0     "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
-2024-06-07 16:56:05.742304447  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
-2024-06-07 16:56:05.742323183  INFO       cpu=0     "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
-2024-06-07 16:56:05.742350891  INFO       cpu=6     "itc_coord"          itccoord.c:411            msg: Calling handle_incoming_request()!
-2024-06-07 16:56:05.742359424  INFO       cpu=6     "itc_coord"          itc_local.c:512           msg: RX queue has only one item, dequeue it!
-2024-06-07 16:56:05.742362888  INFO       cpu=6     "itc_coord"          itc.c:999                 msg: Received a message on trans_mechanisms[0]!
-2024-06-07 16:56:05.742366904  INFO       cpu=6     "itc_coord"          itccoord.c:935            msg: ITC_NOTIFY_COORD_RMV_MBOX received!
-2024-06-07 16:56:05.742369954  INFO       cpu=6     "itc_coord"          itccoord.c:936            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200000
-2024-06-07 16:56:05.742372930  INFO       cpu=6     "itc_coord"          itccoord.c:937            msg: ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_rx_sysvmq_0x00200000!
-2024-06-07 16:56:05.742376874  INFO       cpu=6     "itc_coord"          itc.c:533                 msg: Freeing itc msg msgno 0x90000504
-2024-06-07 16:56:05.742382769  INFO       cpu=6     "itc_coord"          itccoord.c:384            msg: Process with fd 5 is in state PROC_CONNECTED!
-2024-06-07 16:56:05.742387139  INFO       cpu=6     "itc_coord"          itccoord.c:769            msg: Remove process mbox_id = 0x00200000 from used_list!
-2024-06-07 16:56:05.742391304  INFO       cpu=6     "itc_coord"          itccoord.c:799            msg: Remove socket on process pid = 162532
-2024-06-07 16:56:05.742427972  INFO       cpu=6     "itc_coord"          itccoord.c:838            msg: Unlink /tmp/itc/socket/lsocket successfully!
-2024-06-07 16:56:05.742432032  INFO       cpu=6     "itc_coord"          itccoord.c:783            msg: Enqueue process mbox_id = 0x00200000 to free_list!
-2024-06-07 16:56:05.742511799  INFO       cpu=6     "itc_coord"          itccoord.c:447            msg: ITCCOORD is terminated with SIG = 15, calling exit handler...
-2024-06-07 16:56:05.742518225  INFO       cpu=6     "itc_coord"          itccoord.c:457            msg: ITCCOORD is terminated, calling exit handler...
-2024-06-07 16:56:05.742522835  INFO       cpu=6     "itc_coord"          itccoord.c:460            msg: Removing all sockets on all active processes...
-2024-06-07 16:56:05.742634901  INFO       cpu=6     "itc_coord"          itccoord.c:480            msg: Remove all directories successfully!
-2024-06-07 16:56:05.742638451  INFO       cpu=6     "itc_coord"          itccoord.c:483            msg: Remove all nodes from mbox_tree successfully!
-2024-06-07 16:56:05.742640568  INFO       cpu=6     "itc_coord"          itccoord.c:485            msg: Removing processes in free_list, count = 253!
-2024-06-07 16:56:05.742642610  INFO       cpu=6     "itc_coord"          itc_queue.c:86            msg: Queue still has items, removing them!
-2024-06-07 16:56:05.742645640  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 250 items!
-2024-06-07 16:56:05.742648312  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 225 items!
-2024-06-07 16:56:05.742654133  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 200 items!
-2024-06-07 16:56:05.742656681  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 175 items!
-2024-06-07 16:56:05.742659014  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 150 items!
-2024-06-07 16:56:05.742661339  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 125 items!
-2024-06-07 16:56:05.742663727  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 100 items!
-2024-06-07 16:56:05.742666113  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 75 items!
-2024-06-07 16:56:05.742668467  INFO       cpu=6     "itc_coord"          itc_queue.c:184           msg: Queue currently has 50 items!
-2024-06-07 16:56:05.742671780  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 25 items!
-2024-06-07 16:56:05.742674840  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 24 items!
-2024-06-07 16:56:05.742677585  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 23 items!
-2024-06-07 16:56:05.742680449  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 22 items!
-2024-06-07 16:56:05.742683416  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 21 items!
-2024-06-07 16:56:05.742686238  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 20 items!
-2024-06-07 16:56:05.742688954  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 19 items!
-2024-06-07 16:56:05.742690744  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 18 items!
-2024-06-07 16:56:05.742692543  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 17 items!
-2024-06-07 16:56:05.742694347  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 16 items!
-2024-06-07 16:56:05.742696131  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 15 items!
-2024-06-07 16:56:05.742697919  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 14 items!
-2024-06-07 16:56:05.742699744  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 13 items!
-2024-06-07 16:56:05.742701544  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 12 items!
-2024-06-07 16:56:05.742703344  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 11 items!
-2024-06-07 16:56:05.742705127  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 10 items!
-2024-06-07 16:56:05.742706986  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 9 items!
-2024-06-07 16:56:05.742708865  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 8 items!
-2024-06-07 16:56:05.742710700  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 7 items!
-2024-06-07 16:56:05.742712510  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 6 items!
-2024-06-07 16:56:05.742714324  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 5 items!
-2024-06-07 16:56:05.742716125  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 4 items!
-2024-06-07 16:56:05.742717911  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 3 items!
-2024-06-07 16:56:05.742719804  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 2 items!
-2024-06-07 16:56:05.742722891  INFO       cpu=6     "itc_coord"          itc_queue.c:165           msg: Queue has only one item!
-2024-06-07 16:56:05.742724897  ABN        cpu=6     "itc_coord"          itc_queue.c:154           msg: Queue empty!
-2024-06-07 16:56:05.742727759  INFO       cpu=6     "itc_coord"          itccoord.c:487            msg: Removing processes in used_list, count = 0!
-2024-06-07 16:56:05.742730152  INFO       cpu=6     "itc_coord"          itc.c:697                 msg: Deleting mailbox id 0x00100001
-2024-06-07 16:56:05.742732722  INFO       cpu=6     "itc_coord"          itc.c:754                 msg: Waiting for other job that owned rx queue mutex before deleting the mailbox!
-2024-06-07 16:56:05.742736252  INFO       cpu=6     "itc_coord"          itc.c:826                 msg: Deleted thread-local mailbox 0x00100001
-2024-06-07 16:56:05.742846470  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:1357                msg: Thread-local mailbox destructor called by tid = 162512, mbox_id = 0x00100000
-2024-06-07 16:56:05.742853242  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:1362                msg: Deleting mailbox with mbox_id = 0x00100000
-2024-06-07 16:56:05.742855997  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:697                 msg: Deleting mailbox id 0x00100000
-2024-06-07 16:56:05.742859145  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:754                 msg: Waiting for other job that owned rx queue mutex before deleting the mailbox!
-2024-06-07 16:56:05.742862183  INFO       cpu=1     "itc_rx_sysvmq"      itc.c:826                 msg: Deleted thread-local mailbox 0x00100000
-2024-06-07 16:56:05.742891857  INFO       cpu=6     "itc_coord"          itc_threadmanager.c:156   msg: Terminating a thread, tid = 140037854594624!
-2024-06-07 16:56:05.742905515  INFO       cpu=6     "itc_coord"          itc.c:473                 msg: Removing mailboxes from free_mboxes_queue, count = 3!
-2024-06-07 16:56:05.742909319  INFO       cpu=6     "itc_coord"          itc_queue.c:86            msg: Queue still has items, removing them!
-2024-06-07 16:56:05.742912587  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 3 items!
-2024-06-07 16:56:05.742915847  INFO       cpu=6     "itc_coord"          itc_queue.c:188           msg: Queue currently has 2 items!
-2024-06-07 16:56:05.742918853  INFO       cpu=6     "itc_coord"          itc_queue.c:165           msg: Queue has only one item!
-2024-06-07 16:56:05.742921931  ABN        cpu=6     "itc_coord"          itc_queue.c:154           msg: Queue empty!
-2024-06-07 16:56:05.742925724  INFO       cpu=6     "itc_coord"          itccoord.c:494            msg: ITCCOORD exit handler finished!
+[2024-06-07 23:16:29.821434513] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 205, "-", "Starting itccoord daemon..." }
+[2024-06-07 23:16:29.821775086] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 299, "-", "Running q_init for the first mailbox to itc_inst.free_mbox_queue!" }
+[2024-06-07 23:16:29.821797525] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 304, "-", "Running q_enqueue mailbox 0 to itc_inst.free_mbox_queue!" }
+[2024-06-07 23:16:29.821802766] INFO:   { cpu  2 }  { "itc_coord", "itc_queue.c", 131, "-", "Queue now is empty, add the first node!" }
+[2024-06-07 23:16:29.821806134] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 304, "-", "Running q_enqueue mailbox 1 to itc_inst.free_mbox_queue!" }
+[2024-06-07 23:16:29.821809287] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 304, "-", "Running q_enqueue mailbox 2 to itc_inst.free_mbox_queue!" }
+[2024-06-07 23:16:29.821812488] INFO:   { cpu  2 }  { "itc_coord", "itc_local.c", 124, "-", "ENTER local_init()!" }
+[2024-06-07 23:16:29.821884488] INFO:   { cpu  2 }  { "itc_coord", "itc_sysvmq.c", 495, "-", "Open file /tmp/itc/sysvmsq/sysvmsq_file successfully!" }
+[2024-06-07 23:16:29.821981216] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 580, "-", "Creating mailbox name itc_rx_sysvmq_0x00100000" }
+[2024-06-07 23:16:29.822008613] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc_queue.c", 188, "-", "Queue currently has 3 items!" }
+[2024-06-07 23:16:29.822014217] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 329, "-", "Starting sysvmq_rx_thread itc_rx_sysvmq_0x00100000...!" }
+[2024-06-07 23:16:29.822019772] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 219, "-", "Get max msg size successfully, max_msgsize = 8192!" }
+[2024-06-07 23:16:29.822041566] INFO:   { cpu  2 }  { "itc_coord", "itc_threadmanager.c", 121, "-", "Starting a thread, tid = 139866122151488!" }
+[2024-06-07 23:16:29.822051914] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 580, "-", "Creating mailbox name itc_coord_mailbox" }
+[2024-06-07 23:16:29.822054817] INFO:   { cpu  2 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 2 items!" }
+[2024-06-07 23:16:29.822062735] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 272, "-", "Enqueue process index = 2 to free_list!" }
+[2024-06-07 23:16:29.822064743] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 273, "-", "Enqueue process n-th to free_list!" }
+[2024-06-07 23:16:29.822066671] INFO:   { cpu  2 }  { "itc_coord", "itc_queue.c", 131, "-", "Queue now is empty, add the first node!" }
+[2024-06-07 23:16:29.822089994] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 285, "-", "Enqueue process index = 254 to free_list!" }
+[2024-06-07 23:16:30.823128204] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 651, "-", "Dequeue a process from free_list!" }
+[2024-06-07 23:16:30.823157659] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 662, "-", "Enqueue process mbox_id = 0x00200000 to used_list!" }
+[2024-06-07 23:16:30.823162725] INFO:   { cpu  2 }  { "itc_coord", "itc_queue.c", 131, "-", "Queue now is empty, add the first node!" }
+[2024-06-07 23:16:30.823193487] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 750, "-", "Sent itc_locate_coord_reply successfully!" }
+[2024-06-07 23:16:30.823299876] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 377, "-", "Process with fd 6 is in state PROC_LISTENING!" }
+[2024-06-07 23:16:30.823314477] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 866, "-", "Connecting to the process with pid = 461481" }
+[2024-06-07 23:16:30.823335291] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 915, "-", "Sending ACK signature to the process successfully, pid = 461481" }
+[2024-06-07 23:16:30.823481678] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 33" }
+[2024-06-07 23:16:30.823496180] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200000" }
+[2024-06-07 23:16:30.823499610] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503" }
+[2024-06-07 23:16:30.823504030] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:30.823507154] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:30.823524806] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:30.823533577] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:30.823541784] INFO:   { cpu  2 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:30.823546049] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:30.823549938] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 928, "-", "ITC_NOTIFY_COORD_ADD_MBOX received!" }
+[2024-06-07 23:16:30.823552293] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 929, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200000" }
+[2024-06-07 23:16:30.823554347] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 930, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_rx_sysvmq_0x00200000!" }
+[2024-06-07 23:16:30.823557097] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000503" }
+[2024-06-07 23:16:30.823576583] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 27" }
+[2024-06-07 23:16:30.823589232] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200001" }
+[2024-06-07 23:16:30.823592582] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503" }
+[2024-06-07 23:16:30.823595750] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:30.823597929] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:30.823613346] INFO:   { cpu  5 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:30.823618902] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:30.823624374] INFO:   { cpu  2 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:30.823628122] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:30.823632403] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 928, "-", "ITC_NOTIFY_COORD_ADD_MBOX received!" }
+[2024-06-07 23:16:30.823634852] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 929, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200001" }
+[2024-06-07 23:16:30.823636886] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 930, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_gw_udp_mailbox!" }
+[2024-06-07 23:16:30.823639533] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000503" }
+[2024-06-07 23:16:30.823752215] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 32" }
+[2024-06-07 23:16:30.823761085] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200002" }
+[2024-06-07 23:16:30.823763958] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503" }
+[2024-06-07 23:16:30.823766769] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:30.823772618] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:30.823794942] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:30.823800671] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:30.823818577] INFO:   { cpu  6 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:30.823824180] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:30.823828457] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 928, "-", "ITC_NOTIFY_COORD_ADD_MBOX received!" }
+[2024-06-07 23:16:30.823831833] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 929, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200002" }
+[2024-06-07 23:16:30.823835002] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 930, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itcgw_tcpserver_mailbox!" }
+[2024-06-07 23:16:30.823839240] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000503" }
+[2024-06-07 23:16:30.824651292] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 32" }
+[2024-06-07 23:16:30.824671223] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200003" }
+[2024-06-07 23:16:30.824677725] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503" }
+[2024-06-07 23:16:30.824684204] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:30.824689291] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:30.824719005] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:30.824749635] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:30.824767564] INFO:   { cpu  4 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:30.824772683] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:30.824777750] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 928, "-", "ITC_NOTIFY_COORD_ADD_MBOX received!" }
+[2024-06-07 23:16:30.824781883] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 929, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00200003" }
+[2024-06-07 23:16:30.824785744] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 930, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itcgw_tcpclient_mailbox!" }
+[2024-06-07 23:16:30.824790543] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000503" }
+[2024-06-07 23:16:31.824245828] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 651, "-", "Dequeue a process from free_list!" }
+[2024-06-07 23:16:31.824280891] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 662, "-", "Enqueue process mbox_id = 0x00300000 to used_list!" }
+[2024-06-07 23:16:31.824340087] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 750, "-", "Sent itc_locate_coord_reply successfully!" }
+[2024-06-07 23:16:31.824561040] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 377, "-", "Process with fd 7 is in state PROC_LISTENING!" }
+[2024-06-07 23:16:31.824584503] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 866, "-", "Connecting to the process with pid = 461496" }
+[2024-06-07 23:16:31.824619557] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 915, "-", "Sending ACK signature to the process successfully, pid = 461496" }
+[2024-06-07 23:16:31.824938657] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 33" }
+[2024-06-07 23:16:31.825043521] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00300000" }
+[2024-06-07 23:16:31.825062622] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503" }
+[2024-06-07 23:16:31.825072199] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.825078962] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.825115570] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.825150817] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.825186416] INFO:   { cpu  4 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.825195332] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.825203842] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 928, "-", "ITC_NOTIFY_COORD_ADD_MBOX received!" }
+[2024-06-07 23:16:31.825210646] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 929, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300000" }
+[2024-06-07 23:16:31.825216750] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 930, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_name = itc_rx_sysvmq_0x00300000!" }
+[2024-06-07 23:16:31.825225804] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000503" }
+[2024-06-07 23:16:31.825491614] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 22" }
+[2024-06-07 23:16:31.825528774] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00300001" }
+[2024-06-07 23:16:31.825541934] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000503" }
+[2024-06-07 23:16:31.825555133] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.825565964] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.825618460] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.825637567] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 29" }
+[2024-06-07 23:16:31.825649278] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00300001" }
+[2024-06-07 23:16:31.825659758] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505" }
+[2024-06-07 23:16:31.825670103] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.825672672] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.825783740] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.825794996] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 928, "-", "ITC_NOTIFY_COORD_ADD_MBOX received!" }
+[2024-06-07 23:16:31.825679472] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.825802044] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 929, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.825934804] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 930, "-", "ITC_NOTIFY_COORD_ADD_MBOX mbox_name = senderMailbox!" }
+[2024-06-07 23:16:31.825947712] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000503" }
+[2024-06-07 23:16:31.825973776] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.825981606] INFO:   { cpu  6 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.825988159] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.825995944] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 942, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST received!" }
+[2024-06-07 23:16:31.826002378] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 943, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00300001" }
+[2024-06-07 23:16:31.826008426] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 944, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 5000 ms" }
+[2024-06-07 23:16:31.826014509] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 945, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = false" }
+[2024-06-07 23:16:31.826020440] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 946, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = receiverMailbox!" }
+[2024-06-07 23:16:31.826027264] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 1037, "-", "Mailbox "receiverMailbox" not found in the mbox_tree, try to find it in other hosts!" }
+[2024-06-07 23:16:31.826034190] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 493, "-", "Allocating itc msg msgno 0x9000050a, size = 24" }
+[2024-06-07 23:16:31.826043018] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00200003, msgno = 0x9000050a" }
+[2024-06-07 23:16:31.826050058] ABN:    { cpu  6 }  { "itc_coord", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00200003" }
+[2024-06-07 23:16:31.826057110] ABN:    { cpu  6 }  { "itc_coord", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00200000, my_mbox_id_in_itccoord = 0x00100000" }
+[2024-06-07 23:16:31.826063113] ABN:    { cpu  6 }  { "itc_coord", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00200003" }
+[2024-06-07 23:16:31.826069815] INFO:   { cpu  6 }  { "itc_coord", "itc_sysvmq.c", 520, "-", "Add contact list!" }
+[2024-06-07 23:16:31.826076007] INFO:   { cpu  6 }  { "itc_coord", "itc_sysvmq.c", 567, "-", "Get sysv message queue: proj_id = 2!" }
+[2024-06-07 23:16:31.826124288] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x9000050a" }
+[2024-06-07 23:16:31.826135619] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:16:31.826142072] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 1065, "-", "Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itcgws successfully!" }
+[2024-06-07 23:16:31.827071476] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 17" }
+[2024-06-07 23:16:31.827085261] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200003" }
+[2024-06-07 23:16:31.827088160] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x9000050b" }
+[2024-06-07 23:16:31.827091022] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.827093117] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.827111002] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.827117824] INFO:   { cpu  6 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.827124337] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.827127753] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 1079, "-", "Received ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itcgws successfully!" }
+[2024-06-07 23:16:31.827132277] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x9000050b" }
+[2024-06-07 23:16:31.827134594] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000506, size = 22" }
+[2024-06-07 23:16:31.827137001] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x90000506" }
+[2024-06-07 23:16:31.827139116] ABN:    { cpu  6 }  { "itc_coord", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.827142478] ABN:    { cpu  6 }  { "itc_coord", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00100000" }
+[2024-06-07 23:16:31.827145384] ABN:    { cpu  6 }  { "itc_coord", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.827148484] INFO:   { cpu  6 }  { "itc_coord", "itc_sysvmq.c", 520, "-", "Add contact list!" }
+[2024-06-07 23:16:31.827151435] INFO:   { cpu  6 }  { "itc_coord", "itc_sysvmq.c", 567, "-", "Get sysv message queue: proj_id = 3!" }
+[2024-06-07 23:16:31.827167880] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000506" }
+[2024-06-07 23:16:31.827175981] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:16:31.827179234] INFO:   { cpu  6 }  { "itc_coord", "itccoord.c", 1123, "-", "Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00300001" }
+[2024-06-07 23:16:31.827182370] INFO:   { cpu  6 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000505" }
+[2024-06-07 23:16:31.827490859] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 37" }
+[2024-06-07 23:16:31.827512903] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00300001" }
+[2024-06-07 23:16:31.827518366] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505" }
+[2024-06-07 23:16:31.827522293] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.827525438] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.827539126] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.827554516] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.827580120] INFO:   { cpu  4 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.827583350] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.827586570] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 942, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST received!" }
+[2024-06-07 23:16:31.827588843] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 943, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00300001" }
+[2024-06-07 23:16:31.827592047] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 944, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 1000 ms" }
+[2024-06-07 23:16:31.827593884] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 945, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = true" }
+[2024-06-07 23:16:31.827595758] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 946, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = itcgw_tcpclient_mailbox!" }
+[2024-06-07 23:16:31.827598269] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000506, size = 14" }
+[2024-06-07 23:16:31.827600652] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x90000506" }
+[2024-06-07 23:16:31.827602722] ABN:    { cpu  4 }  { "itc_coord", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.827616273] ABN:    { cpu  4 }  { "itc_coord", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00100000" }
+[2024-06-07 23:16:31.827620397] ABN:    { cpu  4 }  { "itc_coord", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.827658037] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000506" }
+[2024-06-07 23:16:31.827664652] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:16:31.827668551] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 1123, "-", "Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00300001" }
+[2024-06-07 23:16:31.827672237] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000505" }
+[2024-06-07 23:16:31.829185554] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 27" }
+[2024-06-07 23:16:31.829194994] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200002" }
+[2024-06-07 23:16:31.829197811] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505" }
+[2024-06-07 23:16:31.829200377] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.829202410] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.829215357] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.829224747] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.829236110] INFO:   { cpu  4 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.829240065] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.829243916] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 942, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST received!" }
+[2024-06-07 23:16:31.829247150] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 943, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00200002" }
+[2024-06-07 23:16:31.829250179] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 944, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 1000 ms" }
+[2024-06-07 23:16:31.829253164] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 945, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = true" }
+[2024-06-07 23:16:31.829256032] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 946, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = senderMailbox!" }
+[2024-06-07 23:16:31.829260011] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000506, size = 14" }
+[2024-06-07 23:16:31.829263565] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00200002, msgno = 0x90000506" }
+[2024-06-07 23:16:31.829266856] ABN:    { cpu  4 }  { "itc_coord", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00200002" }
+[2024-06-07 23:16:31.829270337] ABN:    { cpu  4 }  { "itc_coord", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00200000, my_mbox_id_in_itccoord = 0x00100000" }
+[2024-06-07 23:16:31.829273450] ABN:    { cpu  4 }  { "itc_coord", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00200002" }
+[2024-06-07 23:16:31.829303893] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000506" }
+[2024-06-07 23:16:31.829308564] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:16:31.829312216] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 1123, "-", "Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00200002" }
+[2024-06-07 23:16:31.829315662] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000505" }
+[2024-06-07 23:16:31.830885839] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 37" }
+[2024-06-07 23:16:31.830906153] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00300001" }
+[2024-06-07 23:16:31.830920906] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505" }
+[2024-06-07 23:16:31.830926106] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.830929381] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.830946590] INFO:   { cpu  2 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.830978730] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.830989903] INFO:   { cpu  4 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.830997059] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.831003652] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 942, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST received!" }
+[2024-06-07 23:16:31.831009330] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 943, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x00300001" }
+[2024-06-07 23:16:31.831014447] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 944, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST timeout = 1000 ms" }
+[2024-06-07 23:16:31.831019365] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 945, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = true" }
+[2024-06-07 23:16:31.831060998] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 946, "-", "ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = itcgw_tcpclient_mailbox!" }
+[2024-06-07 23:16:31.831070197] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000506, size = 14" }
+[2024-06-07 23:16:31.831078443] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x90000506" }
+[2024-06-07 23:16:31.831084896] ABN:    { cpu  4 }  { "itc_coord", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.831091000] ABN:    { cpu  4 }  { "itc_coord", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00100000" }
+[2024-06-07 23:16:31.831094724] ABN:    { cpu  4 }  { "itc_coord", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.831115907] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000506" }
+[2024-06-07 23:16:31.831123447] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:16:31.831129496] INFO:   { cpu  4 }  { "itc_coord", "itccoord.c", 1123, "-", "Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x00300001" }
+[2024-06-07 23:16:31.831135401] INFO:   { cpu  4 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000505" }
+[2024-06-07 23:16:31.878316706] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 22" }
+[2024-06-07 23:16:31.878358122] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00300001" }
+[2024-06-07 23:16:31.878365663] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:16:31.878370636] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.878373940] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.878399023] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.878408954] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.878423887] INFO:   { cpu  2 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.878428469] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.878432415] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 935, "-", "ITC_NOTIFY_COORD_RMV_MBOX received!" }
+[2024-06-07 23:16:31.878436282] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 936, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300001" }
+[2024-06-07 23:16:31.878439241] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 937, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_name = senderMailbox!" }
+[2024-06-07 23:16:31.878443849] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:16:31.878635606] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 33" }
+[2024-06-07 23:16:31.878687599] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00300000" }
+[2024-06-07 23:16:31.878700389] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:16:31.878709315] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:16:31.878715997] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:16:31.878748539] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:16:31.878766783] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:16:31.878795057] INFO:   { cpu  3 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:16:31.878804392] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:16:31.878812894] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 935, "-", "ITC_NOTIFY_COORD_RMV_MBOX received!" }
+[2024-06-07 23:16:31.878819777] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 936, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00300000" }
+[2024-06-07 23:16:31.878826211] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 937, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_rx_sysvmq_0x00300000!" }
+[2024-06-07 23:16:31.878834059] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:16:31.879149333] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 384, "-", "Process with fd 6 is in state PROC_CONNECTED!" }
+[2024-06-07 23:16:31.879187283] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 769, "-", "Remove process mbox_id = 0x00300000 from used_list!" }
+[2024-06-07 23:16:31.879196741] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 799, "-", "Remove socket on process pid = 461496" }
+[2024-06-07 23:16:31.879246333] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 838, "-", "Unlink /tmp/itc/socket/lsocket successfully!" }
+[2024-06-07 23:16:31.879254114] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 783, "-", "Enqueue process mbox_id = 0x00300000 to free_list!" }

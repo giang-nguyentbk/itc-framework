@@ -860,7 +860,7 @@ static void* tcp_server_loop(void *data)
 {
 	(void)data;
 
-	if(prctl(PR_SET_NAME, "itc_gw_tcp_server", 0, 0, 0) == -1)
+	if(prctl(PR_SET_NAME, "itcgw_tcpserver", 0, 0, 0) == -1)
 	{
 		// ERROR trace is needed here
 		TPT_TRACE(TRACE_ERROR, "Failed to prctl() TCP server loop!");
@@ -1158,7 +1158,7 @@ static void* tcp_client_loop(void *data)
 {
 	(void)data;
 
-	if(prctl(PR_SET_NAME, "itc_gw_tcp_client", 0, 0, 0) == -1)
+	if(prctl(PR_SET_NAME, "itcgw_tcpclient", 0, 0, 0) == -1)
 	{
 		// ERROR trace is needed here
 		TPT_TRACE(TRACE_ERROR, "Failed to prctl() TCP client!");

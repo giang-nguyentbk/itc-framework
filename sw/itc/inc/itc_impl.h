@@ -38,8 +38,8 @@ extern "C" {
 #define ITC_COORD_SHIFT			20
 #define ITC_COORD_MBOX_NAME		"itc_coord_mailbox"
 #define ITC_GATEWAY_MBOX_UDP_NAME	"itc_gw_udp_mailbox"
-#define ITC_GATEWAY_MBOX_TCP_CLI_NAME	"itc_gw_tcp_client_mailbox"
-#define ITC_GATEWAY_MBOX_TCP_SER_NAME	"itc_gw_tcp_server_mailbox"
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME	"itcgw_tcpclient_mailbox"
+#define ITC_GATEWAY_MBOX_TCP_SER_NAME	"itcgw_tcpserver_mailbox"
 #define ITC_GATEWAY_BROADCAST_PORT	11111
 #define ITC_GATEWAY_TCP_LISTENING_PORT	22222
 #define ITC_GATEWAY_BROADCAST_INTERVAL	10

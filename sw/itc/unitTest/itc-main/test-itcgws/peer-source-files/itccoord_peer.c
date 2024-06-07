@@ -76,7 +76,7 @@ process (lsock)	:	rx_len = recv(sd, str_ack, 4, 0) ---> CONNECTING TO A PROCESS 
 #define NR_PROC_ALIVENESS_CHECK_RETRIES	10 // After 10 while true loop of itccoord main function, check zombie processes.
 #define FREELIST_LOW_THRESHOLD		10 // When number of processes remaining in free_list decreases down to 10 -> used_list count should be 255 - 10 = 245, check zombie processes.
 
-#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itc_gw_tcp_client_mailbox2" // TEST ONLY
+#define ITC_GATEWAY_MBOX_TCP_CLI_NAME2	"itcgw_tcpclient_mailbox2" // TEST ONLY
 #define ITC_ITCCOORD_LOGFILE2 		"itccoord.log" // TEST ONLY
 
 union itc_msg {

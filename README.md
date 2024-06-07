@@ -14,6 +14,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 28385 lines (updated 22/4/2024)
 -> Total: 28058 lines (updated 3/5/2024)
 -> Total: 34335 lines (updated 7/6/2024)
+-> Total: 24186 lines (updated 7/6/2024) -> Optimization
 ```
 
 ## Fundamental knowledge:
@@ -212,6 +213,11 @@ messages in queue which is not dequeued for a long time,...
 
 5. Namespace will be implemeted later
 
+6. Evaluate latency in itc message exchanges. Reduce latency down to a specific criteria.
+
+7. Implement all message passing or signal synchronization mechanism in Linux like Shared Memory, Semaphore,...
+
+8. Make this platform portable code, support on Windows, BSD, SunOS,...
 
 ----> All improvements will be soon committed in ITC V2.
 ```
