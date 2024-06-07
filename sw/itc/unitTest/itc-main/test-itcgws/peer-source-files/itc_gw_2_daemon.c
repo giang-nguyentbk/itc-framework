@@ -218,25 +218,25 @@ int main(int argc, char* argv[])
 
 		if(!setup_log_file())
 		{
-			LOG_ERROR("Failed to setup log file for this itcgws daemon!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to setup log file for this itcgws daemon!");
 			exit(EXIT_FAILURE);
 		}
 
 		if(daemon(1, 1))
 		{
-			LOG_ERROR("Failed to start itcgws as a daemon!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to start itcgws as a daemon!");
 			exit(EXIT_FAILURE);
 		}
 
-		LOG_INFO("Starting itcgws daemon...\n");
+		TPT_TRACE(TRACE_INFO, "Starting itcgws daemon...");
 	} else
 	{
-		LOG_INFO("Starting itcgws, but not as a daemon...\n");
+		TPT_TRACE(TRACE_INFO, "Starting itcgws, but not as a daemon...");
 	}
 
 	if(!itcgws_config())
 	{
-		LOG_ERROR("Failed to setup necessary modules for itcgw!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to setup necessary modules for itcgw!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -261,7 +261,7 @@ int main(int argc, char* argv[])
 		res = select(max_fd + 1, &fdset, NULL, NULL, NULL);
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to select() in UDP loop!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to select() in UDP loop!");
 			exit(EXIT_FAILURE);
 		}
 
@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
 		{
 			if(handle_receive_broadcast_msg(itcgw_inst.udp_fd) == false)
 			{
-				LOG_ERROR("Failed to handle_receive_broadcast_msg()!\n");
+				TPT_TRACE(TRACE_ERROR, "Failed to handle_receive_broadcast_msg()!");
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
 		{
 			if(handle_receive_itcmsg_at_udp(itcgw_inst.udp_mbox_fd) == false)
 			{
-				LOG_ERROR("Failed to handle_receive_itcmsg_ast_udp()!\n");
+				TPT_TRACE(TRACE_ERROR, "Failed to handle_receive_itcmsg_ast_udp()!");
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -312,7 +312,7 @@ static void itcgw_init(void)
 static void itcgw_sig_handler(int signo)
 {
 	// Call our own exit_handler
-	LOG_INFO("ITCGW is terminated with SIG = %d, calling exit handler...\n", signo);
+	TPT_TRACE(TRACE_INFO, "ITCGW is terminated with SIG = %d, calling exit handler...", signo);
 	itcgw_exit_handler();
 
 	// After clean up, resume raising the suppressed signal
@@ -322,17 +322,17 @@ static void itcgw_sig_handler(int signo)
 
 static void itcgw_exit_handler(void)
 {
-	LOG_INFO("Closing file descriptors...\n");
+	TPT_TRACE(TRACE_INFO, "Closing file descriptors...");
 	close(itcgw_inst.udp_fd);
 	close(itcgw_inst.tcp_server_fd);
 	close(itcgw_inst.udp_broadcast_timer_fd);
 
-	LOG_INFO("Destroying UDP, TCP server and client trees...\n");
+	TPT_TRACE(TRACE_INFO, "Destroying UDP, TCP server and client trees...");
 	tdestroy(itcgw_inst.udp_tree, do_nothing);
 	tdestroy(itcgw_inst.tcp_server_tree, do_nothing);
 	tdestroy(itcgw_inst.tcp_client_tree, do_nothing);
 
-	LOG_INFO("Deleting UDP, TCP server, TCP client mailboxes...\n");
+	TPT_TRACE(TRACE_INFO, "Deleting UDP, TCP server, TCP client mailboxes...");
 	if(itcgw_inst.udp_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
 	{
 		itc_delete_mailbox(itcgw_inst.udp_mbox_id);
@@ -341,32 +341,32 @@ static void itcgw_exit_handler(void)
 	int ret = pthread_cancel(itcgw_inst.tcp_server_tid);
 	if(ret != 0)
 	{
-		LOG_ERROR("Failed to pthread_cancel server, error code = %d\n", ret);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_cancel server, error code = %d", ret);
 	}
 
 	ret = pthread_join(itcgw_inst.tcp_server_tid, NULL);
 	if(ret != 0)
 	{
-		LOG_ERROR("Failed to pthread_join server, error code = %d\n", ret);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_join server, error code = %d", ret);
 	}
 
 	ret = pthread_cancel(itcgw_inst.tcp_client_tid);
 	if(ret != 0)
 	{
-		LOG_ERROR("Failed to pthread_cancel client, error code = %d\n", ret);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_cancel client, error code = %d", ret);
 	}
 
 	ret = pthread_join(itcgw_inst.tcp_client_tid, NULL);
 	if(ret != 0)
 	{
-		LOG_ERROR("Failed to pthread_join client, error code = %d\n", ret);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_join client, error code = %d", ret);
 	}
 
-	LOG_INFO("Exiting ITC system...\n");
+	TPT_TRACE(TRACE_INFO, "Exiting ITC system...");
 	itc_exit();
 
 	free(rc);
-	LOG_INFO("ITCGW exit handler finished!\n");
+	TPT_TRACE(TRACE_INFO, "ITCGW exit handler finished!");
 }
 
 static bool itcgws_config(void)
@@ -408,7 +408,7 @@ static bool setup_rc(void)
 		rc = (struct result_code*)malloc(sizeof(struct result_code));
 		if(rc == NULL)
 		{
-			LOG_ERROR("Failed to malloc rc due to out of memory!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc due to out of memory!");
                 	return false;
 		}	
 	}
@@ -423,20 +423,20 @@ static bool setup_udp_mailbox(void)
 	// Allocate 4 mailboxes, one is for udp thread, one is for tcp server thread, one is for tcp client thread, the other one is reserved
 	if(itc_init(4, ITC_MALLOC, 0) == false)
 	{
-		LOG_ERROR("Failed to itc_init() by ITCGW!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to itc_init() by ITCGW!");
 		return false;
 	}
 
 	itcgw_inst.udp_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_UDP_NAME2, ITC_NO_NAMESPACE); // TEST ONLY
 	if(itcgw_inst.udp_mbox_id == ITC_NO_MBOX_ID)
 	{
-		LOG_ERROR("Failed to create mailbox %s!\n", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
+		TPT_TRACE(TRACE_ERROR, "Failed to create mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
 		itc_exit();
 		return false;
 	}
 
 	itcgw_inst.udp_mbox_fd = itc_get_fd(itcgw_inst.udp_mbox_id);
-	LOG_INFO("Setup UDP mailbox \"%s\" successfully!\n", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
+	TPT_TRACE(TRACE_INFO, "Setup UDP mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
 	return true;
 }
 
@@ -445,7 +445,7 @@ static bool setup_udp_server(void)
 	itcgw_inst.udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(itcgw_inst.udp_fd < 0)
 	{
-		LOG_ERROR("Failed to create socket(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to create socket(), errno = %d!", errno);
 		return false;
 	}
 
@@ -453,7 +453,7 @@ static bool setup_udp_server(void)
 	int res = setsockopt(itcgw_inst.udp_fd, SOL_SOCKET, SO_BROADCAST, &broadcast_opt, sizeof(int));
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to setsockopt() SO_BROADCAST, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to setsockopt() SO_BROADCAST, errno = %d!", errno);
 		close(itcgw_inst.udp_fd);
 		return false;
 	}
@@ -461,7 +461,7 @@ static bool setup_udp_server(void)
 	res = setsockopt(itcgw_inst.udp_fd, SOL_SOCKET, SO_REUSEADDR, &broadcast_opt, sizeof(int));
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to setsockopt() SO_REUSEADDR, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to setsockopt() SO_REUSEADDR, errno = %d!", errno);
 		close(itcgw_inst.udp_fd);
 		return false;
 	}
@@ -476,14 +476,14 @@ static bool setup_udp_server(void)
 	res = bind(itcgw_inst.udp_fd, (struct sockaddr *)((void *)&myUDPaddr), size);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to bind(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to bind(), errno = %d!", errno);
 		close(itcgw_inst.udp_fd);
 		return false;
 	}
 
 	itcgw_inst.udp_addr = myUDPaddr;
 
-	LOG_INFO("Setup my UDP successfully on %s:%d\n", inet_ntoa(myUDPaddr.sin_addr), ntohs(myUDPaddr.sin_port));
+	TPT_TRACE(TRACE_INFO, "Setup my UDP successfully on %s:%d", inet_ntoa(myUDPaddr.sin_addr), ntohs(myUDPaddr.sin_port));
 	return true;
 }
 
@@ -500,7 +500,7 @@ static bool setup_udp_peer(void)
 		strcpy(itcgw_inst.udp_peers[i].addr, ITC_GATEWAY_NO_ADDR_STRING); 
 	}
 
-	LOG_INFO("Setup UDP peer successfully on %s:%d\n", inet_ntoa(itcgw_inst.udp_peer_addr.sin_addr), ITC_GATEWAY_BROADCAST_PORT);
+	TPT_TRACE(TRACE_INFO, "Setup UDP peer successfully on %s:%d", inet_ntoa(itcgw_inst.udp_peer_addr.sin_addr), ITC_GATEWAY_BROADCAST_PORT);
 	return true;
 }
 
@@ -509,7 +509,7 @@ static bool setup_tcp_server(void)
 	int tcpfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(tcpfd < 0)
 	{
-		LOG_ERROR("Failed to get socket(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to get socket(), errno = %d!", errno);
 		return false;
 	}
 
@@ -517,7 +517,7 @@ static bool setup_tcp_server(void)
 	int res = setsockopt(tcpfd, SOL_SOCKET, SO_REUSEADDR, &listening_opt, sizeof(int));
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to set sockopt SO_REUSEADDR, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to set sockopt SO_REUSEADDR, errno = %d!", errno);
 		close(tcpfd);
 		return false;
 	}
@@ -532,7 +532,7 @@ static bool setup_tcp_server(void)
 	res = bind(tcpfd, (struct sockaddr *)&itcgw_inst.tcp_server_addr, size);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to bind, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to bind, errno = %d!", errno);
 		close(tcpfd);
 		return false;
 	}
@@ -540,14 +540,14 @@ static bool setup_tcp_server(void)
 	res = listen(tcpfd, ITC_GATEWAY_MAX_PEERS);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to listen, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to listen, errno = %d!", errno);
 		close(tcpfd);
 		return false;
 	}
 
 	itcgw_inst.tcp_server_fd = tcpfd;
 
-	LOG_INFO("Setup TCP server successfully on %s:%d\n", inet_ntoa(itcgw_inst.tcp_server_addr.sin_addr), ntohs(itcgw_inst.tcp_server_addr.sin_port));
+	TPT_TRACE(TRACE_INFO, "Setup TCP server successfully on %s:%d", inet_ntoa(itcgw_inst.tcp_server_addr.sin_addr), ntohs(itcgw_inst.tcp_server_addr.sin_port));
 	return true;
 }
 
@@ -556,11 +556,11 @@ static bool setup_broadcast_timer(void)
 	itcgw_inst.udp_broadcast_timer_fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
 	if(itcgw_inst.udp_broadcast_timer_fd < 0)
 	{
-		LOG_ERROR("Failed to timerfd_create(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to timerfd_create(), errno = %d!", errno);
 		return false;
 	}
 
-	LOG_INFO("Broadcast timer fd %d created successfully!\n", itcgw_inst.udp_broadcast_timer_fd);
+	TPT_TRACE(TRACE_INFO, "Broadcast timer fd %d created successfully!", itcgw_inst.udp_broadcast_timer_fd);
 	return true;
 }
 
@@ -573,23 +573,23 @@ static bool check_broadcast_timer(time_t interval)
 	int res = timerfd_gettime(itcgw_inst.udp_broadcast_timer_fd, &remaining_time);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to timerfd_gettime(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to timerfd_gettime(), errno = %d!", errno);
 		return false;
 	}
 
-	LOG_INFO("Broadcast timer will expire in: %ld.%ld seconds!\n", remaining_time.it_value.tv_sec, remaining_time.it_value.tv_nsec / 1000000);
+	TPT_TRACE(TRACE_INFO, "Broadcast timer will expire in: %ld.%ld seconds!", remaining_time.it_value.tv_sec, remaining_time.it_value.tv_nsec / 1000000);
 
 	clock_gettime(CLOCK_REALTIME, &now);
 	if(remaining_time.it_value.tv_sec == 0 && remaining_time.it_value.tv_nsec == 0)
 	{
-		LOG_INFO("Reset timer %lds, send broadcasting message...!\n", interval);
+		TPT_TRACE(TRACE_INFO, "Reset timer %lds, send broadcasting message...!", interval);
 		memset(&its, 0, sizeof(struct itimerspec));
 		its.it_value.tv_sec = now.tv_sec + (time_t)interval;
 		its.it_value.tv_nsec = now.tv_nsec;
 		res = timerfd_settime(itcgw_inst.udp_broadcast_timer_fd, TFD_TIMER_ABSTIME, &its, NULL);
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to timerfd_settime(), errno = %d!\n", errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to timerfd_settime(), errno = %d!", errno);
 			return false;
 		}
 
@@ -597,7 +597,7 @@ static bool check_broadcast_timer(time_t interval)
 		res = sendto(itcgw_inst.udp_fd, itcgw_inst.udp_broadtcast_msg, strlen(itcgw_inst.udp_broadtcast_msg), 0, (struct sockaddr *)((void *)&itcgw_inst.udp_peer_addr), sizeof(struct sockaddr_in));
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to broadcast greeting message, errno = %d!\n", errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to broadcast greeting message, errno = %d!", errno);
 			return false;
 		}
 	}
@@ -618,14 +618,14 @@ static struct in_addr get_ip_address_from_network_interface(int sockfd, char *in
 	int res = ioctl(sockfd, SIOCGIFADDR, (caddr_t)&ifrq, size);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to ioctl to obtain IP address from %s, errno = %d!\n", interface, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to ioctl to obtain IP address from %s, errno = %d!", interface, errno);
 		return sock_addr.sin_addr;
 	}
 
 	size = sizeof(struct sockaddr_in);
 	memcpy(&sock_addr, &(ifrq.ifr_ifru.ifru_addr), size);
 
-	LOG_INFO("Retrieve address from network interface \"%s\" -> tcp://%s:%d\n", interface, inet_ntoa(sock_addr.sin_addr), sock_addr.sin_port);
+	TPT_TRACE(TRACE_INFO, "Retrieve address from network interface \"%s\" -> tcp://%s:%d", interface, inet_ntoa(sock_addr.sin_addr), sock_addr.sin_port);
 	return sock_addr.sin_addr;
 }
 
@@ -633,7 +633,7 @@ static bool create_broadcast_message(void)
 {
 	snprintf((char *)itcgw_inst.udp_broadtcast_msg, ITC_MAX_NAME_LENGTH*2, "Broadcast Message: ITCGW from host <%s> listening on tcp://%s:%hu/", itcgw_inst.namespace, inet_ntoa(itcgw_inst.tcp_server_addr.sin_addr), ntohs(itcgw_inst.tcp_server_addr.sin_port));
 
-	LOG_INFO("Broadcasting message created successfully -> \"%s\"\n", itcgw_inst.udp_broadtcast_msg);
+	TPT_TRACE(TRACE_INFO, "Broadcasting message created successfully -> \"%s\"", itcgw_inst.udp_broadtcast_msg);
 	return true;
 }
 
@@ -650,10 +650,10 @@ static bool handle_receive_broadcast_msg(int sockfd)
 	{
 		if(errno != EINTR)
 		{
-			LOG_ERROR("Failed to recvfrom(), errno = %d!\n", errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to recvfrom(), errno = %d!", errno);
 		} else
 		{
-			LOG_ERROR("Receiving message was interrupted, continue receiving!\n");
+			TPT_TRACE(TRACE_ERROR, "Receiving message was interrupted, continue receiving!");
 		}
 		return false;
 	}
@@ -665,7 +665,7 @@ static bool handle_receive_broadcast_msg(int sockfd)
 	uint16_t tcp_port;
 	/* Instead of format string "%s" as usual, we must use "%[^:]" meaning read to string tcp_ip until character ':'. */
 	res = sscanf(rx_buff, "Broadcast Message: ITCGW from host <%[^>]> listening on tcp://%[^:]:%hu/", namespace, tcp_ip, &tcp_port);
-	LOG_INFO("Received a greeting message from hostname <%s> on tcp://%s:%hu/\n", namespace, tcp_ip, tcp_port);
+	TPT_TRACE(TRACE_INFO, "Received a greeting message from hostname <%s> on tcp://%s:%hu/", namespace, tcp_ip, tcp_port);
 
 
 	struct udp_peer_info **iter;
@@ -676,7 +676,7 @@ static bool handle_receive_broadcast_msg(int sockfd)
 	if(iter != NULL)
 	{
 		/* Already added in tree */
-		LOG_INFO("Already connected, ignore broadcasting message from this peer!\n");
+		TPT_TRACE(TRACE_INFO, "Already connected, ignore broadcasting message from this peer!");
 		return true;
 	} else
 	{
@@ -686,7 +686,7 @@ static bool handle_receive_broadcast_msg(int sockfd)
 			if(strcmp(itcgw_inst.udp_peers[i].addr, ITC_GATEWAY_NO_ADDR_STRING) == 0)
 			{
 				/* Allocate a slot for this new connection */
-				LOG_INFO("Adding new TCP peer connection successfully from tcp://%s:%hu/\n", tcp_ip, tcp_port);
+				TPT_TRACE(TRACE_INFO, "Adding new TCP peer connection successfully from tcp://%s:%hu/", tcp_ip, tcp_port);
 				strcpy(itcgw_inst.udp_peers[i].addr, m_addr);
 				tsearch(&itcgw_inst.udp_peers[i], &itcgw_inst.udp_tree, compare_peer_udp_tree);
 				break;
@@ -695,7 +695,7 @@ static bool handle_receive_broadcast_msg(int sockfd)
 
 		if(i == ITC_GATEWAY_MAX_PEERS)
 		{
-			LOG_ERROR("No more than %d peers is accepted!\n", ITC_GATEWAY_MAX_PEERS);
+			TPT_TRACE(TRACE_ERROR, "No more than %d peers is accepted!", ITC_GATEWAY_MAX_PEERS);
 			return false;
 		}
 	}
@@ -709,18 +709,18 @@ static bool handle_receive_broadcast_msg(int sockfd)
 
 	if(itc_send(&req, itcgw_inst.tcp_client_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		LOG_ERROR("Failed to send ITCGW_UDP_ADD_PEER to mailbox %s!\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+		TPT_TRACE(TRACE_ERROR, "Failed to send ITCGW_UDP_ADD_PEER to mailbox %s!", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
 		itc_free(&req);
 		return false;
 	}
 
-	LOG_INFO("Sent ITCGW_UDP_ADD_PEER to mailbox \"%s\" successfully!\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+	TPT_TRACE(TRACE_INFO, "Sent ITCGW_UDP_ADD_PEER to mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
 	
 	/* 1. Force broadcasting greeting messages */
 	res = sendto(itcgw_inst.udp_fd, itcgw_inst.udp_broadtcast_msg, strlen(itcgw_inst.udp_broadtcast_msg), 0, (struct sockaddr *)((void *)&itcgw_inst.udp_peer_addr), sizeof(struct sockaddr_in));
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to force broadcasting greeting message, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to force broadcasting greeting message, errno = %d!", errno);
 		return false;
 	}
 
@@ -794,14 +794,14 @@ static bool setup_tcp_threads(void)
 	int res = pthread_key_create(&itcgw_inst.tcp_server_destruct_key, tcp_server_thread_destructor);
 	if(res != 0)
 	{
-		LOG_ERROR("Failed to pthread_key_create server, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_key_create server, error code = %d", res);
 		return false;
 	}
 
 	res = pthread_mutex_init(&itcgw_inst.tcp_server_mtx, NULL);
 	if(res != 0)
 	{
-		LOG_ERROR("Failed to pthread_mutex_init server, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_mutex_init server, error code = %d", res);
 		pthread_key_delete(itcgw_inst.tcp_server_destruct_key);
 		return false;
 	}
@@ -809,7 +809,7 @@ static bool setup_tcp_threads(void)
 	res = pthread_key_create(&itcgw_inst.tcp_client_destruct_key, tcp_client_thread_destructor);
 	if(res != 0)
 	{
-		LOG_ERROR("Failed to pthread_key_create client, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_key_create client, error code = %d", res);
 		pthread_key_delete(itcgw_inst.tcp_server_destruct_key);
 		pthread_mutex_destroy(&itcgw_inst.tcp_server_mtx);
 		return false;
@@ -818,7 +818,7 @@ static bool setup_tcp_threads(void)
 	res = pthread_mutex_init(&itcgw_inst.tcp_client_mtx, NULL);
 	if(res != 0)
 	{
-		LOG_ERROR("Failed to pthread_mutex_init client, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_mutex_init client, error code = %d", res);
 		pthread_key_delete(itcgw_inst.tcp_server_destruct_key);
 		pthread_mutex_destroy(&itcgw_inst.tcp_server_mtx);
 		pthread_key_delete(itcgw_inst.tcp_client_destruct_key);
@@ -832,7 +832,7 @@ static void tcp_server_thread_destructor(void* data)
 {
 	(void)data;
 
-	LOG_INFO("Calling tcp server thread destructor...\n");
+	TPT_TRACE(TRACE_INFO, "Calling tcp server thread destructor...");
 
 	/* Do not need to delete mailboxes manually here because ITC system already helped you do that.
 	   Let's recall, when we call itc_create_mailbox(), ITC system actually associates the mailbox_id with your current thread's destructor.
@@ -840,7 +840,7 @@ static void tcp_server_thread_destructor(void* data)
 
 	// if(itcgw_inst.tcp_server_mbox_id != 0 || itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
 	// {
-	// 	LOG_INFO("Deleting tcp server mailbox...\n");
+	// 	TPT_TRACE(TRACE_INFO, "Deleting tcp server mailbox...");
 	// 	itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
 	// }
 }
@@ -851,7 +851,7 @@ static bool start_tcp_server_thread(void)
 	int res = pthread_create(&itcgw_inst.tcp_server_tid, NULL, tcp_server_loop, NULL);
 	if(res != 0)
 	{
-		LOG_ERROR("Failed to pthread_create, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_create, error code = %d", res);
 		return false;
 	}
 	MUTEX_LOCK(&itcgw_inst.tcp_server_mtx); // Wait until tcp_server_thread finishes their initialization
@@ -867,23 +867,23 @@ static void* tcp_server_loop(void *data)
 	if(prctl(PR_SET_NAME, "itc_gw_tcp_server", 0, 0, 0) == -1)
 	{
 		// ERROR trace is needed here
-		LOG_ERROR("Failed to prctl() TCP server loop!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to prctl() TCP server loop!");
 		return NULL;
 	}
 
 	if(!setup_tcp_server_mailbox() || !setup_tcp_server_peer())
 	{
-		LOG_ERROR("Failed to setup_tcp_server_mailbox!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to setup_tcp_server_mailbox!");
 		return NULL;
 	}
 
-	LOG_INFO("Starting tcp server loop...\n");
+	TPT_TRACE(TRACE_INFO, "Starting tcp server loop...");
 
 	int res = pthread_setspecific(itcgw_inst.tcp_server_destruct_key, (void*)(unsigned long)itcgw_inst.tcp_server_mbox_id);
 	if(res != 0)
 	{
 		// ERROR trace is needed here
-		LOG_ERROR("Failed to pthread_setspecific, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_setspecific, error code = %d", res);
 		return NULL;
 	}
 
@@ -910,7 +910,7 @@ static void* tcp_server_loop(void *data)
 		res = select(max_fd + 1, &fdset, NULL, NULL, NULL);
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to select() in TCP server loop!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to select() in TCP server loop!");
 			return NULL;
 		}
 
@@ -918,7 +918,7 @@ static void* tcp_server_loop(void *data)
 		{
 			if(handle_accept_new_connection(itcgw_inst.tcp_server_fd) == false)
 			{
-				LOG_ERROR("Failed to handle_accept_new_connection()!\n");
+				TPT_TRACE(TRACE_ERROR, "Failed to handle_accept_new_connection()!");
 				return NULL;
 			}
 		}
@@ -931,7 +931,7 @@ static void* tcp_server_loop(void *data)
 				remove peer from list and notify UDP mailbox so that they can remove peer from udp_list as well */
 				if(handle_receive_tcp_packet_at_server(itcgw_inst.tcp_server_peers[i].fd) == false)
 				{
-					LOG_ERROR("Failed to handle_receive_tcp_packet_at_server()!\n");
+					TPT_TRACE(TRACE_ERROR, "Failed to handle_receive_tcp_packet_at_server()!");
 					return NULL;
 				}
 			}
@@ -946,12 +946,12 @@ static bool setup_tcp_server_mailbox(void)
 	itcgw_inst.tcp_server_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_TCP_SER_NAME2, ITC_NO_NAMESPACE); // TEST ONLY
 	if(itcgw_inst.tcp_server_mbox_id == ITC_NO_MBOX_ID)
 	{
-		LOG_ERROR("Failed to create mailbox %s\n", ITC_GATEWAY_MBOX_TCP_SER_NAME2); // TEST ONLY
+		TPT_TRACE(TRACE_ERROR, "Failed to create mailbox %s", ITC_GATEWAY_MBOX_TCP_SER_NAME2); // TEST ONLY
 		return false;
 	}
 
 	itcgw_inst.tcp_server_mbox_fd = itc_get_fd(itcgw_inst.tcp_server_mbox_id);
-	LOG_INFO("Create TCP server mailbox \"%s\" successfully!\n", ITC_GATEWAY_MBOX_TCP_SER_NAME2); // TEST ONLY
+	TPT_TRACE(TRACE_INFO, "Create TCP server mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_SER_NAME2); // TEST ONLY
 	return true;
 }
 
@@ -977,11 +977,11 @@ static bool handle_accept_new_connection(int sockfd)
 	{
 		if(errno == EINTR)
 		{
-			LOG_ABN("Accepting connection was interrupted, just ignore it!\n");
+			TPT_TRACE(TRACE_ABN, "Accepting connection was interrupted, just ignore it!");
 			return true;
 		} else
 		{
-			LOG_ERROR("Accepting connection was destroyed!\n");
+			TPT_TRACE(TRACE_ERROR, "Accepting connection was destroyed!");
 			return false;
 		}
 	}
@@ -989,18 +989,18 @@ static bool handle_accept_new_connection(int sockfd)
 	/* Why the peer port here is not 22222, this is because after calling connect(), kernel will choose an ephemeral port (or probably a source IP address if no more port available) to connect to our peer.
 	Apart from that, port 22222 of our peer is listenning port, not the port to send out data. Similarly to us, our port 22223 is a listening, not a sending port.
 	Which port to send data is chosen by kernel at the time we call connect() to a peer */
-	// LOG_INFO("Accepting connection from tcp://%s:%hu/\n", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
+	// TPT_TRACE(TRACE_INFO, "Accepting connection from tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
 
 	struct tcp_peer_info **iter;
 	char addr[30];
-	LOG_INFO("Receiving new connection from a peer client tcp://%s:%hu/\n", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
+	TPT_TRACE(TRACE_INFO, "Receiving new connection from a peer client tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
 	snprintf(addr, 30, "tcp://%s:%hu/", inet_ntoa(new_addr.sin_addr), ITC_GATEWAY_TCP_LISTENING_PORT);
 
 	iter = tfind(addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
 	if(iter != NULL)
 	{
 		/* Already added in tree */
-		LOG_ABN("Already connected, ignore connect() from this peer!\n");
+		TPT_TRACE(TRACE_ABN, "Already connected, ignore connect() from this peer!");
 	} else
 	{
 		int i = 0;
@@ -1008,7 +1008,7 @@ static bool handle_accept_new_connection(int sockfd)
 		{
 			if(itcgw_inst.tcp_server_peers[i].fd == -1)
 			{
-				LOG_INFO("Accepting new tcp connection from %s\n", addr);
+				TPT_TRACE(TRACE_INFO, "Accepting new tcp connection from %s", addr);
 				strcpy(itcgw_inst.tcp_server_peers[i].addr, addr);
 				itcgw_inst.tcp_server_peers[i].fd = new_fd;
 				tsearch(&itcgw_inst.tcp_server_peers[i], &itcgw_inst.tcp_server_tree, compare_peer_tcp_tree);
@@ -1018,7 +1018,7 @@ static bool handle_accept_new_connection(int sockfd)
 
 		if(i == ITC_GATEWAY_MAX_PEERS)
 		{
-			LOG_ERROR("No more than %d peers is accepted!\n", ITC_GATEWAY_MAX_PEERS);
+			TPT_TRACE(TRACE_ERROR, "No more than %d peers is accepted!", ITC_GATEWAY_MAX_PEERS);
 			return false;
 		}
 	}
@@ -1037,16 +1037,16 @@ static bool handle_receive_tcp_packet_at_server(int sockfd)
 
 	if(size == 0)
 	{
-		LOG_INFO("Peer from this socket fd %d disconnected, remove it from server list!\n", sockfd);
+		TPT_TRACE(TRACE_INFO, "Peer from this socket fd %d disconnected, remove it from server list!", sockfd);
 		if(!delete_tcp_peer_resource(sockfd))
 		{
-			LOG_ERROR("Failed to delete_tcp_peer_resource()!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to delete_tcp_peer_resource()!");
 		}
 
 		return true;
 	} else if(size < 0)
 	{
-		LOG_ERROR("Receive data from this peer failed, fd = %d!\n", sockfd);
+		TPT_TRACE(TRACE_ERROR, "Receive data from this peer failed, fd = %d!", sockfd);
 		return false;
 	}
 
@@ -1057,27 +1057,27 @@ static bool handle_receive_tcp_packet_at_server(int sockfd)
 	header->receiver		= ntohl(header->receiver);
 	header->sender			= ntohl(header->sender);
 
-	LOG_INFO("Receiving %d bytes from fd %d\n", size, sockfd);
-	LOG_INFO("Re-interpret TCP packet: msgno: 0x%08x\n", header->msgno);
-	LOG_INFO("Re-interpret TCP packet: payloadLen: %u\n", header->payloadLen);
-	LOG_INFO("Re-interpret TCP packet: protRev: %u\n", header->protRev);
-	LOG_INFO("Re-interpret TCP packet: receiver: %u\n", header->receiver);
-	LOG_INFO("Re-interpret TCP packet: sender: %u\n", header->sender);
+	TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: msgno: 0x%08x", header->msgno);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: payloadLen: %u", header->payloadLen);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: protRev: %u", header->protRev);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: receiver: %u", header->receiver);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: sender: %u", header->sender);
 
 	switch (header->msgno)
 	{
 	case ITCGW_ITC_DATA_FWD:
-		LOG_INFO("Received ITCGW_ITC_DATA_FWD!\n");
+		TPT_TRACE(TRACE_INFO, "Received ITCGW_ITC_DATA_FWD!");
 		handle_receive_data_fwd(sockfd, header);
 		break;
 	
 	case ITCGW_LOCATE_MBOX_REQUEST:
-		LOG_INFO("Received ITCGW_LOCATE_MBOX_REQUEST!\n");
+		TPT_TRACE(TRACE_INFO, "Received ITCGW_LOCATE_MBOX_REQUEST!");
 		handle_receive_locate_mbox(sockfd, header);
 		break;
 	
 	default:
-		LOG_ABN("Received unknown TCP packet!\n");
+		TPT_TRACE(TRACE_ABN, "Received unknown TCP packet!");
 		break;
 	}
 
@@ -1098,7 +1098,7 @@ static bool delete_tcp_peer_resource(int sockfd)
 			iter = tfind(itcgw_inst.tcp_server_peers[i].addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
 			if(iter == NULL)
 			{
-				LOG_ABN("Disconnected peer not found in server tree, something wrong!\n");
+				TPT_TRACE(TRACE_ABN, "Disconnected peer not found in server tree, something wrong!");
 				return false;
 			}
 
@@ -1111,7 +1111,7 @@ static bool delete_tcp_peer_resource(int sockfd)
 
 			if(itc_send(&req, itcgw_inst.udp_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 			{
-				LOG_INFO("Failed to send ITCGW_UDP_RMV_PEER to mailbox %s!\n", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
+				TPT_TRACE(TRACE_INFO, "Failed to send ITCGW_UDP_RMV_PEER to mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME2); // TEST ONLY
 				itc_free(&req);
 				return false;
 			}
@@ -1123,7 +1123,7 @@ static bool delete_tcp_peer_resource(int sockfd)
 
 	if(i == ITC_GATEWAY_MAX_PEERS)
 	{
-		LOG_ABN("Disconnected peer not found in server list, something wrong!\n");
+		TPT_TRACE(TRACE_ABN, "Disconnected peer not found in server list, something wrong!");
 		return false;
 	}
 
@@ -1134,11 +1134,11 @@ static void tcp_client_thread_destructor(void* data)
 {
 	(void)data;
 
-	LOG_INFO("Calling tcp client thread destructor...\n");
+	TPT_TRACE(TRACE_INFO, "Calling tcp client thread destructor...");
 
 	if(itcgw_inst.tcp_client_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
 	{
-		LOG_INFO("Deleting tcp client mailbox...\n");
+		TPT_TRACE(TRACE_INFO, "Deleting tcp client mailbox...");
 		itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
 	}
 }
@@ -1149,7 +1149,7 @@ static bool start_tcp_client_thread(void)
 	int res = pthread_create(&itcgw_inst.tcp_client_tid, NULL, tcp_client_loop, NULL);
 	if(res != 0)
 	{
-		LOG_ERROR("Failed to pthread_create, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_create, error code = %d", res);
 		return false;
 	}
 	MUTEX_LOCK(&itcgw_inst.tcp_client_mtx); // Wait until tcp_client_thread finishes their initialization
@@ -1165,23 +1165,23 @@ static void* tcp_client_loop(void *data)
 	if(prctl(PR_SET_NAME, "itc_gw_tcp_client", 0, 0, 0) == -1)
 	{
 		// ERROR trace is needed here
-		LOG_ERROR("Failed to prctl() TCP client!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to prctl() TCP client!");
 		return NULL;
 	}
 
 	if(!setup_tcp_client_mailbox() || !setup_tcp_client_peer())
 	{
-		LOG_ERROR("Failed to setup_tcp_client_mailbox!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to setup_tcp_client_mailbox!");
 		return NULL;
 	}
 
-	LOG_INFO("Starting tcp client loop...\n");
+	TPT_TRACE(TRACE_INFO, "Starting tcp client loop...");
 
 	int res = pthread_setspecific(itcgw_inst.tcp_client_destruct_key, (void*)(unsigned long)itcgw_inst.tcp_client_mbox_id);
 	if(res != 0)
 	{
 		// ERROR trace is needed here
-		LOG_ERROR("Failed to pthread_setspecific, error code = %d\n", res);
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_setspecific, error code = %d", res);
 		return NULL;
 	}
 
@@ -1211,7 +1211,7 @@ static void* tcp_client_loop(void *data)
 		res = select(max_fd + 1, &fdset, NULL, NULL, NULL);
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to select()!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to select()!");
 			return NULL;
 		}
 
@@ -1219,7 +1219,7 @@ static void* tcp_client_loop(void *data)
 		{
 			if(handle_receive_itcmsg_at_client(itcgw_inst.tcp_client_mbox_fd) == false)
 			{
-				LOG_ERROR("Failed to handle_receive_itcmsg_at_client()!\n");
+				TPT_TRACE(TRACE_ERROR, "Failed to handle_receive_itcmsg_at_client()!");
 				return NULL;
 			}
 		}
@@ -1232,7 +1232,7 @@ static void* tcp_client_loop(void *data)
 				remove peer from list and notify UDP mailbox so that they can remove peer from udp_list as well */
 				if(handle_receive_tcp_packet_at_client(itcgw_inst.tcp_client_peers[i].fd) == false)
 				{
-					LOG_ERROR("Failed to handle_receive_tcp_packet_at_client()!\n");
+					TPT_TRACE(TRACE_ERROR, "Failed to handle_receive_tcp_packet_at_client()!");
 					return NULL;
 				}
 			}
@@ -1247,12 +1247,12 @@ static bool setup_tcp_client_mailbox(void)
 	itcgw_inst.tcp_client_mbox_id = itc_create_mailbox(ITC_GATEWAY_MBOX_TCP_CLI_NAME2, ITC_NO_NAMESPACE); // TEST ONLY
 	if(itcgw_inst.tcp_client_mbox_id == ITC_NO_MBOX_ID)
 	{
-		LOG_ERROR("Failed to create mailbox %s\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
+		TPT_TRACE(TRACE_ERROR, "Failed to create mailbox %s", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
 		return false;
 	}
 
 	itcgw_inst.tcp_client_mbox_fd = itc_get_fd(itcgw_inst.tcp_client_mbox_id);
-	LOG_INFO("Create TCP client mailbox \"%s\" successfully!\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
+	TPT_TRACE(TRACE_INFO, "Create TCP client mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
 	return true;
 }
 
@@ -1276,32 +1276,32 @@ static bool handle_receive_itcmsg_at_client(int sockfd)
 
 	if(msg == NULL)
 	{
-		LOG_ERROR("Fatal error, itcgw received a NULL itc_msg!\n");
+		TPT_TRACE(TRACE_ERROR, "Fatal error, itcgw received a NULL itc_msg!");
 		return false;
 	}
 
 	switch (msg->msgno)
 	{
 	case ITCGW_UDP_ADD_PEER:
-		LOG_INFO("Received ITCGW_UDP_ADD_PEER addr = %s\n", msg->itcgw_udp_add_peer.addr);
-		LOG_INFO("Received ITCGW_UDP_ADD_PEER namespace = %s\n", msg->itcgw_udp_add_peer.namespace);
+		TPT_TRACE(TRACE_INFO, "Received ITCGW_UDP_ADD_PEER addr = %s", msg->itcgw_udp_add_peer.addr);
+		TPT_TRACE(TRACE_INFO, "Received ITCGW_UDP_ADD_PEER namespace = %s", msg->itcgw_udp_add_peer.namespace);
 		handle_tcp_client_add_peer(msg->itcgw_udp_add_peer.addr, msg->itcgw_udp_add_peer.namespace);
 		break;
 
 	case ITC_FWD_DATA_TO_ITCGWS:
-		LOG_INFO("Received ITC_FWD_DATA_TO_ITCGWS to namespace \"%s\"\n", msg->itc_fwd_data_to_itcgws.to_namespace);
+		TPT_TRACE(TRACE_INFO, "Received ITC_FWD_DATA_TO_ITCGWS to namespace \"%s\"", msg->itc_fwd_data_to_itcgws.to_namespace);
 		handle_fwd_data_out(msg);
 		break;
 	
 	case ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST:
-		LOG_INFO("Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST from itccoord mbox_id 0x%08x\n", msg->itc_locate_mbox_from_itcgws_request.itccoord_mboxid);
-		LOG_INFO("Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST asked to locate mbox_name \"%s\"\n", msg->itc_locate_mbox_from_itcgws_request.mboxname);
+		TPT_TRACE(TRACE_INFO, "Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST from itccoord mbox_id 0x%08x", msg->itc_locate_mbox_from_itcgws_request.itccoord_mboxid);
+		TPT_TRACE(TRACE_INFO, "Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST asked to locate mbox_name \"%s\"", msg->itc_locate_mbox_from_itcgws_request.mboxname);
 		itcgw_inst.itccoord_mbox_id = msg->itc_locate_mbox_from_itcgws_request.itccoord_mboxid;
 		handle_locate_mbox_request(msg);
 		break;
 
 	default:
-		LOG_ABN("Received invalid message msgno = 0x%08x\n", msg->msgno);
+		TPT_TRACE(TRACE_ABN, "Received invalid message msgno = 0x%08x", msg->msgno);
 		break;
 	}
 
@@ -1320,13 +1320,13 @@ static bool handle_receive_tcp_packet_at_client(int sockfd)
 
 	if(size == 0)
 	{
-		LOG_INFO("Peer from this socket fd %d disconnected, remove it from client list!\n", sockfd);
+		TPT_TRACE(TRACE_INFO, "Peer from this socket fd %d disconnected, remove it from client list!", sockfd);
 		handle_tcp_client_rmv_peer(sockfd);
 		return true;
 		
 	} else if(size < 0)
 	{
-		LOG_ERROR("Receive data from this peer failed, fd = %d!\n", sockfd);
+		TPT_TRACE(TRACE_ERROR, "Receive data from this peer failed, fd = %d!", sockfd);
 		return false;
 	}
 
@@ -1337,22 +1337,22 @@ static bool handle_receive_tcp_packet_at_client(int sockfd)
 	header->receiver		= ntohl(header->receiver);
 	header->sender			= ntohl(header->sender);
 
-	LOG_INFO("Receiving %d bytes from fd %d\n", size, sockfd);
-	LOG_INFO("Re-interpret TCP packet: msgno: 0x%08x\n", header->msgno);
-	LOG_INFO("Re-interpret TCP packet: payloadLen: %u\n", header->payloadLen);
-	LOG_INFO("Re-interpret TCP packet: protRev: %u\n", header->protRev);
-	LOG_INFO("Re-interpret TCP packet: receiver: %u\n", header->receiver);
-	LOG_INFO("Re-interpret TCP packet: sender: %u\n", header->sender);
+	TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: msgno: 0x%08x", header->msgno);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: payloadLen: %u", header->payloadLen);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: protRev: %u", header->protRev);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: receiver: %u", header->receiver);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: sender: %u", header->sender);
 
 	switch (header->msgno)
 	{
 	case ITCGW_LOCATE_MBOX_REPLY:
-		LOG_INFO("Received ITCGW_LOCATE_MBOX_REPLY!\n");
+		TPT_TRACE(TRACE_INFO, "Received ITCGW_LOCATE_MBOX_REPLY!");
 		handle_receive_locate_mbox_reply(sockfd, header);
 		break;
 	
 	default:
-		LOG_ABN("Received unknown TCP packet!\n");
+		TPT_TRACE(TRACE_ABN, "Received unknown TCP packet!");
 		break;
 	}
 
@@ -1366,7 +1366,7 @@ static bool handle_tcp_client_add_peer(char *addr, char *namespace)
 	iter = tfind(addr, &itcgw_inst.tcp_client_tree, compare_addr_tcp_tree);
 	if(iter != NULL)
 	{
-		LOG_ERROR("This peer \"%s\" already added in client tree, something wrong!\n", addr);
+		TPT_TRACE(TRACE_ERROR, "This peer \"%s\" already added in client tree, something wrong!", addr);
 		return false;
 	}
 
@@ -1378,7 +1378,7 @@ static bool handle_tcp_client_add_peer(char *addr, char *namespace)
 	int new_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(new_fd < 0)
 	{
-		LOG_ERROR("Failed to get socket(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to get socket(), errno = %d!", errno);
 		return false;
 	}
 
@@ -1391,7 +1391,7 @@ static bool handle_tcp_client_add_peer(char *addr, char *namespace)
 	res = connect(new_fd, (struct sockaddr *)((void *)&serveraddr), sizeof(struct sockaddr_in));
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to get connect(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to get connect(), errno = %d!", errno);
 		close(new_fd);
 		return false;
 	}
@@ -1402,7 +1402,7 @@ static bool handle_tcp_client_add_peer(char *addr, char *namespace)
 		if(itcgw_inst.tcp_client_peers[i].fd == -1)
 		{
 			/* Allocate a slot for this new connection */
-			LOG_INFO("Connect to new TCP peer successfully from hostname <%s> on tcp://%s:%hu/\n", namespace, tcp_ip, tcp_port);
+			TPT_TRACE(TRACE_INFO, "Connect to new TCP peer successfully from hostname <%s> on tcp://%s:%hu/", namespace, tcp_ip, tcp_port);
 			strcpy(itcgw_inst.tcp_client_peers[i].addr, addr);
 			strcpy(itcgw_inst.tcp_client_peers[i].namespace, namespace);
 			itcgw_inst.tcp_client_peers[i].fd = new_fd;
@@ -1413,7 +1413,7 @@ static bool handle_tcp_client_add_peer(char *addr, char *namespace)
 
 	if(i == ITC_GATEWAY_MAX_PEERS)
 	{
-		LOG_ERROR("No more than %d peers is accepted!\n", ITC_GATEWAY_MAX_PEERS);
+		TPT_TRACE(TRACE_ERROR, "No more than %d peers is accepted!", ITC_GATEWAY_MAX_PEERS);
 		return false;
 	}
 
@@ -1434,7 +1434,7 @@ static bool handle_tcp_client_rmv_peer(int sockfd)
 			iter = tfind(itcgw_inst.tcp_client_peers[i].addr, &itcgw_inst.tcp_client_tree, compare_addr_tcp_tree);
 			if(iter == NULL)
 			{
-				LOG_ABN("Disconnected peer not found in client tree, something wrong!\n");
+				TPT_TRACE(TRACE_ABN, "Disconnected peer not found in client tree, something wrong!");
 				return false;
 			}
 
@@ -1447,7 +1447,7 @@ static bool handle_tcp_client_rmv_peer(int sockfd)
 
 	if(i == ITC_GATEWAY_MAX_PEERS)
 	{
-		LOG_ABN("Disconnected peer not found in client list, something wrong!\n");
+		TPT_TRACE(TRACE_ABN, "Disconnected peer not found in client list, something wrong!");
 		return false;
 	}
 
@@ -1460,7 +1460,7 @@ static bool handle_fwd_data_out(union itc_msg *msg)
 	struct itcgw_msg *rep = malloc(msg_len);
 	if(rep == NULL)
 	{
-		LOG_ERROR("Failed to malloc get namespace request message!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc get namespace request message!");
 		return false;
 	}
 
@@ -1480,19 +1480,19 @@ static bool handle_fwd_data_out(union itc_msg *msg)
 	iter = tfind(msg->itc_fwd_data_to_itcgws.to_namespace, &itcgw_inst.tcp_client_tree, compare_namespace_tcp_tree);
 	if(iter == NULL)
 	{
-		LOG_ABN("Namespace \"%s\" is not available in client tree, maybe the respective peer is not connected to us yet!\n", msg->itc_fwd_data_to_itcgws.to_namespace);
+		TPT_TRACE(TRACE_ABN, "Namespace \"%s\" is not available in client tree, maybe the respective peer is not connected to us yet!", msg->itc_fwd_data_to_itcgws.to_namespace);
 		return true;
 	}
 
 	int res = send((*iter)->fd, rep, msg_len, 0);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to send ITCGW_GET_NAMESPACE_REPLY, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to send ITCGW_GET_NAMESPACE_REPLY, errno = %d!", errno);
 		return false;
 	}
 
 	free(rep);
-	LOG_INFO("Sent ITCGW_ITC_DATA_FWD to peer with namespace \"%s\" successfully!\n", (*iter)->namespace);
+	TPT_TRACE(TRACE_INFO, "Sent ITCGW_ITC_DATA_FWD to peer with namespace \"%s\" successfully!", (*iter)->namespace);
 	return true;
 }
 
@@ -1505,24 +1505,24 @@ static bool handle_receive_itcmsg_at_udp(int sockfd)
 
 	if(msg == NULL)
 	{
-		LOG_ERROR("Fatal error, itcgw received a NULL itc_msg!\n");
+		TPT_TRACE(TRACE_ERROR, "Fatal error, itcgw received a NULL itc_msg!");
 		return false;
 	}
 
 	switch (msg->msgno)
 	{
 	case ITCGW_UDP_RMV_PEER:
-		LOG_INFO("Received ITCGW_UDP_RMV_PEER addr = %s\n", msg->itcgw_udp_rmv_peer.addr);
+		TPT_TRACE(TRACE_INFO, "Received ITCGW_UDP_RMV_PEER addr = %s", msg->itcgw_udp_rmv_peer.addr);
 		handle_udp_rmv_peer(msg->itcgw_udp_rmv_peer.addr);
 		break;
 
 	case ITC_GET_NAMESPACE_REQUEST:
-		LOG_INFO("Received ITC_GET_NAMESPACE_REQUEST from mbox 0x%08x\n", msg->itc_get_namespace_request.mbox_id);
+		TPT_TRACE(TRACE_INFO, "Received ITC_GET_NAMESPACE_REQUEST from mbox 0x%08x", msg->itc_get_namespace_request.mbox_id);
 		handle_udp_get_namespace_request(msg->itc_get_namespace_request.mbox_id);
 		break;
 
 	default:
-		LOG_ABN("Received invalid message msgno = 0x%08x\n", msg->msgno);
+		TPT_TRACE(TRACE_ABN, "Received invalid message msgno = 0x%08x", msg->msgno);
 		break;
 	}
 
@@ -1537,14 +1537,14 @@ static bool handle_udp_rmv_peer(char *addr)
 	iter = tfind(addr, &itcgw_inst.udp_tree, compare_addr_udp_tree);
 	if(iter == NULL)
 	{
-		LOG_ERROR("This peer \"%s\" not found in udp tree, something wrong!\n", addr);
+		TPT_TRACE(TRACE_ERROR, "This peer \"%s\" not found in udp tree, something wrong!", addr);
 		return false;
 	}
 
 	strcpy((*iter)->addr, ITC_GATEWAY_NO_ADDR_STRING);
 	tdelete(*iter, &itcgw_inst.udp_tree, compare_peer_udp_tree);
 
-	LOG_INFO("Remove peer \"%s\" from udp tree successfully!\n", addr);
+	TPT_TRACE(TRACE_INFO, "Remove peer \"%s\" from udp tree successfully!", addr);
 	return true;
 }
 
@@ -1576,12 +1576,12 @@ static bool handle_udp_get_namespace_request(itc_mbox_id_t mbox_id)
 
 	if(itc_send(&rep, mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		LOG_ERROR("Failed to send ITC_GET_NAMESPACE_REPLY to mailbox 0x%08x\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Failed to send ITC_GET_NAMESPACE_REPLY to mailbox 0x%08x", mbox_id);
 		itc_free(&rep);
 		return false;
 	}
 
-	LOG_INFO("Sent ITC_GET_NAMESPACE_REPLY to mailbox 0x%08x successfully!\n", mbox_id);
+	TPT_TRACE(TRACE_INFO, "Sent ITC_GET_NAMESPACE_REPLY to mailbox 0x%08x successfully!", mbox_id);
 	return true;
 }
 
@@ -1596,7 +1596,7 @@ static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header)
 
 	if(size <= 0)
 	{
-		LOG_ERROR("Failed to receive data from this peer, fd = %d!\n", sockfd);
+		TPT_TRACE(TRACE_ERROR, "Failed to receive data from this peer, fd = %d!", sockfd);
 		return false;
 	}
 
@@ -1604,9 +1604,9 @@ static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header)
 	rep->errorcode			= ntohl(rep->errorcode);
 	rep->payload_length 		= ntohl(rep->payload_length);
 
-	LOG_INFO("Receiving %d bytes from fd %d\n", size, sockfd);
-	LOG_INFO("Re-interpret TCP packet: errorcode: %u\n", rep->errorcode);
-	LOG_INFO("Re-interpret TCP packet: payload_length: \"%u\"\n", rep->payload_length);
+	TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: errorcode: %u", rep->errorcode);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: payload_length: \"%u\"", rep->payload_length);
 	
 	union itc_msg *msg;
 	msg = itc_alloc(((struct itc_message *)&rep->payload)->size, ((struct itc_message *)&rep->payload)->msgno);
@@ -1614,15 +1614,15 @@ static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header)
 
 	memcpy(message, ((struct itc_message *)&rep->payload), rep->payload_length);
 
-	LOG_INFO("Received not-known-yet message msgno 0x%08x, from a mbox 0x%08x outside our host!\n", message->msgno, message->sender);
+	TPT_TRACE(TRACE_INFO, "Received not-known-yet message msgno 0x%08x, from a mbox 0x%08x outside our host!", message->msgno, message->sender);
 
 	if(!itc_send(&msg, message->receiver, ITC_MY_MBOX_ID, NULL))
 	{
-		LOG_ERROR("Failed to send the message to our internal mailbox 0x%08x\n", message->receiver);
+		TPT_TRACE(TRACE_ERROR, "Failed to send the message to our internal mailbox 0x%08x", message->receiver);
 		return false;
 	}
 	
-	LOG_INFO("Forwardeding message to our internal mailbox 0x%08x\n", message->receiver);
+	TPT_TRACE(TRACE_INFO, "Forwardeding message to our internal mailbox 0x%08x", message->receiver);
 	return true;
 }
 
@@ -1632,7 +1632,7 @@ static bool handle_locate_mbox_request(union itc_msg *msg)
 	struct itcgw_msg *rep = malloc(msg_len);
 	if(rep == NULL)
 	{
-		LOG_ERROR("Failed to malloc get namespace request message!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc get namespace request message!");
 		return false;
 	}
 
@@ -1655,7 +1655,7 @@ static bool handle_locate_mbox_request(union itc_msg *msg)
 			int res = send(itcgw_inst.tcp_client_peers[i].fd, rep, msg_len, 0);
 			if(res < 0)
 			{
-				LOG_ERROR("Failed to send ITCGW_LOCATE_MBOX_REQUEST, errno = %d!\n", errno);
+				TPT_TRACE(TRACE_ERROR, "Failed to send ITCGW_LOCATE_MBOX_REQUEST, errno = %d!", errno);
 				continue;
 			} else
 			{
@@ -1667,7 +1667,7 @@ static bool handle_locate_mbox_request(union itc_msg *msg)
 	if(count == 0)
 	{
 		free(rep);
-		LOG_ABN("Could not send ITCGW_LOCATE_MBOX_REQUEST since client list have no connected hosts yet!\n", count);
+		TPT_TRACE(TRACE_ABN, "Could not send ITCGW_LOCATE_MBOX_REQUEST since client list have no connected hosts yet!", count);
 		union itc_msg *msg;
 		msg = itc_alloc(offsetof(struct itc_locate_mbox_from_itcgws_reply, namespace) + 1, ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY);
 
@@ -1676,17 +1676,17 @@ static bool handle_locate_mbox_request(union itc_msg *msg)
 
 		if(itc_send(&msg, itcgw_inst.itccoord_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 		{
-			LOG_ERROR("Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord!");
 			itc_free(&msg);
 			return false;
 		}
 		
-		LOG_INFO("Sent back ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord without any results!\n");
+		TPT_TRACE(TRACE_INFO, "Sent back ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord without any results!");
 		return true;
 	}
 
 	free(rep);
-	LOG_INFO("Broadcast ITCGW_LOCATE_MBOX_REQUEST to all %d peers successfully!\n", count);
+	TPT_TRACE(TRACE_INFO, "Broadcast ITCGW_LOCATE_MBOX_REQUEST to all %d peers successfully!", count);
 	return true;
 }
 
@@ -1701,28 +1701,28 @@ static bool handle_receive_locate_mbox(int sockfd, struct itcgw_header *header)
 
 	if(size <= 0)
 	{
-		LOG_ERROR("Failed to receive data from this peer, fd = %d!\n", sockfd);
+		TPT_TRACE(TRACE_ERROR, "Failed to receive data from this peer, fd = %d!", sockfd);
 		return false;
 	}
 
 	rep = (struct itcgw_locate_mbox_request *)rxbuff;
 	rep->errorcode			= ntohl(rep->errorcode);
 
-	LOG_INFO("Receiving %d bytes from fd %d\n", size, sockfd);
-	LOG_INFO("Re-interpret TCP packet: errorcode: %u\n", rep->errorcode);
-	LOG_INFO("Re-interpret TCP packet: mboxname: \"%s\"\n", rep->mboxname);
+	TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: errorcode: %u", rep->errorcode);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: mboxname: \"%s\"", rep->mboxname);
 
 	int32_t timeout = 1000; // Wait max 1000 ms for locating mailbox name
 	itc_mbox_id_t mbox_id = itc_locate_sync(timeout, rep->mboxname, 1, NULL, NULL);
 	if(mbox_id == ITC_NO_MBOX_ID)
 	{
-		LOG_ERROR("Failed to locate mailbox %s even after %d ms!\n", rep->mboxname, timeout);
+		TPT_TRACE(TRACE_ERROR, "Failed to locate mailbox %s even after %d ms!", rep->mboxname, timeout);
 		return false;
 	}
 
 	if(!send_locate_mbox_reply(sockfd, mbox_id))
 	{
-		LOG_ERROR("Failed to send_locate_mbox_reply()!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to send_locate_mbox_reply()!");
 		return false;
 	}
 
@@ -1735,7 +1735,7 @@ static bool send_locate_mbox_reply(int sockfd, itc_mbox_id_t mbox_id)
 	struct itcgw_msg *rep = malloc(msg_len);
 	if(rep == NULL)
 	{
-		LOG_ERROR("Failed to malloc locate mbox request message!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc locate mbox request message!");
 		return false;
 	}
 
@@ -1752,12 +1752,12 @@ static bool send_locate_mbox_reply(int sockfd, itc_mbox_id_t mbox_id)
 	int res = send(sockfd, rep, msg_len, 0);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to send ITCGW_LOCATE_MBOX_REPLY, errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to send ITCGW_LOCATE_MBOX_REPLY, errno = %d!", errno);
 		return false;
 	}
 
 	free(rep);
-	LOG_INFO("Sent ITCGW_LOCATE_MBOX_REPLY successfully!\n");
+	TPT_TRACE(TRACE_INFO, "Sent ITCGW_LOCATE_MBOX_REPLY successfully!");
 	return true;
 }
 
@@ -1772,7 +1772,7 @@ static bool handle_receive_locate_mbox_reply(int sockfd, struct itcgw_header *he
 
 	if(size <= 0)
 	{
-		LOG_ERROR("Failed to receive data from this peer, fd = %d!\n", sockfd);
+		TPT_TRACE(TRACE_ERROR, "Failed to receive data from this peer, fd = %d!", sockfd);
 		return false;
 	}
 
@@ -1780,15 +1780,15 @@ static bool handle_receive_locate_mbox_reply(int sockfd, struct itcgw_header *he
 	rep->errorcode 	= ntohl(rep->errorcode);
 	rep->mbox_id 	= ntohl(rep->mbox_id);
 
-	LOG_INFO("Receiving %d bytes from fd %d\n", size, sockfd);
-	LOG_INFO("Re-interpret TCP packet: errorcode: %u\n", rep->errorcode);
-	LOG_INFO("Re-interpret TCP packet: mbox_id: 0x%08x\n", rep->mbox_id);
+	TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: errorcode: %u", rep->errorcode);
+	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: mbox_id: 0x%08x", rep->mbox_id);
 
 	struct tcp_peer_info **iter;
 	iter = tfind(&sockfd, &itcgw_inst.tcp_client_tree, compare_sockfd_tcp_tree);
 	if(iter == NULL)
 	{
-		LOG_ERROR("Peer with fd = %d not found in client tree, something wrong!\n", sockfd);
+		TPT_TRACE(TRACE_ERROR, "Peer with fd = %d not found in client tree, something wrong!", sockfd);
 		return false;
 	}
 
@@ -1800,12 +1800,12 @@ static bool handle_receive_locate_mbox_reply(int sockfd, struct itcgw_header *he
 
 	if(itc_send(&msg, itcgw_inst.itccoord_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		LOG_ERROR("Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord!");
 		itc_free(&msg);
 		return false;
 	}
 	
-	LOG_INFO("Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord successfully!\n");
+	TPT_TRACE(TRACE_INFO, "Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord successfully!");
 	return true;
 }
 

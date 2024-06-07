@@ -53,7 +53,7 @@ static void malloc_init(struct result_code* rc, int max_msgsize)
 
 	if(max_msgsize < 0)
 	{
-		LOG_ERROR("Negative max_msgsize = %d!\n", max_msgsize);
+		TPT_TRACE(TRACE_ERROR, "Negative max_msgsize = %d!", max_msgsize);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return;
 	}
@@ -75,7 +75,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         {
                 // Requested itc message's length is too large or itc_init() hasn't been called yet.
                 // Should implement tracing/logging later for debugging purposes.
-		LOG_ABN("Requested msg size too large, size = %lu bytes, max allowed size = %lu bytes!\n", size, (size_t)max_mallocsize);
+		TPT_TRACE(TRACE_ABN, "Requested msg size too large, size = %lu bytes, max allowed size = %lu bytes!", size, (size_t)max_mallocsize);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return NULL;
         }
@@ -84,7 +84,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         if(retmessage == NULL)
         {
                 // Logging malloc() failed to allocate memory needed.
-		LOG_ERROR("Failed to malloc_alloc due to out of memory!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc_alloc due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
                 return NULL;
         }
@@ -96,7 +96,7 @@ static void malloc_free(struct result_code* rc, struct itc_message** message)
 {
 	if(message == NULL || *message == NULL)
 	{
-		LOG_ERROR("Double free!\n");
+		TPT_TRACE(TRACE_ERROR, "Double free!");
 		rc->flags |= ITC_FREE_NULL_PTR;
 		return;
 	}

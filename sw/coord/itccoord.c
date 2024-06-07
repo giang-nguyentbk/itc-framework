@@ -192,25 +192,25 @@ int main(int argc, char* argv[])
 
 		if(!setup_log_file())
 		{
-			LOG_ERROR("Failed to setup log file for this itccoord daemon!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to setup log file for this itccoord daemon!");
 			exit(EXIT_FAILURE);
 		}
 
 		if(daemon(1, 1))
 		{
-			LOG_ERROR("Failed to start itccoord as a daemon!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to start itccoord as a daemon!");
 			exit(EXIT_FAILURE);
 		}
 
-		LOG_INFO("Starting itccoord daemon...\n");
+		TPT_TRACE(TRACE_INFO, "Starting itccoord daemon...");
 	} else
 	{
-		LOG_INFO("Starting itccoord, but not as a daemon...\n");
+		TPT_TRACE(TRACE_INFO, "Starting itccoord, but not as a daemon...");
 	}
 
 	if(!setup_rc())
 	{
-		LOG_ERROR("Failed to setup rc!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to setup rc!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
 	{
 		/* itccoord is already running 
 		** If it has died unexpectedly, you may need to remove /tmp/itc/itccoord/itc_coordinator and restart it again */
-		LOG_ABN("ITCCOORD already running, no need to start again!\n");
+		TPT_TRACE(TRACE_ABN, "ITCCOORD already running, no need to start again!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -227,21 +227,21 @@ int main(int argc, char* argv[])
 
 	if(create_itccoord_dir() == false)
 	{
-		LOG_ERROR("Failed to create_itccoord_dir()!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to create_itccoord_dir()!");
 		exit(EXIT_FAILURE);
 	}
 
 	// Allocate two mailboxes, one is for itccoord-self, one is reserved
 	if(itc_init(2, ITC_MALLOC, ITC_FLAGS_I_AM_ITC_COORD) == false)
 	{
-		LOG_ERROR("Failed to itc_init(), ITC_FLAGS_I_AM_ITC_COORD!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to itc_init(), ITC_FLAGS_I_AM_ITC_COORD!");
 		exit(EXIT_FAILURE);
 	}
 
 	itccoord_inst.mbox_id = itc_create_mailbox(ITC_COORD_MBOX_NAME, 0);
 	if(itccoord_inst.mbox_id == ITC_NO_MBOX_ID)
 	{
-		LOG_ERROR("Failed to itc_create_mailbox(), mbox_name = %s!\n", ITC_COORD_MBOX_NAME);
+		TPT_TRACE(TRACE_ERROR, "Failed to itc_create_mailbox(), mbox_name = %s!", ITC_COORD_MBOX_NAME);
 		exit(EXIT_FAILURE);
 	}
 
@@ -269,8 +269,8 @@ int main(int argc, char* argv[])
 
 	/* Go through all other process's slots and assign init value and enqueue to free list */
 	int i = 2;
-	LOG_INFO("Enqueue process index = %d to free_list!\n", i);
-	LOG_INFO("Enqueue process n-th to free_list!\n");
+	TPT_TRACE(TRACE_INFO, "Enqueue process index = %d to free_list!", i);
+	TPT_TRACE(TRACE_INFO, "Enqueue process n-th to free_list!");
 	for(; i < MAX_SUPPORTED_PROCESSES; i++)
 	{
 		itc_proc 			= &itccoord_inst.processes[i];
@@ -282,12 +282,12 @@ int main(int argc, char* argv[])
 		CHECK_RC_EXIT(rc);
 		itccoord_inst.freelist_count++;
 	}
-	LOG_INFO("Enqueue process index = %d to free_list!\n", i - 1);
+	TPT_TRACE(TRACE_INFO, "Enqueue process index = %d to free_list!", i - 1);
 
 	itccoord_inst.sockfd = socket(AF_LOCAL, SOCK_STREAM, 0);
 	if(itccoord_inst.sockfd == -1)
 	{
-		LOG_ERROR("Failed to socket(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to socket(), errno = %d!", errno);
 		exit(EXIT_FAILURE);
 	}
 
@@ -301,21 +301,21 @@ int main(int argc, char* argv[])
 	int res = bind(itccoord_inst.sockfd, (struct sockaddr*)&coord_addr, sizeof(coord_addr));
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to bind(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to bind(), errno = %d!", errno);
 		exit(EXIT_FAILURE);
 	}
 
 	res = chmod(ITC_ITCCOORD_FILENAME, 0777); // Using socket we do not actually need to fopen "/tmp/itc/itccoord/itc_coordinator" by ourselves
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to chmod(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to chmod(), errno = %d!", errno);
 		exit(EXIT_FAILURE);
 	}
 
 	res = listen(itccoord_inst.sockfd, 10); // Listening and waiting for locating itccoord from other processes, maximum 10 processes will be queued at a time
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to listen(), errno = %d!\n", errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to listen(), errno = %d!", errno);
 		exit(EXIT_FAILURE);
 	}
 
@@ -354,7 +354,7 @@ int main(int argc, char* argv[])
 		res = select(max_fd, &proc_fd_list, NULL, NULL, NULL);
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to select(), errno = %d!\n", errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to select(), errno = %d!", errno);
 			exit(EXIT_FAILURE);
 		} else
 		{
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 			{
 				if(handle_locate_coord_request(itccoord_inst.sockfd) == false)
 				{
-					LOG_ERROR("Failed to handle_locate_coord_request()!\n");
+					TPT_TRACE(TRACE_ERROR, "Failed to handle_locate_coord_request()!");
 					exit(EXIT_FAILURE);
 				}
 			}
@@ -374,14 +374,14 @@ int main(int argc, char* argv[])
 				{
 					if(proc->state == PROC_LISTENING)
 					{
-						LOG_INFO("Process with fd %d is in state PROC_LISTENING!\n", proc->sockfd);
+						TPT_TRACE(TRACE_INFO, "Process with fd %d is in state PROC_LISTENING!", proc->sockfd);
 						if(connect_to_process(proc) == false)
 						{
 							exit(EXIT_FAILURE);
 						}
 					} else if(proc->state == PROC_CONNECTED)
 					{
-						LOG_INFO("Process with fd %d is in state PROC_CONNECTED!\n", proc->sockfd);
+						TPT_TRACE(TRACE_INFO, "Process with fd %d is in state PROC_CONNECTED!", proc->sockfd);
 						if(disconnect_from_process(proc) == false)
 						{
 							exit(EXIT_FAILURE);
@@ -389,7 +389,7 @@ int main(int argc, char* argv[])
 						break;
 					} else
 					{
-						LOG_ERROR("Wrong process state = %d, pid = %d!\n", proc->state, proc->pid);
+						TPT_TRACE(TRACE_ERROR, "Wrong process state = %d, pid = %d!", proc->state, proc->pid);
 						exit(EXIT_FAILURE);
 					}
 				} else if((zc_counter == (NR_PROC_ALIVENESS_CHECK_RETRIES - 1) || itccoord_inst.freelist_count < FREELIST_LOW_THRESHOLD) && \
@@ -398,7 +398,7 @@ int main(int argc, char* argv[])
 					/* Try killing the process but received errno no such process */
 					if(kill(proc->pid, 0) == -1 && errno == ESRCH)
 					{
-						LOG_ABN("Zomebie process detected, pid = %d!\n", proc->pid);
+						TPT_TRACE(TRACE_ABN, "Zomebie process detected, pid = %d!", proc->pid);
 						disconnect_from_process(proc);
 						zc_counter--;
 						break;
@@ -408,7 +408,7 @@ int main(int argc, char* argv[])
 
 			if(FD_ISSET(itccoord_inst.mbox_fd, &proc_fd_list))
 			{
-				LOG_INFO("Calling handle_incoming_request()!\n");
+				TPT_TRACE(TRACE_INFO, "Calling handle_incoming_request()!");
 				handle_incoming_request(); // Such as ADD, RMV mailboxes,...
 			}
 
@@ -444,7 +444,7 @@ static void itccoord_init(void)
 static void itccoord_sig_handler(int signo)
 {
 	// Call our own exit_handler
-	LOG_INFO("ITCCOORD is terminated with SIG = %d, calling exit handler...\n", signo);
+	TPT_TRACE(TRACE_INFO, "ITCCOORD is terminated with SIG = %d, calling exit handler...", signo);
 	itccoord_exit_handler();
 
 	// After clean up, resume raising the suppressed signal
@@ -454,17 +454,17 @@ static void itccoord_sig_handler(int signo)
 
 static void itccoord_exit_handler(void)
 {
-	LOG_INFO("ITCCOORD is terminated, calling exit handler...\n");
+	TPT_TRACE(TRACE_INFO, "ITCCOORD is terminated, calling exit handler...");
 	struct itc_process *proc;
 
-	LOG_INFO("Removing all sockets on all active processes...\n");
+	TPT_TRACE(TRACE_INFO, "Removing all sockets on all active processes...");
 	for(int i = 0; i < MAX_SUPPORTED_PROCESSES; i++)
 	{
 		/* Close socket connection for all processes */
 		proc = find_process(i << ITC_COORD_SHIFT);
 		if(close_socket_connection(proc) == false)
 		{
-			LOG_ERROR("Failed to close socket for pid = %d\n", proc->pid);
+			TPT_TRACE(TRACE_ERROR, "Failed to close socket for pid = %d", proc->pid);
 			return;
 		}
 	}
@@ -477,21 +477,21 @@ static void itccoord_exit_handler(void)
 	remove(ITC_SYSVMSQ_FILENAME);
 	rmdir(ITC_SYSVMSQ_FOLDER);
 	rmdir(ITC_BASE_PATH);
-	LOG_INFO("Remove all directories successfully!\n");
+	TPT_TRACE(TRACE_INFO, "Remove all directories successfully!");
 
 	tdestroy(itccoord_inst.mbox_tree, free); // Call free() on each node's user data
-	LOG_INFO("Remove all nodes from mbox_tree successfully!\n");
+	TPT_TRACE(TRACE_INFO, "Remove all nodes from mbox_tree successfully!");
 
-	LOG_INFO("Removing processes in free_list, count = %u!\n", itccoord_inst.freelist_count);
+	TPT_TRACE(TRACE_INFO, "Removing processes in free_list, count = %u!", itccoord_inst.freelist_count);
 	q_exit(rc, itccoord_inst.free_list);
-	LOG_INFO("Removing processes in used_list, count = %u!\n", 253 - itccoord_inst.freelist_count);
+	TPT_TRACE(TRACE_INFO, "Removing processes in used_list, count = %u!", 253 - itccoord_inst.freelist_count);
 	q_exit(rc, itccoord_inst.used_list);
 
 	itc_delete_mailbox(itccoord_inst.mbox_id);
 	itc_exit();
 
 	free(rc);
-	LOG_INFO("ITCCOORD exit handler finished!\n");
+	TPT_TRACE(TRACE_INFO, "ITCCOORD exit handler finished!");
 }
 
 static bool setup_log_file(void)
@@ -518,7 +518,7 @@ static bool setup_rc(void)
 		rc = (struct result_code*)malloc(sizeof(struct result_code));
 		if(rc == NULL)
 		{
-			LOG_ERROR("Failed to malloc rc due to out of memory!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc due to out of memory!");
                 	return false;
 		}	
 	}
@@ -535,7 +535,7 @@ static bool is_itccoord_running(void)
 	if((stat(itccoodinator_path, &s) == 0) || errno != ENOENT)
 	{
 		// itccoord is running
-		LOG_INFO("ITCCOORD already running!\n");
+		TPT_TRACE(TRACE_INFO, "ITCCOORD already running!");
 		return true;
 	}
 
@@ -550,14 +550,14 @@ static bool create_itccoord_dir(void)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		LOG_ERROR("Failed to mkdir %s, errno = %d!\n", ITC_BASE_PATH, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to mkdir %s, errno = %d!", ITC_BASE_PATH, errno);
 		return false;
 	}
 
 	res = chmod(ITC_BASE_PATH, 0777);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to chmod %s, errno = %d!\n", ITC_BASE_PATH, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to chmod %s, errno = %d!", ITC_BASE_PATH, errno);
 		return false;
 	}
 
@@ -565,14 +565,14 @@ static bool create_itccoord_dir(void)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		LOG_ERROR("Failed to mkdir %s, errno = %d!\n", ITC_SOCKET_FOLDER, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to mkdir %s, errno = %d!", ITC_SOCKET_FOLDER, errno);
 		return false;
 	}
 
 	res = chmod(ITC_SOCKET_FOLDER, 0777);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to chmod %s, errno = %d!\n", ITC_SOCKET_FOLDER, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to chmod %s, errno = %d!", ITC_SOCKET_FOLDER, errno);
 		return false;
 	}
 
@@ -580,14 +580,14 @@ static bool create_itccoord_dir(void)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		LOG_ERROR("Failed to mkdir %s, errno = %d!\n", ITC_ITCCOORD_FOLDER, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to mkdir %s, errno = %d!", ITC_ITCCOORD_FOLDER, errno);
 		return false;
 	}
 
 	res = chmod(ITC_ITCCOORD_FOLDER, 0777);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to chmod %s, errno = %d!\n", ITC_ITCCOORD_FOLDER, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to chmod %s, errno = %d!", ITC_ITCCOORD_FOLDER, errno);
 		return false;
 	}
 
@@ -611,11 +611,11 @@ static bool handle_locate_coord_request(int sd)
 		{
 			/* The process that was just connecting to itccoord is closed by the time we handle the request
 			** So just ignore the request */
-			LOG_ABN("ECONNABORTED, OK!\n");
+			TPT_TRACE(TRACE_ABN, "ECONNABORTED, OK!");
 			return true;
 		}
 
-		LOG_ERROR("Failed to accept socket connection on sd = %d!\n", sd);
+		TPT_TRACE(TRACE_ERROR, "Failed to accept socket connection on sd = %d!", sd);
 		return false;
 	}
 
@@ -623,7 +623,7 @@ static bool handle_locate_coord_request(int sd)
 	lrequest = (struct itc_locate_coord_request*)malloc(RXLEN); // Allocate a rx buffer to receive the request from the process
 	if(lrequest == NULL)
 	{
-		LOG_ERROR("Failed to malloc itc_locate_coord_request due to out of memory!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc itc_locate_coord_request due to out of memory!");
 		return false;
 	}
 
@@ -634,7 +634,7 @@ static bool handle_locate_coord_request(int sd)
 		{
 			/* The reason could be that the socket connection of the process was just closed 
 			** So ignore the request */
-			LOG_ABN("The process's socket has just closed, OK!\n");
+			TPT_TRACE(TRACE_ABN, "The process's socket has just closed, OK!");
 			free(lrequest);
 			return true;
 		}
@@ -644,26 +644,26 @@ static bool handle_locate_coord_request(int sd)
 	} else if(lrequest->msgno != ITC_LOCATE_COORD_REQUEST)
 	{
 		/* Received unknown request from the process */
-		LOG_ERROR("Unknown message received, expected ITC_LOCATE_COORD_REQUEST!\n");
+		TPT_TRACE(TRACE_ERROR, "Unknown message received, expected ITC_LOCATE_COORD_REQUEST!");
 		return false;
 	}
 
-	LOG_INFO("Dequeue a process from free_list!\n");
+	TPT_TRACE(TRACE_INFO, "Dequeue a process from free_list!");
 	tmp = q_dequeue(rc, itccoord_inst.free_list);
 	if(rc->flags != ITC_OK)
 	{
-		LOG_ERROR("Failed to dequeue a process from free_list, rc = %u!\n", rc->flags);
+		TPT_TRACE(TRACE_ERROR, "Failed to dequeue a process from free_list, rc = %u!", rc->flags);
 		return false;
 	}
 
 	if(tmp != NULL)
 	{
 		itccoord_inst.freelist_count--;
-		LOG_INFO("Enqueue process mbox_id = 0x%08x to used_list!\n", tmp->mbox_id_in_itccoord);
+		TPT_TRACE(TRACE_INFO, "Enqueue process mbox_id = 0x%08x to used_list!", tmp->mbox_id_in_itccoord);
 		q_enqueue(rc, itccoord_inst.used_list, tmp);
 		if(rc->flags != ITC_OK)
 		{
-			LOG_ERROR("Failed to enqueue a process to used_list, rc = %u!\n", rc->flags);
+			TPT_TRACE(TRACE_ERROR, "Failed to enqueue a process to used_list, rc = %u!", rc->flags);
 			return false;
 		}
 
@@ -674,7 +674,7 @@ static bool handle_locate_coord_request(int sd)
 		tmp->sockfd = socket(AF_LOCAL, SOCK_STREAM, 0);
 		if(tmp->sockfd < 0)
 		{
-			LOG_ERROR("Failed to create socket, errno = %d!\n", errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to create socket, errno = %d!", errno);
 			return false;
 		}
 		memset(&tmp->sockaddr, 0, sizeof(struct sockaddr_un));
@@ -684,21 +684,21 @@ static bool handle_locate_coord_request(int sd)
 		res = bind(tmp->sockfd, (struct sockaddr*)&tmp->sockaddr, sizeof(tmp->sockaddr));
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to bind socket, errno = %d!\n", errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to bind socket, errno = %d!", errno);
 			return false;
 		}
 
 		res = chmod(tmp->sockaddr.sun_path, 0777);
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to chmod %s, errno = %d!\n", tmp->sockaddr.sun_path, errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to chmod %s, errno = %d!", tmp->sockaddr.sun_path, errno);
 			return false;
 		}
 
 		res = listen(tmp->sockfd, 1);
 		if(res < 0)
 		{
-			LOG_ERROR("Failed to listen, errno = %d!\n", errno);
+			TPT_TRACE(TRACE_ERROR, "Failed to listen, errno = %d!", errno);
 			return false;
 		}
 
@@ -709,14 +709,14 @@ static bool handle_locate_coord_request(int sd)
 	lreply = (struct itc_locate_coord_reply*)malloc(sizeof(struct itc_locate_coord_reply));
 	if(lreply == NULL)
 	{
-		LOG_ERROR("Failed to malloc lreply due to out of memory!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc lreply due to out of memory!");
 		return false;
 	}
 
 	lreply->msgno = ITC_LOCATE_COORD_REPLY;
 	if(tmp == NULL)
 	{
-		LOG_ABN("No more process to allocate for this ITC_LOCATE_COORD_REQUEST!\n");
+		TPT_TRACE(TRACE_ABN, "No more process to allocate for this ITC_LOCATE_COORD_REQUEST!");
 		lreply->my_mbox_id_in_itccoord = ITC_NO_MBOX_ID;
 	} else
 	{
@@ -731,7 +731,7 @@ static bool handle_locate_coord_request(int sd)
 	{
 		if(errno == EPIPE)
 		{
-			LOG_ERROR("Failed to send itc_locate_coord_reply to process pid = %d due to EPIPE!\n", tmp->pid);
+			TPT_TRACE(TRACE_ERROR, "Failed to send itc_locate_coord_reply to process pid = %d due to EPIPE!", tmp->pid);
 			free(lreply);
 			free(lrequest);
 			if(tmp != NULL)
@@ -739,15 +739,15 @@ static bool handle_locate_coord_request(int sd)
 				disconnect_from_process(tmp);
 			}
 
-			LOG_ERROR("Failed to send itc_locate_coord_reply, EPIPE!\n");
+			TPT_TRACE(TRACE_ERROR, "Failed to send itc_locate_coord_reply, EPIPE!");
 			return false;
 		}
 
-		LOG_ERROR("Failed to send itc_locate_coord_reply, res < 0!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to send itc_locate_coord_reply, res < 0!");
 		return false;
 	}
 
-	LOG_INFO("Sent itc_locate_coord_reply successfully!\n");
+	TPT_TRACE(TRACE_INFO, "Sent itc_locate_coord_reply successfully!");
 
 	free(lreply);
 	free(lrequest);
@@ -755,7 +755,7 @@ static bool handle_locate_coord_request(int sd)
 	res = close(tmp_sd);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to close, res = %d, errno = %d!\n", res, errno);
+		TPT_TRACE(TRACE_ERROR, "Failed to close, res = %d, errno = %d!", res, errno);
 		return false;
 	}
 
@@ -766,21 +766,21 @@ static bool disconnect_from_process(struct itc_process *proc)
 {
 	/* Iterating through the used queue and search for any node that points to proc
 	** Then remove it and concatenate the prev and the next of node iter */
-	LOG_INFO("Remove process mbox_id = 0x%08x from used_list!\n", proc->mbox_id_in_itccoord);
+	TPT_TRACE(TRACE_INFO, "Remove process mbox_id = 0x%08x from used_list!", proc->mbox_id_in_itccoord);
 	q_remove(rc, itccoord_inst.used_list, proc);
 	proc->state = PROC_UNUSED;
 
 	/* Close socket connection is for the corresponding process */
 	if(close_socket_connection(proc) == false)
 	{
-		LOG_ERROR("Failed to close socket connection for process mbox_id = 0x%08x\n", proc->mbox_id_in_itccoord);
+		TPT_TRACE(TRACE_ERROR, "Failed to close socket connection for process mbox_id = 0x%08x", proc->mbox_id_in_itccoord);
 		return false;
 	}
 
 	// remove_all_mbox_in_process(proc->mbox_id_in_itccoord);
 
 	memset(&proc->sockaddr, 0, sizeof(struct sockaddr_un));
-	LOG_INFO("Enqueue process mbox_id = 0x%08x to free_list!\n", proc->mbox_id_in_itccoord);
+	TPT_TRACE(TRACE_INFO, "Enqueue process mbox_id = 0x%08x to free_list!", proc->mbox_id_in_itccoord);
 	q_enqueue(rc, itccoord_inst.free_list, proc);
 	itccoord_inst.freelist_count++;
 	return true;
@@ -796,7 +796,7 @@ static bool close_socket_connection(struct itc_process *proc)
 		tmp_sd = proc->sockfd;
 		proc->sockfd = -1;
 
-		LOG_INFO("Remove socket on process pid = %d\n", proc->pid);
+		TPT_TRACE(TRACE_INFO, "Remove socket on process pid = %d", proc->pid);
 		while(1)
 		{
 			res = close(tmp_sd);
@@ -808,11 +808,11 @@ static bool close_socket_connection(struct itc_process *proc)
 				} else if(errno == EBADF)
 				{
 					/* Socket has been closed already */
-					LOG_ABN("Could not close_socket_connection - errno = EBADF, but it's OK!\n");
+					TPT_TRACE(TRACE_ABN, "Could not close_socket_connection - errno = EBADF, but it's OK!");
 					return true;
 				} else
 				{
-					LOG_ERROR("Failed to close_socket_connection - errno = %d, NOK!\n", errno);
+					TPT_TRACE(TRACE_ERROR, "Failed to close_socket_connection - errno = %d, NOK!", errno);
 					return false;
 				}
 			} else
@@ -827,15 +827,15 @@ static bool close_socket_connection(struct itc_process *proc)
 		{
 			if(errno != ENOENT)
 			{
-				LOG_ERROR("Failed to unlink socket address, errno = %d!\n", errno);
+				TPT_TRACE(TRACE_ERROR, "Failed to unlink socket address, errno = %d!", errno);
 				return false;
 			} else
 			{
-				LOG_ABN("No such file or directory, not unlink socket address %s!\n", ITC_LSOCKET_FILENAME);
+				TPT_TRACE(TRACE_ABN, "No such file or directory, not unlink socket address %s!", ITC_LSOCKET_FILENAME);
 			}
 		} else
 		{
-			LOG_INFO("Unlink %s successfully!\n", ITC_LSOCKET_FILENAME);
+			TPT_TRACE(TRACE_INFO, "Unlink %s successfully!", ITC_LSOCKET_FILENAME);
 		}
 	}
 
@@ -850,7 +850,7 @@ static struct itc_process *find_process(itc_mbox_id_t mbox_id)
 
 	if(index > MAX_SUPPORTED_PROCESSES)
 	{
-		LOG_ERROR("Invalid mbox_id = 0x%08x > MAX_SUPPORTED_PROCESSES = 255!\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Invalid mbox_id = 0x%08x > MAX_SUPPORTED_PROCESSES = 255!", mbox_id);
 		return NULL;
 	}
 
@@ -863,7 +863,7 @@ static bool connect_to_process(struct itc_process *proc)
 	socklen_t addr_len = sizeof(struct sockaddr_un);
 	int tmp_sd, res;
 
-	LOG_INFO("Connecting to the process with pid = %d\n", proc->pid);
+	TPT_TRACE(TRACE_INFO, "Connecting to the process with pid = %d", proc->pid);
 
 	tmp_sd = accept(proc->sockfd, (struct sockaddr *)&addr, &addr_len);
 	if(tmp_sd < 0)
@@ -871,7 +871,7 @@ static bool connect_to_process(struct itc_process *proc)
 		if(errno == ECONNABORTED)
 		{
 			/* The process socket has just closed, discard its connect request */
-			LOG_ABN("The process's socket has just closed, discard its connect request!\n");
+			TPT_TRACE(TRACE_ABN, "The process's socket has just closed, discard its connect request!");
 			if(proc != NULL)
 			{
 				disconnect_from_process(proc);
@@ -879,14 +879,14 @@ static bool connect_to_process(struct itc_process *proc)
 			return true;
 		}
 
-		LOG_ERROR("Failed to accept socket connection on address %s!\n", proc->sockaddr.sun_path);
+		TPT_TRACE(TRACE_ERROR, "Failed to accept socket connection on address %s!", proc->sockaddr.sun_path);
 		return false;
 	}
 
 	res = close(proc->sockfd);
 	if(res < 0)
 	{
-		LOG_ERROR("Failed to close socket connection on address %s!\n", proc->sockaddr.sun_path);
+		TPT_TRACE(TRACE_ERROR, "Failed to close socket connection on address %s!", proc->sockaddr.sun_path);
 	}
 	proc->sockfd = tmp_sd;
 
@@ -900,7 +900,7 @@ static bool connect_to_process(struct itc_process *proc)
 		if(errno == EPIPE)
 		{
 			/* The process socket has just closed, discard its connect request */
-			LOG_ABN("The process's socket has just closed, will not send ACK!\n");
+			TPT_TRACE(TRACE_ABN, "The process's socket has just closed, will not send ACK!");
 			if(proc != NULL)
 			{
 				disconnect_from_process(proc);
@@ -908,11 +908,11 @@ static bool connect_to_process(struct itc_process *proc)
 			return true;
 		}
 
-		LOG_ERROR("Failed to send ACK to the process, pid = %d\n", proc->pid);
+		TPT_TRACE(TRACE_ERROR, "Failed to send ACK to the process, pid = %d", proc->pid);
 		return false;
 	}
 
-	LOG_INFO("Sending ACK signature to the process successfully, pid = %d\n", proc->pid);
+	TPT_TRACE(TRACE_INFO, "Sending ACK signature to the process successfully, pid = %d", proc->pid);
 	proc->state = PROC_CONNECTED;
 	return true;
 }
@@ -925,30 +925,30 @@ static void handle_incoming_request(void)
 	switch(msg->msgno)
 	{
 		case ITC_NOTIFY_COORD_ADD_MBOX:
-			LOG_INFO("ITC_NOTIFY_COORD_ADD_MBOX received!\n");
-			LOG_INFO("ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x%08x\n", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
-			LOG_INFO("ITC_NOTIFY_COORD_ADD_MBOX mbox_name = %s!\n", msg->itc_notify_coord_add_rmv_mbox.mbox_name);
+			TPT_TRACE(TRACE_INFO, "ITC_NOTIFY_COORD_ADD_MBOX received!");
+			TPT_TRACE(TRACE_INFO, "ITC_NOTIFY_COORD_ADD_MBOX mbox_id = 0x%08x", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
+			TPT_TRACE(TRACE_INFO, "ITC_NOTIFY_COORD_ADD_MBOX mbox_name = %s!", msg->itc_notify_coord_add_rmv_mbox.mbox_name);
 			handle_add_mbox(msg->itc_notify_coord_add_rmv_mbox.mbox_id, msg->itc_notify_coord_add_rmv_mbox.mbox_name);
 			break;
 		
 		case ITC_NOTIFY_COORD_RMV_MBOX:
-			LOG_INFO("ITC_NOTIFY_COORD_RMV_MBOX received!\n");
-			LOG_INFO("ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x%08x\n", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
-			LOG_INFO("ITC_NOTIFY_COORD_RMV_MBOX mbox_name = %s!\n", msg->itc_notify_coord_add_rmv_mbox.mbox_name);
+			TPT_TRACE(TRACE_INFO, "ITC_NOTIFY_COORD_RMV_MBOX received!");
+			TPT_TRACE(TRACE_INFO, "ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x%08x", msg->itc_notify_coord_add_rmv_mbox.mbox_id);
+			TPT_TRACE(TRACE_INFO, "ITC_NOTIFY_COORD_RMV_MBOX mbox_name = %s!", msg->itc_notify_coord_add_rmv_mbox.mbox_name);
 			handle_remove_mbox(msg->itc_notify_coord_add_rmv_mbox.mbox_id, msg->itc_notify_coord_add_rmv_mbox.mbox_name);
 			break;
 		
 		case ITC_LOCATE_MBOX_SYNC_REQUEST:
-			LOG_INFO("ITC_LOCATE_MBOX_SYNC_REQUEST received!\n");
-			LOG_INFO("ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x%08x\n", msg->itc_locate_mbox_sync_request.from_mbox);
-			LOG_INFO("ITC_LOCATE_MBOX_SYNC_REQUEST timeout = %d ms\n", msg->itc_locate_mbox_sync_request.timeout);
-			LOG_INFO("ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = %s\n", msg->itc_locate_mbox_sync_request.find_only_internal ? "true" : "false");
-			LOG_INFO("ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = %s!\n", msg->itc_locate_mbox_sync_request.mbox_name);
+			TPT_TRACE(TRACE_INFO, "ITC_LOCATE_MBOX_SYNC_REQUEST received!");
+			TPT_TRACE(TRACE_INFO, "ITC_LOCATE_MBOX_SYNC_REQUEST from_mbox = 0x%08x", msg->itc_locate_mbox_sync_request.from_mbox);
+			TPT_TRACE(TRACE_INFO, "ITC_LOCATE_MBOX_SYNC_REQUEST timeout = %d ms", msg->itc_locate_mbox_sync_request.timeout);
+			TPT_TRACE(TRACE_INFO, "ITC_LOCATE_MBOX_SYNC_REQUEST find_only_internal = %s", msg->itc_locate_mbox_sync_request.find_only_internal ? "true" : "false");
+			TPT_TRACE(TRACE_INFO, "ITC_LOCATE_MBOX_SYNC_REQUEST mbox_name = %s!", msg->itc_locate_mbox_sync_request.mbox_name);
 			handle_locate_mbox(msg->itc_locate_mbox_sync_request.from_mbox, msg->itc_locate_mbox_sync_request.timeout, msg->itc_locate_mbox_sync_request.find_only_internal, msg->itc_locate_mbox_sync_request.mbox_name);
 			break;
 
 		default:
-			LOG_ABN("Unknown signal 0x%08x received, discard it!\n", msg->msgno);
+			TPT_TRACE(TRACE_ABN, "Unknown signal 0x%08x received, discard it!", msg->msgno);
 			break;
 	}
 
@@ -963,18 +963,18 @@ static void handle_add_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
 	proc = find_process(mbox_id);
 	if(proc == NULL)
 	{
-		LOG_ERROR("Mailbox 0x%08x from an unknown process!\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Mailbox 0x%08x from an unknown process!", mbox_id);
 		return;
 	} else if(proc->state != PROC_CONNECTED)
 	{
-		LOG_ERROR("Mailbox 0x%08x from a just-terminated process!\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Mailbox 0x%08x from a just-terminated process!", mbox_id);
 		return;
 	}
 
 	mbox = (struct itc_mbox_info *)malloc(offsetof(struct itc_mbox_info, mbox_name) + strlen(mbox_name) + 1);
 	if(mbox == NULL)
 	{
-		LOG_ERROR("Failed to add mailbox 0x%08x to itccoord mbox_tree due to out of memory!\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Failed to add mailbox 0x%08x to itccoord mbox_tree due to out of memory!", mbox_id);
 		return;
 	}
 
@@ -984,7 +984,7 @@ static void handle_add_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
 	iter = tfind(mbox, &itccoord_inst.mbox_tree, mbox_name_cmpfunc2);
 	if(iter != NULL)
 	{
-		LOG_ERROR("Mailbox 0x%08x already exists in mbox_tree, something was messed up!\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Mailbox 0x%08x already exists in mbox_tree, something was messed up!", mbox_id);
 		return;
 	} else
 	{
@@ -1000,18 +1000,18 @@ static void handle_remove_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
 	proc = find_process(mbox_id);
 	if(proc == NULL)
 	{
-		LOG_ERROR("Mailbox 0x%08x from an unknown process!\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Mailbox 0x%08x from an unknown process!", mbox_id);
 		return;
 	} else if(proc->state != PROC_CONNECTED)
 	{
-		LOG_ABN("Mailbox 0x%08x from a just-terminated process!\n", mbox_id);
+		TPT_TRACE(TRACE_ABN, "Mailbox 0x%08x from a just-terminated process!", mbox_id);
 		return;
 	}
 
 	iter = tfind(mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
 	if(iter == NULL)
 	{
-		LOG_ERROR("Mailbox 0x%08x not found in mbox_tree, something was messed up!\n", mbox_id);
+		TPT_TRACE(TRACE_ERROR, "Mailbox 0x%08x not found in mbox_tree, something was messed up!", mbox_id);
 		return;
 	}
 
@@ -1034,7 +1034,7 @@ static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool fi
 	iter = tfind(mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
 	if(iter == NULL)
 	{
-		LOG_INFO("Mailbox \"%s\" not found in the mbox_tree, try to find it in other hosts!\n", mbox_name);
+		TPT_TRACE(TRACE_INFO, "Mailbox \"%s\" not found in the mbox_tree, try to find it in other hosts!", mbox_name);
 		// return; // Will not return here, anyhow still need to reply the process
 
 		if(!find_only_internal)
@@ -1047,7 +1047,7 @@ static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool fi
 			iter = tfind(ITC_GATEWAY_MBOX_TCP_CLI_NAME, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
 			if(iter == NULL)
 			{
-				LOG_ERROR("Failed to locate mailbox \"%s\"\n", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
+				TPT_TRACE(TRACE_ERROR, "Failed to locate mailbox \"%s\"", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
 				itc_free(&req);
 				return;
 			} else
@@ -1057,26 +1057,26 @@ static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool fi
 
 			if(itc_send(&req, itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
 			{
-				LOG_ERROR("Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itccoord!\n");
+				TPT_TRACE(TRACE_ERROR, "Failed to send ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itccoord!");
 				itc_free(&req);
 				return;
 			}
 
-			LOG_INFO("Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itcgws successfully!\n");
+			TPT_TRACE(TRACE_INFO, "Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST to itcgws successfully!");
 
 			req = itc_receive(timeout);
 			if(req == NULL)
 			{
-				LOG_ERROR("Failed to ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY even after %d ms!\n", timeout);
+				TPT_TRACE(TRACE_ERROR, "Failed to ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY even after %d ms!", timeout);
 				return;
 			} else if(req->msgno != ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY)
 			{
-				LOG_ABN("Received unknown message 0x%08x, expecting ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY!\n", req->msgno);
+				TPT_TRACE(TRACE_ABN, "Received unknown message 0x%08x, expecting ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY!", req->msgno);
 				itc_free(&req);
 				return;
 			}
 
-			LOG_INFO("Received ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itcgws successfully!\n");
+			TPT_TRACE(TRACE_INFO, "Received ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itcgws successfully!");
 			mbox_id = req->itc_locate_mbox_from_itcgws_reply.mbox_id;
 			is_external = true;
 			strcpy(namespace, req->itc_locate_mbox_from_itcgws_reply.namespace);
@@ -1093,11 +1093,11 @@ static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool fi
 		proc = find_process(mbox_id);
 		if(proc == NULL)
 		{
-			LOG_ERROR("Received a locating mailbox request from from an unknown process's mailbox 0x%08x\n", from_mbox);
+			TPT_TRACE(TRACE_ERROR, "Received a locating mailbox request from from an unknown process's mailbox 0x%08x", from_mbox);
 			return;
 		} else if(proc->state != PROC_CONNECTED)
 		{
-			LOG_ABN("Mailbox 0x%08x from a just-terminated process!\n", from_mbox);
+			TPT_TRACE(TRACE_ABN, "Mailbox 0x%08x from a just-terminated process!", from_mbox);
 			return;
 		}
 
@@ -1115,12 +1115,12 @@ static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool fi
 	/* Send back response to the process */
 	if(itc_send(&msg, from_mbox, ITC_MY_MBOX_ID, NULL) == false)
 	{
-		LOG_ERROR("Failed to send ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x%08x\n", from_mbox);
+		TPT_TRACE(TRACE_ERROR, "Failed to send ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x%08x", from_mbox);
 		itc_free(&msg);
 		return;
 	}
 
-	LOG_INFO("Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x%08x\n", from_mbox);
+	TPT_TRACE(TRACE_INFO, "Sent ITC_LOCATE_MBOX_SYNC_REPLY to mailbox 0x%08x", from_mbox);
 }
 
 static int mbox_name_cmpfunc(const void *pa, const void *pb)

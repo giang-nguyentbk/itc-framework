@@ -128,16 +128,16 @@ unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end)
 		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
 		if(difftime/1000000 > 5)							\
 		{										\
-			LOG_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"				\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"			\
 				"time_elapsed = %lu (ms)!\n",					\
 				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
-			LOG_DEBUG("MUTEX_LOCK - t_start.tv_sec = %lu!\n", 			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_LOCK - t_start.tv_sec = %lu!", 		\
 				t_start.tv_sec);						\
-			LOG_DEBUG("MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_LOCK - t_start.tv_nsec = %lu!", 		\
 				t_start.tv_nsec);						\
-			LOG_DEBUG("MUTEX_LOCK - t_end.tv_sec = %lu!\n", 			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_LOCK - t_end.tv_sec = %lu!", 		\
 				t_end.tv_sec);							\
-			LOG_DEBUG("MUTEX_LOCK - t_end.tv_nsec = %lu!\n",			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_LOCK - t_end.tv_nsec = %lu!",		\
 				t_end.tv_nsec);							\
 		}										\
 	} while(0)
@@ -153,16 +153,16 @@ unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end)
 		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
 		if(difftime/1000000 > 5)							\
 		{										\
-			LOG_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"				\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"		\
 				"time_elapsed = %lu (ms)!\n",					\
 				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
-			LOG_DEBUG("MUTEX_UNLOCK - t_start.tv_sec = %lu!\n", 			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_UNLOCK - t_start.tv_sec = %lu!", 		\
 				t_start.tv_sec);						\
-			LOG_DEBUG("MUTEX_UNLOCK - t_start.tv_nsec = %lu!\n", 			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_UNLOCK - t_start.tv_nsec = %lu!", 	\
 				t_start.tv_nsec);						\
-			LOG_DEBUG("MUTEX_UNLOCK - t_end.tv_sec = %lu!\n", 			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_UNLOCK - t_end.tv_sec = %lu!", 		\
 				t_end.tv_sec);							\
-			LOG_DEBUG("MUTEX_UNLOCK - t_end.tv_nsec = %lu!\n",			\
+			TPT_TRACE(TRACE_DEBUG, "MUTEX_UNLOCK - t_end.tv_nsec = %lu!",		\
 				t_end.tv_nsec);							\
 		}										\
 	} while(0)
@@ -170,7 +170,7 @@ unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end)
 #define MUTEX_LOCK(lock)								\
 	do										\
 	{										\
-		LOG_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d\n", 				\
+		TPT_TRACE(TRACE_DEBUG, "MUTEX_LOCK\t0x%08lx,\t%s:%d", 			\
 			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_lock(lock);						\
 	} while(0)
@@ -178,7 +178,7 @@ unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end)
 #define MUTEX_UNLOCK(lock)								\
 	do										\
 	{										\
-		LOG_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d\n", 				\
+		TPT_TRACE(TRACE_DEBUG, "MUTEX_UNLOCK\t0x%08lx,\t%s:%d", 		\
 			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_unlock(lock);						\
 	} while(0)

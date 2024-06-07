@@ -16,17 +16,18 @@ extern "C" {
 
 #include <string.h>
 
+/* TPT = Trace-Point Tracking */
+
+#define TRACE_INFO		1
+#define TRACE_ERROR		2
+#define TRACE_ABN		3
+#define TRACE_DEBUG		4
+
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
-void LOG_INFO_ZZ(const char *file, int line, const char *format, ...);
-void LOG_ERROR_ZZ(const char *file, int line, const char *format, ...);
-void LOG_ABN_ZZ(const char *file, int line, const char *format, ...);
-void LOG_DEBUG_ZZ(const char *file, int line, const char *format, ...);
+void TPT_TRACE_ZZ(const char *file, int line, int level, const char *format, ...);
 
-#define LOG_INFO(format, ...) LOG_INFO_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...) LOG_ERROR_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
-#define LOG_ABN(format, ...) LOG_ABN_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
-#define LOG_DEBUG(format, ...) LOG_DEBUG_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
+#define TPT_TRACE(level, format, ...) TPT_TRACE_ZZ(__FILENAME__, __LINE__, (level), (format), ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }

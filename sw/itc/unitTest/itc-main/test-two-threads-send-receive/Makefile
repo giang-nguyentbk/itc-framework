@@ -1,15 +1,18 @@
+ROOT_DIR := $(shell git rev-parse --show-toplevel)
 TARGET = itc_test_1
 BIN = ./bin
+UTILSFWK_TRACE_LIBDIR = $(ROOT_DIR)/external/utilsFramework/libs
 # Only one of two -DMUTEX_... is enabled at a time, otherwise you will get multiple definition error in compilation
 # -DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 # -DMUTEX_TRACE_UNITTEST #-DMUTEX_TRACE_TIME_UNITTEST
 # #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
-CFLAGS = -g -Wall -Wextra -lpthread -DUNITTEST -DMOCK_SENDER_UNITTEST -DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
+CFLAGS = -g -Wall -Wextra -lpthread -DUNITTEST -DMOCK_SENDER_UNITTEST #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 CC = gcc
 
 INCLUDE_DIR =
 INCLUDE_DIR += -I ../../../if
 INCLUDE_DIR += -I ../../../inc
+INCLUDE_DIR += -I$(ROOT_DIR)/external/utilsFramework/include
 
 SRC_DIR =
 SRC_DIR += -I ../../../src
@@ -34,7 +37,7 @@ create_bin:
 
 $(TARGET): $(BIN)/itc.o $(BIN)/itc_test_1.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o 
-	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET)
+	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET)
 
 $(BIN)/itc.o: itc.c itc_impl.h itc.h itci_alloc.h itci_trans.h itc_threadmanager.h itc_proto.h itc_queue.h
 	$(CC) -c  $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<

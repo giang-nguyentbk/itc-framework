@@ -121,17 +121,17 @@ static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
 {       
         uint32_t mask, nr_localmb_data;
 
-	LOG_INFO("ENTER local_init()!\n");
+	TPT_TRACE(TRACE_INFO, "ENTER local_init()!");
         /* If localmbx_data is not NULL, that means itc_init() was already run for this process. */
         if(local_inst.localmbx_data != NULL)
         {
                 if(flags & ITC_FLAGS_FORCE_REINIT)
                 {
-			LOG_INFO("Force re-initializing!\n");
+			TPT_TRACE(TRACE_INFO, "Force re-initializing!");
                         release_localmbx_resources(rc);
                 } else
                 {
-			LOG_INFO("Already initialized!\n");
+			TPT_TRACE(TRACE_INFO, "Already initialized!");
 			rc->flags |= ITC_ALREADY_INIT;
                         return;
                 }
@@ -155,7 +155,7 @@ static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itcco
         if(local_inst.localmbx_data == NULL)
         {
                 // Print a trace malloc() failed to allocate memory needed.
-		LOG_ERROR("Failed to malloc local mbox data due to out of memory!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc local mbox data due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
                 return;
         }
@@ -173,7 +173,7 @@ static void local_exit(struct result_code* rc)
 	if(local_inst.localmbx_data == NULL)
 	{
 		// If not init yet, it's ok and just return, not a problem so not set ITC_NOT_INIT_YET here
-		LOG_ABN("Not initialized yet, but it's ok to exit!\n");
+		TPT_TRACE(TRACE_ABN, "Not initialized yet, but it's ok to exit!");
 		return;
 	}
 
@@ -185,7 +185,7 @@ static void local_exit(struct result_code* rc)
 		/* If NULL, not init yet or not belong to this process or mbox_id out of range */
 		if(rc->flags != ITC_OK)
 		{
-			LOG_ABN("Not belong to this process, mbox_id = 0x%08x\n", local_inst.my_mbox_id_in_itccoord | i);
+			TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", local_inst.my_mbox_id_in_itccoord | i);
 			return;
 		}
 
@@ -198,7 +198,7 @@ static void local_exit(struct result_code* rc)
 		if(running_mboxes > ITC_NR_INTERNAL_USED_MBOXES)
 		{
 			// ERROR trace here needed, to let users know that they should delete their mailboxes first
-			LOG_ABN("Still had %d remaining open mailboxes!\n", running_mboxes);
+			TPT_TRACE(TRACE_ABN, "Still had %d remaining open mailboxes!", running_mboxes);
 			rc->flags |= ITC_NOT_DEL_ALL_MBOX;
 			return;
 		}
@@ -218,14 +218,14 @@ static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet, or not belong to this process or mbox_id out of range
-		LOG_ABN("Not belong to this process, mbox_id = 0x%08x\n", mailbox->mbox_id);
+		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", mailbox->mbox_id);
 		return;
 	}
 
 	if(new_lc_mb_data->rxq != NULL)
 	{
 		// Already in use by another mailbox, try another mailbox id instead
-		LOG_ABN("Already used by another mailbox!\n");
+		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
 		rc->flags |= ITC_ALREADY_USED;
 		return;
 	}
@@ -234,7 +234,7 @@ static void local_create_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	if(rc->flags != ITC_OK)
 	{
 		// Failed to allocate new mailbox rx queue due to out of memory
-		LOG_ERROR("Failed to init_queue!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to init_queue!");
 		return;
 	}
 
@@ -251,14 +251,14 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	lc_mb_data = find_localmbx_data(rc, mailbox->mbox_id);
 	if(rc->flags != ITC_OK)
 	{
-		LOG_ABN("Not belong to this process, mbox_id = 0x%08x\n", mailbox->mbox_id);
+		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", mailbox->mbox_id);
 		// Not init yet, or not belong to this process or mbox_id out of range
 		return;
 	}
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		LOG_ABN("Already used by another mailbox!\n");
+		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
 		// Deleting a local mailbox data in wrong state
 		rc->flags |= ITC_QUEUE_NULL;
 		return;
@@ -267,7 +267,7 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 	/* Discard all messages in rx queue */
 	while((message = dequeue_message(rc, lc_mb_data->rxq)) != NULL)
 	{
-		LOG_INFO("Discard a message from rx queue!\n");
+		TPT_TRACE(TRACE_INFO, "Discard a message from rx queue!");
 
 /* This kind of preprocessor directive will be defined in Makefile with -DUNITTEST option for gcc/g++ compiler */
 #ifdef UNITTEST
@@ -301,14 +301,14 @@ static void local_send(struct result_code* rc, struct itc_message *message, itc_
 	if(rc->flags != ITC_OK)
 	{
 		// Cannot find local mailbox data for this mailbox id in this process
-		LOG_ABN("Not belong to this process, mbox_id = 0x%08x\n", to);
+		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", to);
 		return;
 	}
 
 	if(to_lc_mb_data->rxq == NULL)
 	{
 		// If q is NULL, that means the queue has not been initialized yet by init_queue()
-		LOG_ABN("Already used by another mailbox!\n");
+		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return;
 	}
@@ -324,13 +324,13 @@ static struct itc_message *local_receive(struct result_code* rc, struct itc_mail
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
-		LOG_ABN("Not belong to this process, mbox_id = 0x%08x\n", my_mbox->mbox_id);
+		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", my_mbox->mbox_id);
 		return NULL;
 	}
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		LOG_ABN("Already used by another mailbox!\n");
+		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return NULL;
 	}
@@ -348,13 +348,13 @@ static struct itc_message *local_remove(struct result_code* rc, struct itc_mailb
 	if(rc->flags != ITC_OK)
 	{
 		// Not init yet or not belong to this process or mbox_id out of range
-		LOG_ABN("Not belong to this process, mbox_id = 0x%08x\n", mbox->mbox_id);
+		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", mbox->mbox_id);
 		return NULL;
 	}
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		LOG_ABN("Already used by another mailbox!\n");
+		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return NULL;
 	}
@@ -413,14 +413,14 @@ static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mb
 {
 	if(local_inst.localmbx_data == NULL)
 	{
-		LOG_ABN("Not initialized yet!\n");
+		TPT_TRACE(TRACE_ABN, "Not initialized yet!");
 		rc->flags |= ITC_NOT_INIT_YET;
 		return NULL;
 	}
 
 	if((mbox_id & local_inst.itccoord_mask) != local_inst.my_mbox_id_in_itccoord)
 	{
-		LOG_ABN("Not belong to this process, mbox_id = 0x%08x, my_mbox_id_in_itccoord = 0x%08x\n", (mbox_id & local_inst.itccoord_mask), local_inst.my_mbox_id_in_itccoord);
+		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x, my_mbox_id_in_itccoord = 0x%08x", (mbox_id & local_inst.itccoord_mask), local_inst.my_mbox_id_in_itccoord);
 		rc->flags |= ITC_NOT_THIS_PROC;
 		return NULL;
 	}
@@ -434,7 +434,7 @@ static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mb
 	   Therefore, masking mbox_id with ITC_MAX_MAILBOXES is a good workaround but not absolutely correct */
 	if((mbox_id & ITC_MAX_MAILBOXES) >= local_inst.nr_localmbx_datas)
 	{
-		LOG_ABN("Mailbox ID exceeded nr_mboxes, local mbox_id = 0x%08x, nr_mboxes = %u!\n", (mbox_id & ITC_MAX_MAILBOXES), local_inst.nr_localmbx_datas);
+		TPT_TRACE(TRACE_ABN, "Mailbox ID exceeded nr_mboxes, local mbox_id = 0x%08x, nr_mboxes = %u!", (mbox_id & ITC_MAX_MAILBOXES), local_inst.nr_localmbx_datas);
 		rc->flags |= ITC_OUT_OF_RANGE;
 		return NULL;
 	}
@@ -450,7 +450,7 @@ static struct rxqueue* init_queue(struct result_code* rc)
 	if(retq == NULL)
 	{
 		// Print out a ERROR trace here is needed.
-		LOG_ERROR("Failed to malloc rxqueue due to out of memory!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc rxqueue due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -470,7 +470,7 @@ static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct it
 	if(rc->flags != ITC_OK)
 	{
 		// create_qitem() failed due to out of memory
-		LOG_ERROR("Failed to create a rx queue item!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to create a rx queue item!");
 		return;
 	}
 
@@ -479,7 +479,7 @@ static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct it
 	// If not, just update the last item to point to new item and move q->tail to new item as well. 
 	if(q->tail == NULL)
 	{
-		LOG_INFO("RX queue is empty, add a new one!\n");
+		TPT_TRACE(TRACE_INFO, "RX queue is empty, add a new one!");
 		q->head = new_qitem;
 		q->tail = new_qitem;
 	} else
@@ -509,7 +509,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 	// In case queue has only one item
 	if(q->head == q->tail)
 	{
-		LOG_INFO("RX queue has only one item, dequeue it!\n");
+		TPT_TRACE(TRACE_INFO, "RX queue has only one item, dequeue it!");
 		remove_qitem(rc, &q->head);
 		// Both head and tail should be moved to NULL
 		q->head = NULL;
@@ -538,7 +538,7 @@ static struct itc_message* remove_message_fromqueue(struct result_code* rc, stru
 	{
 		if(iter->msg_item == message)
 		{
-			LOG_INFO("Item found!\n");
+			TPT_TRACE(TRACE_INFO, "Item found!");
 			break;
 		}
 		prev = iter;
@@ -554,7 +554,7 @@ static struct itc_message* remove_message_fromqueue(struct result_code* rc, stru
 			/* if q->head = NULL meaning now queue is empty */
 			if(q->head == NULL)
 			{
-				LOG_INFO("Queue empty!\n");
+				TPT_TRACE(TRACE_INFO, "Queue empty!");
 				q->tail = NULL;
 			}
 		} else
@@ -564,7 +564,7 @@ static struct itc_message* remove_message_fromqueue(struct result_code* rc, stru
 			/* If the target is the last one in queue, move tail back to prev */
 			if(q->tail == iter)
 			{
-				LOG_INFO("Found one item which is the last one!\n");
+				TPT_TRACE(TRACE_INFO, "Found one item which is the last one!");
 				q->tail = prev;
 			}
 		}
@@ -579,7 +579,7 @@ static struct itc_message* remove_message_fromqueue(struct result_code* rc, stru
 		return ret;
 	}
 	
-	LOG_ABN("Message not found!\n");
+	TPT_TRACE(TRACE_ABN, "Message not found!");
 	rc->flags |= ITC_QUEUE_EMPTY;
 
 	/* If not found ret = NULL */
@@ -594,7 +594,7 @@ static struct llqueue_item* create_qitem(struct result_code* rc, struct itc_mess
 	if(ret_qitem == NULL)
 	{
 		// Print out an ERROR trace here is needed.
-		LOG_ERROR("Failed to malloc linked list queue item for local mbox data due to out of memory!\n");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc linked list queue item for local mbox data due to out of memory!");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return NULL;
 	}
@@ -610,7 +610,7 @@ static void remove_qitem(struct result_code* rc, struct llqueue_item** qitem)
 {
 	if(qitem == NULL || *qitem == NULL)
 	{
-		LOG_ERROR("Double free!\n");
+		TPT_TRACE(TRACE_ERROR, "Double free!");
 		rc->flags |= ITC_FREE_NULL_PTR;
 		return;
 	}

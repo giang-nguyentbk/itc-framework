@@ -44,7 +44,7 @@ void test_itc_free(union itc_msg **msg);
 itc_mbox_id_t test_itc_create_mailbox(const char *name, uint32_t flags);
 void test_itc_delete_mailbox(itc_mbox_id_t mbox_id);
 void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace);
-union itc_msg *test_itc_receive(int32_t tmo, itc_mbox_id_t from);
+union itc_msg *test_itc_receive(int32_t tmo);
 
 /* Expect main call:    ./itc_test_1 */
 int main(int argc, char* argv[])
@@ -367,6 +367,8 @@ void test_itc_delete_mailbox(itc_mbox_id_t mbox_id)
 
 void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
 {
+	(void)namespace;
+
 	if(itc_send(msg, to, from, NULL) == false)
 	{
 		PRINT_DASH_START;
@@ -380,11 +382,11 @@ void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, ch
 	PRINT_DASH_END;
 }
 
-union itc_msg *test_itc_receive(int32_t tmo, itc_mbox_id_t from)
+union itc_msg *test_itc_receive(int32_t tmo)
 {
 	union itc_msg* msg;
 
-	msg = itc_receive(tmo, from);
+	msg = itc_receive(tmo);
 
 	if(msg == NULL)
 	{
@@ -420,7 +422,6 @@ static void* teamServer_thread(void* data)
 
 	MUTEX_UNLOCK(&worker_1.mtx);
 
-	itc_mbox_id_t mbox_id_1 = 0x00500001; // resourceHandlerMailbox1
 	while(1)
 	{
 		if(worker_1.isTerminated)
@@ -431,7 +432,7 @@ static void* teamServer_thread(void* data)
 		// teamServerMailbox1 always listens to resourceHandlerMailbox1
 		// printf("\tDEBUG: teamServerThread - Reading rx queue...!\n"); SPAM
 		// Let's test with 1000 ms waiting for responses, ITC_NO_WAIT and ITC_WAIT_FOREVER
-		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER, mbox_id_1);
+		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
 
 		if(rcv_msg != NULL)
 		{
