@@ -5,6 +5,8 @@
 #include "itc_impl.h"
 #include "itci_alloc.h"
 
+#include "traceIf.h"
+
 /*****************************************************************************\/
 *****                  INTERNAL VARIABLES IN MALLOC-ATOR                   *****
 *******************************************************************************/
@@ -51,7 +53,7 @@ static void malloc_init(struct result_code* rc, int max_msgsize)
 
 	if(max_msgsize < 0)
 	{
-		ITC_DEBUG("Negative max_msgsize = %d!", max_msgsize);
+		LOG_ERROR("Negative max_msgsize = %d!\n", max_msgsize);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return;
 	}
@@ -73,7 +75,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         {
                 // Requested itc message's length is too large or itc_init() hasn't been called yet.
                 // Should implement tracing/logging later for debugging purposes.
-		ITC_DEBUG("Requested msg size too large, size = %lu bytes, max allowed size = %lu bytes!", size, (size_t)max_mallocsize);
+		LOG_ABN("Requested msg size too large, size = %lu bytes, max allowed size = %lu bytes!\n", size, (size_t)max_mallocsize);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return NULL;
         }
@@ -82,7 +84,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
         if(retmessage == NULL)
         {
                 // Logging malloc() failed to allocate memory needed.
-		ITC_DEBUG("Failed to malloc_alloc due to out of memory!");
+		LOG_ERROR("Failed to malloc_alloc due to out of memory!\n");
 		rc->flags |= ITC_SYSCALL_ERROR;
                 return NULL;
         }
@@ -94,7 +96,7 @@ static void malloc_free(struct result_code* rc, struct itc_message** message)
 {
 	if(message == NULL || *message == NULL)
 	{
-		ITC_DEBUG("Double free!");
+		LOG_ERROR("Double free!\n");
 		rc->flags |= ITC_FREE_NULL_PTR;
 		return;
 	}

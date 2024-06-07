@@ -9,7 +9,8 @@ ITCCOORD_OBJ		:= coord/itccoord.o
 
 ITCCOORD_INCDIR		:= \
 			-I$(ITC_DIR)/if \
-			-I$(ITC_DIR)/inc
+			-I$(ITC_DIR)/inc \
+			-I$(ROOT_DIR)/external/utilsFramework/include
 
 all: $(BIN_DIR)/$(ITCCOORD_OBJ) $(BIN_DIR)/coord/$(TARGET_ITCCORD_W_LIBAR) $(BIN_DIR)/coord/$(TARGET_ITCCORD_W_LIBSO)
 
@@ -24,10 +25,10 @@ $(BIN_DIR)/coord/$(TARGET_ITCCORD_W_LIBAR): $(BIN_DIR)/$(ITCCOORD_OBJ)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  LINKING \t $@"
-	@$(ITC_CC) $< -L$(ITCLIB_DIR) -litca -o $@
+	@$(ITC_CC) $< -L$(ITCLIB_DIR) -litca -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $@
 
 $(BIN_DIR)/coord/$(TARGET_ITCCORD_W_LIBSO): $(BIN_DIR)/$(ITCCOORD_OBJ)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  LINKING \t $@"
-	@$(ITC_CC) $< -L$(ITCLIB_DIR) -litc -o $@
+	@$(ITC_CC) $< -L$(ITCLIB_DIR) -litc -L$(UTILSFWK_TRACE_LIBDIR) -ltrace -o $@

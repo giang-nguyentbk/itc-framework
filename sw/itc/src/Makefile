@@ -2,7 +2,7 @@ ITC_UNITS	:= \
 		src/ \
 		src/allocators \
 		src/helpers \
-		src/transporters \
+		src/transporters
 
 ITC_SRCS	+= \
 		src/itc.c \
@@ -17,7 +17,8 @@ ITC_OBJS	:= $(ITC_SRCS:%.c=$(BIN_DIR)/%.o)
 
 ITC_INCS	:= \
 		-I$(ITC_DIR)/if \
-		-I$(ITC_DIR)/inc
+		-I$(ITC_DIR)/inc \
+		-I$(ROOT_DIR)/external/utilsFramework/include
 
 all: $(ITC_OBJS) $(ITCLIB_DIR)/$(TARGET_LIBAR) $(ITCLIB_DIR)/$(TARGET_LIBSO)
 
@@ -38,4 +39,4 @@ $(ITCLIB_DIR)/$(TARGET_LIBSO): $(ITC_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $(ITC_SOFLAGS) $(ITCLIB_DIR)/$(TARGET_LIBSO) $^
+	@$(ITC_CC) $(ITC_SOFLAGS) -o $@ $^

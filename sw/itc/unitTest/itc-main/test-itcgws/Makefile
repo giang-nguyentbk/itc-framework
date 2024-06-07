@@ -9,10 +9,16 @@ TARGET_RECEIVER = itc_test_receiver
 CFLAGS = -g -Wall -Werror -Wextra -lpthread #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 CC = gcc
 
+ROOT_DIR := $(shell git rev-parse --show-toplevel)
+UTILSFWK_TRACE_LIBDIR = $(ROOT_DIR)/external/utilsFramework/libs
+UTILSFWK_TRACE_INCDIR = $(ROOT_DIR)/external/utilsFramework/include
+
+
 INCLUDE_DIR =
 INCLUDE_DIR += -I ../../../if
 INCLUDE_DIR += -I ../../../inc
 INCLUDE_DIR += -I ./
+INCLUDE_DIR += -I$(UTILSFWK_TRACE_INCDIR)
 
 SRC_DIR =
 SRC_DIR += -I ../../../src
@@ -37,30 +43,30 @@ all: create_bin $(TARGET_1) $(TARGET_2) $(TARGET_3) $(TARGET_4) $(TARGET_SENDER)
 create_bin:
 	@mkdir -p $(BIN)
 
-# Build itc gateway's executable files
+# Build itc executable files
 $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_1)
+	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_1)
 
 $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_2)
+	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_2)
 
 $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_3)
+	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_3)
 
 $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_4)
+	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_4)
 
 $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_SENDER)
+	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_SENDER)
 
 $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-	$(CC) $^ $(CFLAGS) -o $(BIN)/$(TARGET_RECEIVER)
+	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_RECEIVER)
 
 # Build sender and receiver test files
 $(BIN)/itc_test_sender.o: itc_test_sender.c itc_impl.h itc.h itc_threadmanager.h moduleXyz.sig
