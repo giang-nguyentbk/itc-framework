@@ -24,6 +24,8 @@ extern "C" {
 
 #include "itc.h"
 
+#include "traceIf.h"
+
 /*****************************************************************************\/
 *****                     VARIABLE/FUNCTIONS MACROS                        *****
 *******************************************************************************/
@@ -113,18 +115,6 @@ extern "C" {
 
 unsigned long int calc_time_diff(struct timespec t_start, struct timespec t_end);
 
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-
-void ITC_INFO_ZZ(const char *file, int line, const char *format, ...);
-void ITC_ERROR_ZZ(const char *file, int line, const char *format, ...);
-void ITC_ABN_ZZ(const char *file, int line, const char *format, ...);
-void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
-
-#define ITC_INFO(format, ...) ITC_INFO_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
-#define ITC_ERROR(format, ...) ITC_ERROR_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
-#define ITC_ABN(format, ...) ITC_ABN_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
-#define ITC_DEBUG(format, ...) ITC_DEBUG_ZZ(__FILENAME__, __LINE__, format, ##__VA_ARGS__)
-
 #if defined MUTEX_TRACE_TIME_UNITTEST
 /* Tracing prolong locking mutex, > 5ms */
 #define MUTEX_LOCK(lock)									\
@@ -138,16 +128,16 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
 		if(difftime/1000000 > 5)							\
 		{										\
-			ITC_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"				\
-				"time_elapsed = %lu (ms)!",					\
+			LOG_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d,\t"				\
+				"time_elapsed = %lu (ms)!\n",					\
 				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
-			ITC_DEBUG("MUTEX_LOCK - t_start.tv_sec = %lu!", 			\
+			LOG_DEBUG("MUTEX_LOCK - t_start.tv_sec = %lu!\n", 			\
 				t_start.tv_sec);						\
-			ITC_DEBUG("MUTEX_LOCK - t_start.tv_nsec = %lu!", 			\
+			LOG_DEBUG("MUTEX_LOCK - t_start.tv_nsec = %lu!\n", 			\
 				t_start.tv_nsec);						\
-			ITC_DEBUG("MUTEX_LOCK - t_end.tv_sec = %lu!", 				\
+			LOG_DEBUG("MUTEX_LOCK - t_end.tv_sec = %lu!\n", 			\
 				t_end.tv_sec);							\
-			ITC_DEBUG("MUTEX_LOCK - t_end.tv_nsec = %lu!",				\
+			LOG_DEBUG("MUTEX_LOCK - t_end.tv_nsec = %lu!\n",			\
 				t_end.tv_nsec);							\
 		}										\
 	} while(0)
@@ -163,16 +153,16 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 		unsigned long int difftime = calc_time_diff(t_start, t_end);			\
 		if(difftime/1000000 > 5)							\
 		{										\
-			ITC_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"				\
-				"time_elapsed = %lu (ms)!",					\
+			LOG_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d,\t"				\
+				"time_elapsed = %lu (ms)!\n",					\
 				(unsigned long)lock, __FILE__, __LINE__, difftime/1000000);	\
-			ITC_DEBUG("MUTEX_UNLOCK - t_start.tv_sec = %lu!", 			\
+			LOG_DEBUG("MUTEX_UNLOCK - t_start.tv_sec = %lu!\n", 			\
 				t_start.tv_sec);						\
-			ITC_DEBUG("MUTEX_UNLOCK - t_start.tv_nsec = %lu!", 			\
+			LOG_DEBUG("MUTEX_UNLOCK - t_start.tv_nsec = %lu!\n", 			\
 				t_start.tv_nsec);						\
-			ITC_DEBUG("MUTEX_UNLOCK - t_end.tv_sec = %lu!", 			\
+			LOG_DEBUG("MUTEX_UNLOCK - t_end.tv_sec = %lu!\n", 			\
 				t_end.tv_sec);							\
-			ITC_DEBUG("MUTEX_UNLOCK - t_end.tv_nsec = %lu!",			\
+			LOG_DEBUG("MUTEX_UNLOCK - t_end.tv_nsec = %lu!\n",			\
 				t_end.tv_nsec);							\
 		}										\
 	} while(0)
@@ -180,7 +170,7 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 #define MUTEX_LOCK(lock)								\
 	do										\
 	{										\
-		ITC_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d", 				\
+		LOG_DEBUG("MUTEX_LOCK\t0x%08lx,\t%s:%d\n", 				\
 			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_lock(lock);						\
 	} while(0)
@@ -188,7 +178,7 @@ void ITC_DEBUG_ZZ(const char *file, int line, const char *format, ...);
 #define MUTEX_UNLOCK(lock)								\
 	do										\
 	{										\
-		ITC_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d", 				\
+		LOG_DEBUG("MUTEX_UNLOCK\t0x%08lx,\t%s:%d\n", 				\
 			(unsigned long)lock, __FILE__, __LINE__);			\
 		pthread_mutex_unlock(lock);						\
 	} while(0)
