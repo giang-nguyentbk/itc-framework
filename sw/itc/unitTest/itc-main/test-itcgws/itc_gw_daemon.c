@@ -1132,11 +1132,15 @@ static void tcp_client_thread_destructor(void* data)
 
 	TPT_TRACE(TRACE_INFO, "Calling tcp client thread destructor...");
 
-	if(itcgw_inst.tcp_client_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
-	{
-		TPT_TRACE(TRACE_INFO, "Deleting tcp client mailbox...");
-		itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
-	}
+	/* Do not need to delete mailboxes manually here because ITC system already helped you do that.
+	   Let's recall, when we call itc_create_mailbox(), ITC system actually associates the mailbox_id with your current thread's destructor.
+	   So right once your thread destructor gets called at exit, ITC system helped you delete the related mailbox. */
+
+	// if(itcgw_inst.tcp_client_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	// {
+	// 	TPT_TRACE(TRACE_INFO, "Deleting tcp client mailbox...");
+	// 	itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
+	// }
 }
 
 static bool start_tcp_client_thread(void)

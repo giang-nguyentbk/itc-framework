@@ -521,3 +521,263 @@
 [2024-06-07 23:26:46.149445008] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.687 seconds!" }
 [2024-06-07 23:26:50.837818576] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
 [2024-06-07 23:26:50.838067160] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:26:56.149564759] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:26:56.149621338] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:26:56.149628763] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.688 seconds!" }
+[2024-06-07 23:27:00.838140944] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:27:00.838249855] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:27:06.149769975] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:27:06.149879348] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:27:06.149897082] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.688 seconds!" }
+[2024-06-07 23:27:10.838446530] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:27:10.838633128] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:27:16.150146073] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:27:16.150325972] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:27:16.150365900] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.688 seconds!" }
+[2024-06-07 23:27:20.839166651] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:27:20.839739097] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:27:26.150281139] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:27:26.150466572] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:27:26.150526295] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:27:30.839785576] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:27:30.839847558] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:27:36.150155826] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:27:36.150186142] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:27:36.150191126] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:27:40.839886106] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:27:40.839930364] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:27:46.150362751] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:27:46.150467092] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:27:46.150482689] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:27:50.840108392] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:27:50.840288960] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:27:56.150336226] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:27:56.150364306] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:27:56.150369408] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:28:00.840387100] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:28:00.840495673] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:28:06.150732815] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:28:06.150895878] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:28:06.150921776] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:28:10.840522573] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:28:10.840563643] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:28:16.150978842] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:28:16.151098232] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:28:16.151115549] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:28:20.840638984] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:28:20.840681165] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:28:26.150953113] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:28:26.150998239] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:28:26.151003817] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:28:30.840720768] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:28:30.840771101] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:28:36.151201777] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:28:36.151281010] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:28:36.151293235] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:28:40.840812514] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:28:40.840861336] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:28:46.151189469] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:28:46.151240002] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:28:46.151247038] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:28:50.840897441] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:28:50.840940568] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:28:56.152237458] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:28:56.152488109] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:28:56.152597705] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.688 seconds!" }
+[2024-06-07 23:29:00.841212433] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:29:00.841365711] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:29:06.153161070] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:29:06.153615580] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:29:06.153660795] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.687 seconds!" }
+[2024-06-07 23:29:10.841470968] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:29:10.841573571] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:29:16.152309318] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:29:16.152439485] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:29:16.152462670] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:29:20.841745894] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:29:20.841887130] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:29:26.152422722] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:29:26.152471930] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:29:26.152479560] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:29:30.842021178] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:29:30.842067103] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:29:36.152575999] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:29:36.152619397] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:29:36.152627971] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:29:40.842124765] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:29:40.842196996] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:29:46.152685345] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:29:46.152746260] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:29:46.152755721] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:29:50.843127033] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:29:50.843500490] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:29:56.152850063] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:29:56.152897063] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:29:56.152902854] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:30:00.843742478] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:30:00.843876819] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:30:06.152913922] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:30:06.153023275] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:30:06.153034993] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:30:10.844003708] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:30:10.844118436] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:30:16.153852803] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:30:16.154099559] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:30:16.154157555] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.689 seconds!" }
+[2024-06-07 23:30:20.844235561] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:30:20.844361095] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:30:26.154213213] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:30:26.154314245] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:30:26.154333334] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:30:30.844402313] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:30:30.844447706] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:30:36.154100528] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:30:36.154142302] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:30:36.154147974] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:30:40.844623472] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:30:40.844784285] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:30:46.154447418] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:30:46.154624431] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:30:46.154647152] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:30:50.844861978] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:30:50.844946572] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:30:56.154535391] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:30:56.154633412] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:30:56.154652041] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:31:00.845012238] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:31:00.845068549] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:31:06.154687023] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:31:06.154739437] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:31:06.154749179] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:31:10.845221368] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:31:10.845408667] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:31:16.154701271] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:31:16.154759586] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:31:16.154769297] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:31:20.845594939] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:31:20.845810883] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:31:26.154731938] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:31:26.154769461] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:31:26.154775682] INFO:   { cpu  6 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:31:30.846074132] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:31:30.846290422] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:31:36.154996198] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:31:36.155084309] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:31:36.155101041] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:31:40.846412478] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:31:40.846503080] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:31:46.155064023] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:31:46.155116159] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:31:46.155122440] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:31:50.846630971] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:31:50.846687449] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:31:56.155314109] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:31:56.155410096] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:31:56.155428148] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:32:00.847286155] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:32:00.847480465] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:32:06.155595805] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:32:06.155748095] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:32:06.155771197] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:32:10.847506849] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:32:10.847570115] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:32:16.155519398] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:32:16.155566632] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:32:16.155574273] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:32:20.847632653] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:32:20.847701716] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:32:26.156381932] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:32:26.156736129] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:32:26.156794637] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:32:30.847843767] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:32:30.848033636] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:32:36.156081110] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:32:36.156190562] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:32:36.156208748] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:32:40.848068508] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:32:40.848113981] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:32:46.156229879] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:32:46.156308777] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:32:46.156319601] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:32:50.848160202] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:32:50.848216571] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:32:56.157166604] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:32:56.157378233] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:32:56.157420186] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.690 seconds!" }
+[2024-06-07 23:33:00.848495416] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:33:00.848587486] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:33:06.157266367] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 664, "-", "Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/" }
+[2024-06-07 23:33:06.157449066] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 675, "-", "Already connected, ignore broadcasting message from this peer!" }
+[2024-06-07 23:33:06.157483092] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 4.691 seconds!" }
+[2024-06-07 23:33:10.848665301] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 576, "-", "Broadcast timer will expire in: 0.0 seconds!" }
+[2024-06-07 23:33:10.848744371] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 581, "-", "Reset timer 10s, send broadcasting message...!" }
+[2024-06-07 23:33:13.848072262] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 311, "-", "ITCGW is terminated with SIG = 15, calling exit handler..." }
+[2024-06-07 23:33:13.848101881] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 321, "-", "Closing file descriptors..." }
+[2024-06-07 23:33:13.848115080] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 326, "-", "Destroying UDP, TCP server and client trees..." }
+[2024-06-07 23:33:13.848120590] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 331, "-", "Deleting UDP, TCP server, TCP client mailboxes..." }
+[2024-06-07 23:33:13.848124885] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 697, "-", "Deleting mailbox id 0x00200001" }
+[2024-06-07 23:33:13.848141859] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 754, "-", "Waiting for other job that owned rx queue mutex before deleting the mailbox!" }
+[2024-06-07 23:33:13.848148564] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000504, size = 27" }
+[2024-06-07 23:33:13.848153280] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 877, "-", "Prepare to send message from 0x00200001 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848167179] ABN:    { cpu  9 }  { "itc_gw", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848172223] ABN:    { cpu  9 }  { "itc_gw", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000" }
+[2024-06-07 23:33:13.848175617] ABN:    { cpu  9 }  { "itc_gw", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848213057] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.848218415] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:33:13.848222448] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 792, "-", "Sent notification to itccoord about my demise mbox_id = 0x00200001" }
+[2024-06-07 23:33:13.848245204] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 826, "-", "Deleted thread-local mailbox 0x00200001" }
+[2024-06-07 23:33:13.848441407] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 1355, "-", "Thread-local mailbox destructor called by tid = 461484, mbox_id = 0x00200002" }
+[2024-06-07 23:33:13.848454199] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 1360, "-", "Deleting mailbox with mbox_id = 0x00200002" }
+[2024-06-07 23:33:13.848457218] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 697, "-", "Deleting mailbox id 0x00200002" }
+[2024-06-07 23:33:13.848460926] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 754, "-", "Waiting for other job that owned rx queue mutex before deleting the mailbox!" }
+[2024-06-07 23:33:13.848464841] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000504, size = 32" }
+[2024-06-07 23:33:13.848467571] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 877, "-", "Prepare to send message from 0x00200002 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848469693] ABN:    { cpu  6 }  { "itcgw_tcpserver", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848472102] ABN:    { cpu  6 }  { "itcgw_tcpserver", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000" }
+[2024-06-07 23:33:13.848474082] ABN:    { cpu  6 }  { "itcgw_tcpserver", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848496829] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.848500460] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:33:13.848502804] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 792, "-", "Sent notification to itccoord about my demise mbox_id = 0x00200002" }
+[2024-06-07 23:33:13.848505440] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc.c", 826, "-", "Deleted thread-local mailbox 0x00200002" }
+[2024-06-07 23:33:13.848507778] INFO:   { cpu  6 }  { "itcgw_tcpserver", "itc_gw_daemon.c", 831, "-", "Calling tcp server thread destructor..." }
+[2024-06-07 23:33:13.848574471] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 1355, "-", "Thread-local mailbox destructor called by tid = 461485, mbox_id = 0x00200003" }
+[2024-06-07 23:33:13.848581002] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 1360, "-", "Deleting mailbox with mbox_id = 0x00200003" }
+[2024-06-07 23:33:13.848583768] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 697, "-", "Deleting mailbox id 0x00200003" }
+[2024-06-07 23:33:13.848586203] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 754, "-", "Waiting for other job that owned rx queue mutex before deleting the mailbox!" }
+[2024-06-07 23:33:13.848589287] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000504, size = 32" }
+[2024-06-07 23:33:13.848591521] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 877, "-", "Prepare to send message from 0x00200003 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848593375] ABN:    { cpu  0 }  { "itcgw_tcpclient", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848595544] ABN:    { cpu  0 }  { "itcgw_tcpclient", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000" }
+[2024-06-07 23:33:13.848597521] ABN:    { cpu  0 }  { "itcgw_tcpclient", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848614562] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.848618039] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:33:13.848620943] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 792, "-", "Sent notification to itccoord about my demise mbox_id = 0x00200003" }
+[2024-06-07 23:33:13.848641304] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 826, "-", "Deleted thread-local mailbox 0x00200003" }
+[2024-06-07 23:33:13.848644226] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc_gw_daemon.c", 1133, "-", "Calling tcp client thread destructor..." }
+[2024-06-07 23:33:13.848646660] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc_gw_daemon.c", 1137, "-", "Deleting tcp client mailbox..." }
+[2024-06-07 23:33:13.848648997] INFO:   { cpu  0 }  { "itcgw_tcpclient", "itc.c", 697, "-", "Deleting mailbox id 0x00200003" }
+[2024-06-07 23:33:13.848651222] ERROR:  { cpu  0 }  { "itcgw_tcpclient", "itc.c", 703, "-", "Not initialized yet!" }
+[2024-06-07 23:33:13.848702371] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 361, "-", "Exiting ITC system..." }
+[2024-06-07 23:33:13.848765812] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 1355, "-", "Thread-local mailbox destructor called by tid = 461483, mbox_id = 0x00200000" }
+[2024-06-07 23:33:13.848777520] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 1360, "-", "Deleting mailbox with mbox_id = 0x00200000" }
+[2024-06-07 23:33:13.848780623] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 697, "-", "Deleting mailbox id 0x00200000" }
+[2024-06-07 23:33:13.848783186] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 754, "-", "Waiting for other job that owned rx queue mutex before deleting the mailbox!" }
+[2024-06-07 23:33:13.848785604] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x90000504, size = 33" }
+[2024-06-07 23:33:13.848788230] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0x00200000 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848790279] ABN:    { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 1381, "-", "Mailbox not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848792955] ABN:    { cpu  3 }  { "itc_rx_sysvmq", "itc_local.c", 423, "-", "Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000" }
+[2024-06-07 23:33:13.848795363] ABN:    { cpu  3 }  { "itc_rx_sysvmq", "itc_local.c", 304, "-", "Not belong to this process, mbox_id = 0x00100001" }
+[2024-06-07 23:33:13.848811641] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.848815367] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[1]!" }
+[2024-06-07 23:33:13.848817528] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 792, "-", "Sent notification to itccoord about my demise mbox_id = 0x00200000" }
+[2024-06-07 23:33:13.848820097] INFO:   { cpu  3 }  { "itc_rx_sysvmq", "itc.c", 826, "-", "Deleted thread-local mailbox 0x00200000" }
+[2024-06-07 23:33:13.848847089] INFO:   { cpu  9 }  { "itc_gw", "itc_threadmanager.c", 156, "-", "Terminating a thread, tid = 140290295096896!" }
+[2024-06-07 23:33:13.848864489] INFO:   { cpu  9 }  { "itc_gw", "itc.c", 473, "-", "Removing mailboxes from free_mboxes_queue, count = 5!" }
+[2024-06-07 23:33:13.848868465] INFO:   { cpu  9 }  { "itc_gw", "itc_queue.c", 86, "-", "Queue still has items, removing them!" }
+[2024-06-07 23:33:13.848872241] INFO:   { cpu  9 }  { "itc_gw", "itc_queue.c", 188, "-", "Queue currently has 5 items!" }
+[2024-06-07 23:33:13.848875729] INFO:   { cpu  9 }  { "itc_gw", "itc_queue.c", 188, "-", "Queue currently has 4 items!" }
+[2024-06-07 23:33:13.848878806] INFO:   { cpu  9 }  { "itc_gw", "itc_queue.c", 188, "-", "Queue currently has 3 items!" }
+[2024-06-07 23:33:13.848881924] INFO:   { cpu  9 }  { "itc_gw", "itc_queue.c", 188, "-", "Queue currently has 2 items!" }
+[2024-06-07 23:33:13.848884834] INFO:   { cpu  9 }  { "itc_gw", "itc_queue.c", 165, "-", "Queue has only one item!" }
+[2024-06-07 23:33:13.848888211] ABN:    { cpu  9 }  { "itc_gw", "itc_queue.c", 154, "-", "Queue empty!" }
+[2024-06-07 23:33:13.848892023] INFO:   { cpu  9 }  { "itc_gw", "itc_gw_daemon.c", 365, "-", "ITCGW exit handler finished!" }

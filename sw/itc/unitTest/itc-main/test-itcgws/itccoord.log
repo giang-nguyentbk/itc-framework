@@ -255,3 +255,120 @@
 [2024-06-07 23:16:31.879196741] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 799, "-", "Remove socket on process pid = 461496" }
 [2024-06-07 23:16:31.879246333] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 838, "-", "Unlink /tmp/itc/socket/lsocket successfully!" }
 [2024-06-07 23:16:31.879254114] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 783, "-", "Enqueue process mbox_id = 0x00300000 to free_list!" }
+[2024-06-07 23:33:13.848301640] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 27" }
+[2024-06-07 23:33:13.848362513] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200001" }
+[2024-06-07 23:33:13.848370786] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848381436] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:33:13.848384929] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:33:13.848401618] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:33:13.848418772] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:33:13.848445714] INFO:   { cpu  3 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:33:13.848452042] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:33:13.848456592] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 935, "-", "ITC_NOTIFY_COORD_RMV_MBOX received!" }
+[2024-06-07 23:33:13.848460135] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 936, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200001" }
+[2024-06-07 23:33:13.848463321] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 937, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_gw_udp_mailbox!" }
+[2024-06-07 23:33:13.848478941] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.848504756] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 32" }
+[2024-06-07 23:33:13.848510234] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200002" }
+[2024-06-07 23:33:13.848513930] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848517431] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:33:13.848520566] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:33:13.848534674] INFO:   { cpu 10 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:33:13.848542360] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:33:13.848554934] INFO:   { cpu  3 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:33:13.848558062] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:33:13.848560889] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 935, "-", "ITC_NOTIFY_COORD_RMV_MBOX received!" }
+[2024-06-07 23:33:13.848563127] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 936, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200002" }
+[2024-06-07 23:33:13.848565059] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 937, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itcgw_tcpserver_mailbox!" }
+[2024-06-07 23:33:13.848567557] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.848623982] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 32" }
+[2024-06-07 23:33:13.848650565] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200003" }
+[2024-06-07 23:33:13.848654224] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848657148] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:33:13.848659508] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:33:13.848673863] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:33:13.848698284] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:33:13.848750733] INFO:   { cpu  2 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:33:13.848756796] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:33:13.848761112] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 935, "-", "ITC_NOTIFY_COORD_RMV_MBOX received!" }
+[2024-06-07 23:33:13.848764603] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 936, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200003" }
+[2024-06-07 23:33:13.848767767] INFO:   { cpu  2 }  { "itc_coord", "itccoord.c", 937, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itcgw_tcpclient_mailbox!" }
+[2024-06-07 23:33:13.848771559] INFO:   { cpu  2 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.848832514] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 493, "-", "Allocating itc msg msgno 0x00000000, size = 33" }
+[2024-06-07 23:33:13.848840520] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc_sysvmq.c", 639, "-", "Forwarding a message to local mailbox from external mbox = 0x00200000" }
+[2024-06-07 23:33:13.848844540] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 877, "-", "Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000504" }
+[2024-06-07 23:33:13.848848082] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc_local.c", 482, "-", "RX queue is empty, add a new one!" }
+[2024-06-07 23:33:13.848851313] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 912, "-", "Sent successfully on trans_mechanism[0]!" }
+[2024-06-07 23:33:13.848857787] INFO:   { cpu  4 }  { "itc_rx_sysvmq", "itc.c", 953, "-", "Notify receiver about sent messages!" }
+[2024-06-07 23:33:13.848866713] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 384, "-", "Process with fd 5 is in state PROC_CONNECTED!" }
+[2024-06-07 23:33:13.848872707] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 769, "-", "Remove process mbox_id = 0x00200000 from used_list!" }
+[2024-06-07 23:33:13.848875355] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 799, "-", "Remove socket on process pid = 461481" }
+[2024-06-07 23:33:13.848902314] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 838, "-", "Unlink /tmp/itc/socket/lsocket successfully!" }
+[2024-06-07 23:33:13.848905001] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 783, "-", "Enqueue process mbox_id = 0x00200000 to free_list!" }
+[2024-06-07 23:33:13.848907408] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 411, "-", "Calling handle_incoming_request()!" }
+[2024-06-07 23:33:13.848909851] INFO:   { cpu  3 }  { "itc_coord", "itc_local.c", 512, "-", "RX queue has only one item, dequeue it!" }
+[2024-06-07 23:33:13.848912026] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 997, "-", "Received a message on trans_mechanisms[0]!" }
+[2024-06-07 23:33:13.848914713] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 935, "-", "ITC_NOTIFY_COORD_RMV_MBOX received!" }
+[2024-06-07 23:33:13.848916725] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 936, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_id = 0x00200000" }
+[2024-06-07 23:33:13.848918646] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 937, "-", "ITC_NOTIFY_COORD_RMV_MBOX mbox_name = itc_rx_sysvmq_0x00200000!" }
+[2024-06-07 23:33:13.848920751] ABN:    { cpu  3 }  { "itc_coord", "itccoord.c", 1007, "-", "Mailbox 0x00200000 from a just-terminated process!" }
+[2024-06-07 23:33:13.848923024] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 533, "-", "Freeing itc msg msgno 0x90000504" }
+[2024-06-07 23:33:13.849058780] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 447, "-", "ITCCOORD is terminated with SIG = 15, calling exit handler..." }
+[2024-06-07 23:33:13.849071794] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 457, "-", "ITCCOORD is terminated, calling exit handler..." }
+[2024-06-07 23:33:13.849074470] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 460, "-", "Removing all sockets on all active processes..." }
+[2024-06-07 23:33:13.849253596] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 480, "-", "Remove all directories successfully!" }
+[2024-06-07 23:33:13.849258164] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 483, "-", "Remove all nodes from mbox_tree successfully!" }
+[2024-06-07 23:33:13.849260542] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 485, "-", "Removing processes in free_list, count = 253!" }
+[2024-06-07 23:33:13.849262858] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 86, "-", "Queue still has items, removing them!" }
+[2024-06-07 23:33:13.849265190] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 250 items!" }
+[2024-06-07 23:33:13.849267897] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 225 items!" }
+[2024-06-07 23:33:13.849270436] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 200 items!" }
+[2024-06-07 23:33:13.849273121] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 175 items!" }
+[2024-06-07 23:33:13.849275593] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 150 items!" }
+[2024-06-07 23:33:13.849286869] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 125 items!" }
+[2024-06-07 23:33:13.849290903] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 100 items!" }
+[2024-06-07 23:33:13.849293715] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 75 items!" }
+[2024-06-07 23:33:13.849296375] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 184, "-", "Queue currently has 50 items!" }
+[2024-06-07 23:33:13.849299098] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 25 items!" }
+[2024-06-07 23:33:13.849301062] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 24 items!" }
+[2024-06-07 23:33:13.849302925] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 23 items!" }
+[2024-06-07 23:33:13.849304766] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 22 items!" }
+[2024-06-07 23:33:13.849306609] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 21 items!" }
+[2024-06-07 23:33:13.849308453] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 20 items!" }
+[2024-06-07 23:33:13.849310292] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 19 items!" }
+[2024-06-07 23:33:13.849312153] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 18 items!" }
+[2024-06-07 23:33:13.849314013] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 17 items!" }
+[2024-06-07 23:33:13.849315853] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 16 items!" }
+[2024-06-07 23:33:13.849317709] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 15 items!" }
+[2024-06-07 23:33:13.849319692] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 14 items!" }
+[2024-06-07 23:33:13.849321554] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 13 items!" }
+[2024-06-07 23:33:13.849323405] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 12 items!" }
+[2024-06-07 23:33:13.849325280] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 11 items!" }
+[2024-06-07 23:33:13.849327137] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 10 items!" }
+[2024-06-07 23:33:13.849329075] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 9 items!" }
+[2024-06-07 23:33:13.849330966] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 8 items!" }
+[2024-06-07 23:33:13.849332826] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 7 items!" }
+[2024-06-07 23:33:13.849336800] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 6 items!" }
+[2024-06-07 23:33:13.849338715] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 5 items!" }
+[2024-06-07 23:33:13.849340608] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 4 items!" }
+[2024-06-07 23:33:13.849342486] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 3 items!" }
+[2024-06-07 23:33:13.849344426] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 2 items!" }
+[2024-06-07 23:33:13.849346415] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 165, "-", "Queue has only one item!" }
+[2024-06-07 23:33:13.849348495] ABN:    { cpu  3 }  { "itc_coord", "itc_queue.c", 154, "-", "Queue empty!" }
+[2024-06-07 23:33:13.849351228] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 487, "-", "Removing processes in used_list, count = 0!" }
+[2024-06-07 23:33:13.849353980] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 697, "-", "Deleting mailbox id 0x00100001" }
+[2024-06-07 23:33:13.849356844] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 754, "-", "Waiting for other job that owned rx queue mutex before deleting the mailbox!" }
+[2024-06-07 23:33:13.849361186] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 826, "-", "Deleted thread-local mailbox 0x00100001" }
+[2024-06-07 23:33:13.849470713] INFO:   { cpu  8 }  { "itc_rx_sysvmq", "itc.c", 1355, "-", "Thread-local mailbox destructor called by tid = 461463, mbox_id = 0x00100000" }
+[2024-06-07 23:33:13.849480795] INFO:   { cpu  8 }  { "itc_rx_sysvmq", "itc.c", 1360, "-", "Deleting mailbox with mbox_id = 0x00100000" }
+[2024-06-07 23:33:13.849484797] INFO:   { cpu  8 }  { "itc_rx_sysvmq", "itc.c", 697, "-", "Deleting mailbox id 0x00100000" }
+[2024-06-07 23:33:13.849488501] INFO:   { cpu  8 }  { "itc_rx_sysvmq", "itc.c", 754, "-", "Waiting for other job that owned rx queue mutex before deleting the mailbox!" }
+[2024-06-07 23:33:13.849492615] INFO:   { cpu  8 }  { "itc_rx_sysvmq", "itc.c", 826, "-", "Deleted thread-local mailbox 0x00100000" }
+[2024-06-07 23:33:13.849530198] INFO:   { cpu  3 }  { "itc_coord", "itc_threadmanager.c", 156, "-", "Terminating a thread, tid = 139866122151488!" }
+[2024-06-07 23:33:13.849541289] INFO:   { cpu  3 }  { "itc_coord", "itc.c", 473, "-", "Removing mailboxes from free_mboxes_queue, count = 3!" }
+[2024-06-07 23:33:13.849544738] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 86, "-", "Queue still has items, removing them!" }
+[2024-06-07 23:33:13.849547838] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 3 items!" }
+[2024-06-07 23:33:13.849551166] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 188, "-", "Queue currently has 2 items!" }
+[2024-06-07 23:33:13.849554315] INFO:   { cpu  3 }  { "itc_coord", "itc_queue.c", 165, "-", "Queue has only one item!" }
+[2024-06-07 23:33:13.849557853] ABN:    { cpu  3 }  { "itc_coord", "itc_queue.c", 154, "-", "Queue empty!" }
+[2024-06-07 23:33:13.849560501] INFO:   { cpu  3 }  { "itc_coord", "itccoord.c", 494, "-", "ITCCOORD exit handler finished!" }
