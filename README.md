@@ -13,6 +13,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 28381 lines (updated 20/4/2024)
 -> Total: 28385 lines (updated 22/4/2024)
 -> Total: 28058 lines (updated 3/5/2024)
+-> Total: 34335 lines (updated 7/6/2024)
 ```
 
 ## Fundamental knowledge:
@@ -20,7 +21,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 
 ![](./assets/itc-architecture.png?raw=true)
 ```
-This is an implementation that allows exchanging user messages between threads, processes and even boards.
+This is an implementation that allows exchanging user's messages between threads, processes and even boards.
 
 Each board is one instance of a single OS. Each board may have several processes.
 
@@ -161,6 +162,8 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 + itcgws:
 
 ![](./assets/itcgws_log.png?raw=true)
+
+![](./assets/itcgws_log_1.png?raw=true)
 
 ### 7. Build static and dynamic library
 
