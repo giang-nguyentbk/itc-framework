@@ -1,0 +1,314 @@
+========================================================================================================================
+>>>>>>>                                             START NEW SESSION                                            <<<<<<<
+========================================================================================================================
+2024-06-07 16:55:34.356606398  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:227       msg: Starting itcgws daemon...
+2024-06-07 16:55:34.356671529  INFO       cpu=8     "itc_gw"             itc.c:192                 msg: Start locating itccoord!
+2024-06-07 16:55:34.356791429  INFO       cpu=3     "itc_gw"             itc.c:299                 msg: Running q_init for the first mailbox to itc_inst.free_mbox_queue!
+2024-06-07 16:55:34.356807798  INFO       cpu=3     "itc_gw"             itc.c:304                 msg: Running q_enqueue mailbox 0 to itc_inst.free_mbox_queue!
+2024-06-07 16:55:34.356811207  INFO       cpu=3     "itc_gw"             itc_queue.c:131           msg: Queue now is empty, add the first node!
+2024-06-07 16:55:34.356813561  INFO       cpu=3     "itc_gw"             itc.c:304                 msg: Running q_enqueue mailbox 1 to itc_inst.free_mbox_queue!
+2024-06-07 16:55:34.356815606  INFO       cpu=3     "itc_gw"             itc.c:304                 msg: Running q_enqueue mailbox 2 to itc_inst.free_mbox_queue!
+2024-06-07 16:55:34.356817656  INFO       cpu=3     "itc_gw"             itc.c:304                 msg: Running q_enqueue mailbox 3 to itc_inst.free_mbox_queue!
+2024-06-07 16:55:34.356819606  INFO       cpu=3     "itc_gw"             itc.c:304                 msg: Running q_enqueue mailbox 4 to itc_inst.free_mbox_queue!
+2024-06-07 16:55:34.356821794  INFO       cpu=3     "itc_gw"             itc_local.c:124           msg: ENTER local_init()!
+2024-06-07 16:55:34.356840103  INFO       cpu=3     "itc_gw"             itc_sysvmq.c:495          msg: Open file /tmp/itc/sysvmsq/sysvmsq_file successfully!
+2024-06-07 16:55:34.356844051  INFO       cpu=3     "itc_gw"             itc_lsocket.c:183         msg: itccoord is running!
+2024-06-07 16:55:34.356846115  INFO       cpu=3     "itc_gw"             itc_lsocket.c:186         msg: lsockpath not created yet, create it!
+2024-06-07 16:55:34.356848664  INFO       cpu=3     "itc_gw"             itc_lsocket.c:274         msg: lsockpath /tmp/itc/socket/ already exists!
+2024-06-07 16:55:34.357045722  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:580                 msg: Creating mailbox name itc_rx_sysvmq_0x00200000
+2024-06-07 16:55:34.357113852  INFO       cpu=10    "itc_rx_sysvmq"      itc_queue.c:188           msg: Queue currently has 5 items!
+2024-06-07 16:55:34.357122072  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x90000503, size = 33
+2024-06-07 16:55:34.357126699  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0x00200000 to 0x00100001, msgno = 0x90000503
+2024-06-07 16:55:34.357129975  ABN        cpu=10    "itc_rx_sysvmq"      itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.357133792  ABN        cpu=10    "itc_rx_sysvmq"      itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:34.357137322  ABN        cpu=10    "itc_rx_sysvmq"      itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.357139555  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:520          msg: Add contact list!
+2024-06-07 16:55:34.357141652  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:567          msg: Get sysv message queue: proj_id = 1!
+2024-06-07 16:55:34.357160112  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:533                 msg: Freeing itc msg msgno 0x90000503
+2024-06-07 16:55:34.357164122  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:34.357170682  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:683                 msg: Sent notification to itccoord regarding ADD mailbox id = 0x00200000
+2024-06-07 16:55:34.357173116  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:329          msg: Starting sysvmq_rx_thread itc_rx_sysvmq_0x00200000...!
+2024-06-07 16:55:34.357177382  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:219          msg: Get max msg size successfully, max_msgsize = 8192!
+2024-06-07 16:55:34.357251195  INFO       cpu=3     "itc_gw"             itc_threadmanager.c:121   msg: Starting a thread, tid = 139789337749056!
+2024-06-07 16:55:34.357271584  INFO       cpu=3     "itc_gw"             itc.c:580                 msg: Creating mailbox name itc_gw_udp_mailbox
+2024-06-07 16:55:34.357281358  INFO       cpu=3     "itc_gw"             itc_queue.c:188           msg: Queue currently has 4 items!
+2024-06-07 16:55:34.357293580  INFO       cpu=3     "itc_gw"             itc.c:493                 msg: Allocating itc msg msgno 0x90000503, size = 27
+2024-06-07 16:55:34.357302501  INFO       cpu=3     "itc_gw"             itc.c:879                 msg: Prepare to send message from 0x00200001 to 0x00100001, msgno = 0x90000503
+2024-06-07 16:55:34.357309735  ABN        cpu=3     "itc_gw"             itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.357318874  ABN        cpu=3     "itc_gw"             itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:34.357326015  ABN        cpu=3     "itc_gw"             itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.357334729  INFO       cpu=3     "itc_gw"             itc.c:533                 msg: Freeing itc msg msgno 0x90000503
+2024-06-07 16:55:34.357341325  INFO       cpu=3     "itc_gw"             itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:34.357347475  INFO       cpu=3     "itc_gw"             itc.c:683                 msg: Sent notification to itccoord regarding ADD mailbox id = 0x00200001
+2024-06-07 16:55:34.357365878  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:435       msg: Setup UDP mailbox "itc_gw_udp_mailbox" successfully!
+2024-06-07 16:55:34.357396232  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:482       msg: Setup my UDP successfully on 0.0.0.0:11111
+2024-06-07 16:55:34.357439769  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:499       msg: Setup UDP peer successfully on 255.255.255.255:11112
+2024-06-07 16:55:34.357453812  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:559       msg: Broadcast timer fd 6 created successfully!
+2024-06-07 16:55:34.357472384  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:624       msg: Retrieve address from network interface "eth0" -> tcp://172.30.247.32:0
+2024-06-07 16:55:34.357485809  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:546       msg: Setup TCP server successfully on 172.30.247.32:22222
+2024-06-07 16:55:34.357492898  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:632       msg: Broadcasting message created successfully -> "Broadcast Message: ITCGW from host </ubuntu/> listening on tcp://172.30.247.32:22222/"
+2024-06-07 16:55:34.357724304  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:580                 msg: Creating mailbox name itc_gw_tcp_server_mailbox
+2024-06-07 16:55:34.357756666  INFO       cpu=8     "itc_gw_tcp_serv"    itc_queue.c:188           msg: Queue currently has 3 items!
+2024-06-07 16:55:34.357771716  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:493                 msg: Allocating itc msg msgno 0x90000503, size = 34
+2024-06-07 16:55:34.357779718  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:879                 msg: Prepare to send message from 0x00200002 to 0x00100001, msgno = 0x90000503
+2024-06-07 16:55:34.357786122  ABN        cpu=8     "itc_gw_tcp_serv"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.357803265  ABN        cpu=8     "itc_gw_tcp_serv"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:34.357809291  ABN        cpu=8     "itc_gw_tcp_serv"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.358089224  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:533                 msg: Freeing itc msg msgno 0x90000503
+2024-06-07 16:55:34.358112724  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:34.358120332  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:683                 msg: Sent notification to itccoord regarding ADD mailbox id = 0x00200002
+2024-06-07 16:55:34.358133191  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:946       msg: Create TCP server mailbox "itc_gw_tcp_server_mailbox" successfully!
+2024-06-07 16:55:34.358227106  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:872       msg: Starting tcp server loop...
+2024-06-07 16:55:34.358533470  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:580                 msg: Creating mailbox name itc_gw_tcp_client_mailbox
+2024-06-07 16:55:34.358546062  INFO       cpu=1     "itc_gw_tcp_clie"    itc_queue.c:188           msg: Queue currently has 2 items!
+2024-06-07 16:55:34.358550516  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:493                 msg: Allocating itc msg msgno 0x90000503, size = 34
+2024-06-07 16:55:34.358553028  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:879                 msg: Prepare to send message from 0x00200003 to 0x00100001, msgno = 0x90000503
+2024-06-07 16:55:34.358555130  ABN        cpu=1     "itc_gw_tcp_clie"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.358557919  ABN        cpu=1     "itc_gw_tcp_clie"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:34.358559912  ABN        cpu=1     "itc_gw_tcp_clie"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:34.358591263  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:533                 msg: Freeing itc msg msgno 0x90000503
+2024-06-07 16:55:34.358596318  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:34.358603436  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:683                 msg: Sent notification to itccoord regarding ADD mailbox id = 0x00200003
+2024-06-07 16:55:34.358613868  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1247      msg: Create TCP client mailbox "itc_gw_tcp_client_mailbox" successfully!
+2024-06-07 16:55:34.358702907  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1170      msg: Starting tcp client loop...
+2024-06-07 16:55:34.358780035  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 0.0 seconds!
+2024-06-07 16:55:34.358795350  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:581       msg: Reset timer 10s, send broadcasting message...!
+2024-06-07 16:55:34.359168131  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:664       msg: Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/
+2024-06-07 16:55:34.359200330  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:685       msg: Adding new TCP peer connection successfully from tcp://172.30.247.32:22223/
+2024-06-07 16:55:34.359206771  INFO       cpu=3     "itc_gw"             itc.c:493                 msg: Allocating itc msg msgno 0x00000101, size = 38
+2024-06-07 16:55:34.359210996  INFO       cpu=3     "itc_gw"             itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200003, msgno = 0x00000101
+2024-06-07 16:55:34.359214479  INFO       cpu=3     "itc_gw"             itc_local.c:482           msg: RX queue is empty, add a new one!
+2024-06-07 16:55:34.359223163  INFO       cpu=3     "itc_gw"             itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
+2024-06-07 16:55:34.359242048  INFO       cpu=3     "itc_gw"             itc.c:955                 msg: Notify receiver about sent messages!
+2024-06-07 16:55:34.359247130  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:713       msg: Sent ITCGW_UDP_ADD_PEER to mailbox "itc_gw_tcp_client_mailbox" successfully!
+2024-06-07 16:55:34.359250289  INFO       cpu=1     "itc_gw_tcp_clie"    itc_local.c:512           msg: RX queue has only one item, dequeue it!
+2024-06-07 16:55:34.359260082  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:999                 msg: Received a message on trans_mechanisms[0]!
+2024-06-07 16:55:34.359264323  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1278      msg: Received ITCGW_UDP_ADD_PEER addr = tcp://172.30.247.32:22223/debian/
+2024-06-07 16:55:34.359267664  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1279      msg: Received ITCGW_UDP_ADD_PEER namespace = /debian/
+2024-06-07 16:55:34.359285395  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 9.999 seconds!
+2024-06-07 16:55:34.359444069  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1397      msg: Connect to new TCP peer successfully from hostname </debian/> on tcp://172.30.247.32:22223/
+2024-06-07 16:55:34.359454425  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:533                 msg: Freeing itc msg msgno 0x00000101
+2024-06-07 16:55:34.359482714  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:988       msg: Receiving new connection from a peer client tcp://172.30.247.32:37150/
+2024-06-07 16:55:34.359509671  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1003      msg: Accepting new tcp connection from tcp://172.30.247.32:22223/
+2024-06-07 16:55:35.359186970  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 24
+2024-06-07 16:55:35.359201979  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00100001
+2024-06-07 16:55:35.359207238  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200003, msgno = 0x9000050a
+2024-06-07 16:55:35.359211403  INFO       cpu=10    "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
+2024-06-07 16:55:35.359213853  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
+2024-06-07 16:55:35.359227809  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
+2024-06-07 16:55:35.359234945  INFO       cpu=1     "itc_gw_tcp_clie"    itc_local.c:512           msg: RX queue has only one item, dequeue it!
+2024-06-07 16:55:35.359243412  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:999                 msg: Received a message on trans_mechanisms[0]!
+2024-06-07 16:55:35.359246704  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1289      msg: Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST from itccoord mbox_id 0x00100001
+2024-06-07 16:55:35.359249051  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1290      msg: Received ITC_LOCATE_MBOX_FROM_ITCGWS_REQUEST asked to locate mbox_name "receiverMailbox"
+2024-06-07 16:55:35.359288270  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1681      msg: Broadcast ITCGW_LOCATE_MBOX_REQUEST to all 1 peers successfully!
+2024-06-07 16:55:35.359294377  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:533                 msg: Freeing itc msg msgno 0x9000050a
+2024-06-07 16:55:35.359688792  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1332      msg: Receiving 20 bytes from fd 10
+2024-06-07 16:55:35.359730097  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1333      msg: Re-interpret TCP packet: msgno: 0x00000105
+2024-06-07 16:55:35.359741181  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1334      msg: Re-interpret TCP packet: payloadLen: 8
+2024-06-07 16:55:35.359745400  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1335      msg: Re-interpret TCP packet: protRev: 15
+2024-06-07 16:55:35.359749434  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1336      msg: Re-interpret TCP packet: receiver: 111
+2024-06-07 16:55:35.359753140  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1337      msg: Re-interpret TCP packet: sender: 235
+2024-06-07 16:55:35.359756911  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1342      msg: Received ITCGW_LOCATE_MBOX_REPLY!
+2024-06-07 16:55:35.359762334  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1775      msg: Receiving 8 bytes from fd 10
+2024-06-07 16:55:35.359766354  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1776      msg: Re-interpret TCP packet: errorcode: 0
+2024-06-07 16:55:35.359770153  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1777      msg: Re-interpret TCP packet: mbox_id: 0x00300001
+2024-06-07 16:55:35.359774679  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:493                 msg: Allocating itc msg msgno 0x9000050b, size = 17
+2024-06-07 16:55:35.359779475  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x9000050b
+2024-06-07 16:55:35.359783723  ABN        cpu=1     "itc_gw_tcp_clie"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:35.359788927  ABN        cpu=1     "itc_gw_tcp_clie"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:35.359793276  ABN        cpu=1     "itc_gw_tcp_clie"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:35.359814874  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:533                 msg: Freeing itc msg msgno 0x9000050b
+2024-06-07 16:55:35.359820836  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:35.359825512  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1800      msg: Sent ITC_LOCATE_MBOX_FROM_ITCGWS_REPLY to itccoord successfully!
+2024-06-07 16:55:35.360701298  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 304
+2024-06-07 16:55:35.360719978  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300001
+2024-06-07 16:55:35.360724887  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200003, msgno = 0x90000507
+2024-06-07 16:55:35.360728801  INFO       cpu=10    "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
+2024-06-07 16:55:35.360731882  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
+2024-06-07 16:55:35.360750247  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
+2024-06-07 16:55:35.360759564  INFO       cpu=1     "itc_gw_tcp_clie"    itc_local.c:512           msg: RX queue has only one item, dequeue it!
+2024-06-07 16:55:35.360772945  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:999                 msg: Received a message on trans_mechanisms[0]!
+2024-06-07 16:55:35.360776607  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1284      msg: Received ITC_FWD_DATA_TO_ITCGWS to namespace "/debian/"
+2024-06-07 16:55:35.360797214  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1487      msg: Sent ITCGW_ITC_DATA_FWD to peer with namespace "/debian/" successfully!
+2024-06-07 16:55:35.360801105  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:533                 msg: Freeing itc msg msgno 0x90000507
+2024-06-07 16:55:35.361526107  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1052      msg: Receiving 20 bytes from fd 11
+2024-06-07 16:55:35.361565228  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1053      msg: Re-interpret TCP packet: msgno: 0x00000104
+2024-06-07 16:55:35.361571181  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1054      msg: Re-interpret TCP packet: payloadLen: 18
+2024-06-07 16:55:35.361574196  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1055      msg: Re-interpret TCP packet: protRev: 15
+2024-06-07 16:55:35.361577087  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1056      msg: Re-interpret TCP packet: receiver: 111
+2024-06-07 16:55:35.361579943  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1057      msg: Re-interpret TCP packet: sender: 235
+2024-06-07 16:55:35.361582747  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1067      msg: Received ITCGW_LOCATE_MBOX_REQUEST!
+2024-06-07 16:55:35.361587344  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1703      msg: Receiving 18 bytes from fd 11
+2024-06-07 16:55:35.361590487  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1704      msg: Re-interpret TCP packet: errorcode: 0
+2024-06-07 16:55:35.361593484  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1705      msg: Re-interpret TCP packet: mboxname: "senderMailbox"
+2024-06-07 16:55:35.361597216  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:1223                msg: Mailbox senderMailbox not found in local process, send ITC_LOCATE_MBOX_SYNC_REQUEST to itccoord!
+2024-06-07 16:55:35.361600636  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:493                 msg: Allocating itc msg msgno 0x90000505, size = 27
+2024-06-07 16:55:35.361604426  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00100001, msgno = 0x90000505
+2024-06-07 16:55:35.361607625  ABN        cpu=8     "itc_gw_tcp_serv"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:35.361611746  ABN        cpu=8     "itc_gw_tcp_serv"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:35.361614748  ABN        cpu=8     "itc_gw_tcp_serv"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:55:35.361641989  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:533                 msg: Freeing itc msg msgno 0x90000505
+2024-06-07 16:55:35.361647349  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:35.361806256  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 14
+2024-06-07 16:55:35.361829263  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00100001
+2024-06-07 16:55:35.361835023  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200002, msgno = 0x90000506
+2024-06-07 16:55:35.361839013  INFO       cpu=10    "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
+2024-06-07 16:55:35.361841492  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
+2024-06-07 16:55:35.361854856  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
+2024-06-07 16:55:35.361862364  INFO       cpu=8     "itc_gw_tcp_serv"    itc_local.c:512           msg: RX queue has only one item, dequeue it!
+2024-06-07 16:55:35.361871079  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:999                 msg: Received a message on trans_mechanisms[0]!
+2024-06-07 16:55:35.361875439  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:1257                msg: Locating mailbox "senderMailbox" successfully with mbox_id = 0x00300001 from pid = 162545!
+2024-06-07 16:55:35.361895520  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:533                 msg: Freeing itc msg msgno 0x90000506
+2024-06-07 16:55:35.361924333  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1752      msg: Sent ITCGW_LOCATE_MBOX_REPLY successfully!
+2024-06-07 16:55:35.363093919  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1052      msg: Receiving 20 bytes from fd 11
+2024-06-07 16:55:35.363135593  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1053      msg: Re-interpret TCP packet: msgno: 0x00000103
+2024-06-07 16:55:35.363141820  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1054      msg: Re-interpret TCP packet: payloadLen: 40
+2024-06-07 16:55:35.363145302  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1055      msg: Re-interpret TCP packet: protRev: 15
+2024-06-07 16:55:35.363148377  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1056      msg: Re-interpret TCP packet: receiver: 222
+2024-06-07 16:55:35.363151187  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1057      msg: Re-interpret TCP packet: sender: 235
+2024-06-07 16:55:35.363153929  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1062      msg: Received ITCGW_ITC_DATA_FWD!
+2024-06-07 16:55:35.363158687  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1599      msg: Receiving 40 bytes from fd 11
+2024-06-07 16:55:35.363161847  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1600      msg: Re-interpret TCP packet: errorcode: 0
+2024-06-07 16:55:35.363164758  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1601      msg: Re-interpret TCP packet: payload_length: "32"
+2024-06-07 16:55:35.363168214  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:493                 msg: Allocating itc msg msgno 0x10005005, size = 16
+2024-06-07 16:55:35.363172129  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1609      msg: Received not-known-yet message msgno 0x10005005, from a mbox 0x00300001 outside our host!
+2024-06-07 16:55:35.363175443  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x10005005
+2024-06-07 16:55:35.363178837  ABN        cpu=8     "itc_gw_tcp_serv"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00300001
+2024-06-07 16:55:35.363183115  ABN        cpu=8     "itc_gw_tcp_serv"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:35.363185977  ABN        cpu=8     "itc_gw_tcp_serv"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00300001
+2024-06-07 16:55:35.363189093  INFO       cpu=8     "itc_gw_tcp_serv"    itc_sysvmq.c:520          msg: Add contact list!
+2024-06-07 16:55:35.363192075  INFO       cpu=8     "itc_gw_tcp_serv"    itc_sysvmq.c:567          msg: Get sysv message queue: proj_id = 3!
+2024-06-07 16:55:35.363211442  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:533                 msg: Freeing itc msg msgno 0x10005005
+2024-06-07 16:55:35.363216813  INFO       cpu=8     "itc_gw_tcp_serv"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:35.363220377  INFO       cpu=8     "itc_gw_tcp_serv"    itc_gw_daemon.c:1617      msg: Forwardeding message to our internal mailbox 0x00007f24
+2024-06-07 16:55:35.364022460  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x00000000, size = 304
+2024-06-07 16:55:35.364053333  INFO       cpu=10    "itc_rx_sysvmq"      itc_sysvmq.c:639          msg: Forwarding a message to local mailbox from external mbox = 0x00300001
+2024-06-07 16:55:35.364059774  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200003, msgno = 0x90000507
+2024-06-07 16:55:35.364064076  INFO       cpu=10    "itc_rx_sysvmq"      itc_local.c:482           msg: RX queue is empty, add a new one!
+2024-06-07 16:55:35.364072646  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
+2024-06-07 16:55:35.364088671  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:955                 msg: Notify receiver about sent messages!
+2024-06-07 16:55:35.364095657  INFO       cpu=1     "itc_gw_tcp_clie"    itc_local.c:512           msg: RX queue has only one item, dequeue it!
+2024-06-07 16:55:35.364121725  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:999                 msg: Received a message on trans_mechanisms[0]!
+2024-06-07 16:55:35.364125972  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1284      msg: Received ITC_FWD_DATA_TO_ITCGWS to namespace "/debian/"
+2024-06-07 16:55:35.364131748  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1487      msg: Sent ITCGW_ITC_DATA_FWD to peer with namespace "/debian/" successfully!
+2024-06-07 16:55:35.364134175  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:533                 msg: Freeing itc msg msgno 0x90000507
+2024-06-07 16:55:35.417045508  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1052      msg: Receiving 20 bytes from fd 11
+2024-06-07 16:55:35.417085442  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1053      msg: Re-interpret TCP packet: msgno: 0x00000103
+2024-06-07 16:55:35.417091173  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1054      msg: Re-interpret TCP packet: payloadLen: 40
+2024-06-07 16:55:35.417094529  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1055      msg: Re-interpret TCP packet: protRev: 15
+2024-06-07 16:55:35.417097694  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1056      msg: Re-interpret TCP packet: receiver: 222
+2024-06-07 16:55:35.417100665  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1057      msg: Re-interpret TCP packet: sender: 235
+2024-06-07 16:55:35.417103800  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1062      msg: Received ITCGW_ITC_DATA_FWD!
+2024-06-07 16:55:35.417108061  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1599      msg: Receiving 40 bytes from fd 11
+2024-06-07 16:55:35.417111351  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1600      msg: Re-interpret TCP packet: errorcode: 0
+2024-06-07 16:55:35.417114394  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1601      msg: Re-interpret TCP packet: payload_length: "32"
+2024-06-07 16:55:35.417118001  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:493                 msg: Allocating itc msg msgno 0x10005006, size = 16
+2024-06-07 16:55:35.417122289  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1609      msg: Received not-known-yet message msgno 0x10005006, from a mbox 0x00300001 outside our host!
+2024-06-07 16:55:35.417125961  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00300001, msgno = 0x10005006
+2024-06-07 16:55:35.417132498  ABN        cpu=10    "itc_gw_tcp_serv"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00300001
+2024-06-07 16:55:35.417136470  ABN        cpu=10    "itc_gw_tcp_serv"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00300000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:55:35.417139540  ABN        cpu=10    "itc_gw_tcp_serv"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00300001
+2024-06-07 16:55:35.417156189  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:533                 msg: Freeing itc msg msgno 0x10005006
+2024-06-07 16:55:35.417161278  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:55:35.417164855  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1617      msg: Forwardeding message to our internal mailbox 0x00007f24
+2024-06-07 16:55:42.061823589  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:664       msg: Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/
+2024-06-07 16:55:42.061872505  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:675       msg: Already connected, ignore broadcasting message from this peer!
+2024-06-07 16:55:42.061880006  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 2.296 seconds!
+2024-06-07 16:55:44.358828171  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 0.0 seconds!
+2024-06-07 16:55:44.358887043  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:581       msg: Reset timer 10s, send broadcasting message...!
+2024-06-07 16:55:52.061911689  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:664       msg: Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/
+2024-06-07 16:55:52.061963488  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:675       msg: Already connected, ignore broadcasting message from this peer!
+2024-06-07 16:55:52.061972181  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 2.296 seconds!
+2024-06-07 16:55:54.359071979  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 0.0 seconds!
+2024-06-07 16:55:54.359132420  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:581       msg: Reset timer 10s, send broadcasting message...!
+2024-06-07 16:56:02.062676415  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:664       msg: Received a greeting message from hostname </debian/> on tcp://172.30.247.32:22223/
+2024-06-07 16:56:02.062891519  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:675       msg: Already connected, ignore broadcasting message from this peer!
+2024-06-07 16:56:02.062920930  INFO       cpu=3     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 2.296 seconds!
+2024-06-07 16:56:02.709067818  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1315      msg: Peer from this socket fd 10 disconnected, remove it from client list!
+2024-06-07 16:56:02.709082425  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:1032      msg: Peer from this socket fd 11 disconnected, remove it from server list!
+2024-06-07 16:56:02.709202650  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:493                 msg: Allocating itc msg msgno 0x00000102, size = 31
+2024-06-07 16:56:02.709218037  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:879                 msg: Prepare to send message from 0xfff00000 to 0x00200001, msgno = 0x00000102
+2024-06-07 16:56:02.709221911  INFO       cpu=10    "itc_gw_tcp_serv"    itc_local.c:482           msg: RX queue is empty, add a new one!
+2024-06-07 16:56:02.709224466  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:914                 msg: Sent successfully on trans_mechanism[0]!
+2024-06-07 16:56:02.709238415  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:955                 msg: Notify receiver about sent messages!
+2024-06-07 16:56:02.709250738  INFO       cpu=8     "itc_gw"             itc_local.c:512           msg: RX queue has only one item, dequeue it!
+2024-06-07 16:56:02.709263471  INFO       cpu=8     "itc_gw"             itc.c:999                 msg: Received a message on trans_mechanisms[0]!
+2024-06-07 16:56:02.709268739  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:1507      msg: Received ITCGW_UDP_RMV_PEER addr = tcp://172.30.247.32:22223/
+2024-06-07 16:56:02.709272793  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:1539      msg: Remove peer "tcp://172.30.247.32:22223/" from udp tree successfully!
+2024-06-07 16:56:02.709276439  INFO       cpu=8     "itc_gw"             itc.c:533                 msg: Freeing itc msg msgno 0x00000102
+2024-06-07 16:56:02.709280991  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 1.649 seconds!
+2024-06-07 16:56:04.359226037  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:576       msg: Broadcast timer will expire in: 0.0 seconds!
+2024-06-07 16:56:04.359309915  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:581       msg: Reset timer 10s, send broadcasting message...!
+2024-06-07 16:56:05.741472907  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:311       msg: ITCGW is terminated with SIG = 15, calling exit handler...
+2024-06-07 16:56:05.741500169  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:321       msg: Closing file descriptors...
+2024-06-07 16:56:05.741511665  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:326       msg: Destroying UDP, TCP server and client trees...
+2024-06-07 16:56:05.741515355  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:331       msg: Deleting UDP, TCP server, TCP client mailboxes...
+2024-06-07 16:56:05.741518936  INFO       cpu=8     "itc_gw"             itc.c:697                 msg: Deleting mailbox id 0x00200001
+2024-06-07 16:56:05.741523609  INFO       cpu=8     "itc_gw"             itc.c:754                 msg: Waiting for other job that owned rx queue mutex before deleting the mailbox!
+2024-06-07 16:56:05.741528194  INFO       cpu=8     "itc_gw"             itc.c:493                 msg: Allocating itc msg msgno 0x90000504, size = 27
+2024-06-07 16:56:05.741532049  INFO       cpu=8     "itc_gw"             itc.c:879                 msg: Prepare to send message from 0x00200001 to 0x00100001, msgno = 0x90000504
+2024-06-07 16:56:05.741535310  ABN        cpu=8     "itc_gw"             itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.741539304  ABN        cpu=8     "itc_gw"             itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:56:05.741542435  ABN        cpu=8     "itc_gw"             itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.741561800  INFO       cpu=8     "itc_gw"             itc.c:533                 msg: Freeing itc msg msgno 0x90000504
+2024-06-07 16:56:05.741566566  INFO       cpu=8     "itc_gw"             itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:56:05.741570147  INFO       cpu=8     "itc_gw"             itc.c:792                 msg: Sent notification to itccoord about my demise mbox_id = 0x00200001
+2024-06-07 16:56:05.741574330  INFO       cpu=8     "itc_gw"             itc.c:826                 msg: Deleted thread-local mailbox 0x00200001
+2024-06-07 16:56:05.741852819  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:1357                msg: Thread-local mailbox destructor called by tid = 162535, mbox_id = 0x00200002
+2024-06-07 16:56:05.741877657  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:1362                msg: Deleting mailbox with mbox_id = 0x00200002
+2024-06-07 16:56:05.741883414  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:697                 msg: Deleting mailbox id 0x00200002
+2024-06-07 16:56:05.741887655  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:754                 msg: Waiting for other job that owned rx queue mutex before deleting the mailbox!
+2024-06-07 16:56:05.741893139  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:493                 msg: Allocating itc msg msgno 0x90000504, size = 34
+2024-06-07 16:56:05.741896423  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:879                 msg: Prepare to send message from 0x00200002 to 0x00100001, msgno = 0x90000504
+2024-06-07 16:56:05.741899229  ABN        cpu=10    "itc_gw_tcp_serv"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.741903243  ABN        cpu=10    "itc_gw_tcp_serv"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:56:05.741906517  ABN        cpu=10    "itc_gw_tcp_serv"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.741922908  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:533                 msg: Freeing itc msg msgno 0x90000504
+2024-06-07 16:56:05.741932417  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:56:05.741936707  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:792                 msg: Sent notification to itccoord about my demise mbox_id = 0x00200002
+2024-06-07 16:56:05.741940694  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:826                 msg: Deleted thread-local mailbox 0x00200002
+2024-06-07 16:56:05.741944063  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:831       msg: Calling tcp server thread destructor...
+2024-06-07 16:56:05.741947522  INFO       cpu=10    "itc_gw_tcp_serv"    itc_gw_daemon.c:835       msg: Deleting tcp server mailbox...
+2024-06-07 16:56:05.741950790  INFO       cpu=10    "itc_gw_tcp_serv"    itc.c:697                 msg: Deleting mailbox id 0x00200002
+2024-06-07 16:56:05.741954235  ERROR      cpu=10    "itc_gw_tcp_serv"    itc.c:703                 msg: Not initialized yet!
+2024-06-07 16:56:05.742053691  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:1357                msg: Thread-local mailbox destructor called by tid = 162536, mbox_id = 0x00200003
+2024-06-07 16:56:05.742062389  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:1362                msg: Deleting mailbox with mbox_id = 0x00200003
+2024-06-07 16:56:05.742066394  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:697                 msg: Deleting mailbox id 0x00200003
+2024-06-07 16:56:05.742070514  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:754                 msg: Waiting for other job that owned rx queue mutex before deleting the mailbox!
+2024-06-07 16:56:05.742076156  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:493                 msg: Allocating itc msg msgno 0x90000504, size = 34
+2024-06-07 16:56:05.742080380  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:879                 msg: Prepare to send message from 0x00200003 to 0x00100001, msgno = 0x90000504
+2024-06-07 16:56:05.742083726  ABN        cpu=1     "itc_gw_tcp_clie"    itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.742089959  ABN        cpu=1     "itc_gw_tcp_clie"    itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:56:05.742093225  ABN        cpu=1     "itc_gw_tcp_clie"    itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.742107890  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:533                 msg: Freeing itc msg msgno 0x90000504
+2024-06-07 16:56:05.742112638  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:56:05.742116089  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:792                 msg: Sent notification to itccoord about my demise mbox_id = 0x00200003
+2024-06-07 16:56:05.742119896  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:826                 msg: Deleted thread-local mailbox 0x00200003
+2024-06-07 16:56:05.742123392  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1129      msg: Calling tcp client thread destructor...
+2024-06-07 16:56:05.742126774  INFO       cpu=1     "itc_gw_tcp_clie"    itc_gw_daemon.c:1133      msg: Deleting tcp client mailbox...
+2024-06-07 16:56:05.742129807  INFO       cpu=1     "itc_gw_tcp_clie"    itc.c:697                 msg: Deleting mailbox id 0x00200003
+2024-06-07 16:56:05.742132788  ERROR      cpu=1     "itc_gw_tcp_clie"    itc.c:703                 msg: Not initialized yet!
+2024-06-07 16:56:05.742167301  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:361       msg: Exiting ITC system...
+2024-06-07 16:56:05.742223362  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:1357                msg: Thread-local mailbox destructor called by tid = 162534, mbox_id = 0x00200000
+2024-06-07 16:56:05.742231929  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:1362                msg: Deleting mailbox with mbox_id = 0x00200000
+2024-06-07 16:56:05.742238322  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:697                 msg: Deleting mailbox id 0x00200000
+2024-06-07 16:56:05.742241210  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:754                 msg: Waiting for other job that owned rx queue mutex before deleting the mailbox!
+2024-06-07 16:56:05.742243811  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:493                 msg: Allocating itc msg msgno 0x90000504, size = 33
+2024-06-07 16:56:05.742247767  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:879                 msg: Prepare to send message from 0x00200000 to 0x00100001, msgno = 0x90000504
+2024-06-07 16:56:05.742250971  ABN        cpu=10    "itc_rx_sysvmq"      itc.c:1383                msg: Mailbox not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.742254953  ABN        cpu=10    "itc_rx_sysvmq"      itc_local.c:423           msg: Not belong to this process, mbox_id = 0x00100000, my_mbox_id_in_itccoord = 0x00200000
+2024-06-07 16:56:05.742258440  ABN        cpu=10    "itc_rx_sysvmq"      itc_local.c:304           msg: Not belong to this process, mbox_id = 0x00100001
+2024-06-07 16:56:05.742278344  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:533                 msg: Freeing itc msg msgno 0x90000504
+2024-06-07 16:56:05.742282955  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:914                 msg: Sent successfully on trans_mechanism[1]!
+2024-06-07 16:56:05.742286237  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:792                 msg: Sent notification to itccoord about my demise mbox_id = 0x00200000
+2024-06-07 16:56:05.742289747  INFO       cpu=10    "itc_rx_sysvmq"      itc.c:826                 msg: Deleted thread-local mailbox 0x00200000
+2024-06-07 16:56:05.742355414  INFO       cpu=8     "itc_gw"             itc_threadmanager.c:156   msg: Terminating a thread, tid = 139789337749056!
+2024-06-07 16:56:05.742373627  INFO       cpu=8     "itc_gw"             itc.c:473                 msg: Removing mailboxes from free_mboxes_queue, count = 5!
+2024-06-07 16:56:05.742377703  INFO       cpu=8     "itc_gw"             itc_queue.c:86            msg: Queue still has items, removing them!
+2024-06-07 16:56:05.742381313  INFO       cpu=8     "itc_gw"             itc_queue.c:188           msg: Queue currently has 5 items!
+2024-06-07 16:56:05.742385005  INFO       cpu=8     "itc_gw"             itc_queue.c:188           msg: Queue currently has 4 items!
+2024-06-07 16:56:05.742388307  INFO       cpu=8     "itc_gw"             itc_queue.c:188           msg: Queue currently has 3 items!
+2024-06-07 16:56:05.742391545  INFO       cpu=8     "itc_gw"             itc_queue.c:188           msg: Queue currently has 2 items!
+2024-06-07 16:56:05.742394857  INFO       cpu=8     "itc_gw"             itc_queue.c:165           msg: Queue has only one item!
+2024-06-07 16:56:05.742398095  ABN        cpu=8     "itc_gw"             itc_queue.c:154           msg: Queue empty!
+2024-06-07 16:56:05.742401977  INFO       cpu=8     "itc_gw"             itc_gw_daemon.c:365       msg: ITCGW exit handler finished!
