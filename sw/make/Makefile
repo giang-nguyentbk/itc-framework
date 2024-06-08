@@ -23,4 +23,5 @@ rootMakefile:
 	@echo "or \"setenv LD_LIBRARY_PATH <your-path-to-libitc.so>:\", if LD_LIBRARY_PATH is undefined variable!"
 
 clean:
-	$(RMV) $(BIN_DIR)
+	@echo "  RMV \t\t $(BIN_DIR)"
+	@$(RMV) $(BIN_DIR)
