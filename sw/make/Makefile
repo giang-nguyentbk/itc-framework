@@ -1,7 +1,11 @@
-ROOT_DIR := $(shell git rev-parse --show-toplevel)
-
+# --------------------------------------------------
+# Call Makefiles for init setups and build database
+# --------------------------------------------------
 include Makefile.config
 
+# --------------------------------------------------
+# Call Makefiles for modules of the project
+# --------------------------------------------------
 include $(SW_DIR)/itc/src/Makefile
 include $(SW_DIR)/coord/Makefile
 include $(SW_DIR)/gateway/Makefile
@@ -23,5 +27,6 @@ rootMakefile:
 	@echo "or \"setenv LD_LIBRARY_PATH <your-path-to-libitc.so>:\", if LD_LIBRARY_PATH is undefined variable!"
 
 clean:
+	@echo
 	@echo "  RMV \t\t $(BIN_DIR)"
 	@$(RMV) $(BIN_DIR)
