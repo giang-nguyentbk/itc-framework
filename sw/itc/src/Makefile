@@ -18,7 +18,10 @@ ITC_INCS	:= \
 		-I$(SDK_INC_DIR)
 #		-I$(MOCK_UTILSFWK_INCDIR)
 
-all: $(ITC_OBJS) $(LIB_DIR)/$(TARGET_LIBAR) $(LIB_DIR)/$(TARGET_LIBSO) install-header-files-itc
+all: first $(ITC_OBJS) $(LIB_DIR)/$(TARGET_LIBAR) $(LIB_DIR)/$(TARGET_LIBSO) install-header-files-itc
+
+first:
+	@echo $(SDK_SYSROOT_DIR)
 
 # Build target 1 objects
 $(OBJ_DIR)/%.o: $(ITC_SRC_DIR)/%.c
