@@ -10,7 +10,7 @@ CFLAGS = -g -Wall -Werror -Wextra -lpthread #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTE
 CC = gcc
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
-UTILSFWK_TRACE_LIBDIR = $(ROOT_DIR)/external/utilsFramework/libs
+UTILSFWK_TRACE_LIBDIR = $(ROOT_DIR)/external/utilsFramework/lib
 UTILSFWK_TRACE_INCDIR = $(ROOT_DIR)/external/utilsFramework/include
 
 
