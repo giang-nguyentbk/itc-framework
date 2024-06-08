@@ -2,7 +2,7 @@ ROOT_DIR := $(shell git rev-parse --show-toplevel)
 
 include Makefile.config
 
-include $(ITC_DIR)/src/Makefile
+include $(SW_DIR)/itc/src/Makefile
 include $(SW_DIR)/coord/Makefile
 include $(SW_DIR)/gateway/Makefile
 

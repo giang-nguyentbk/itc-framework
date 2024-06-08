@@ -1,35 +1,36 @@
-ITCGWS_SRC		:= gateway/itc_gw.c
-ITCGWS_INCS		:= \
-			$(ITC_DIR)/if/itc.h \
-			$(ITC_DIR)/inc/itc_impl.h \
-			$(ITC_DIR)/inc/itc_proto.h \
-			$(SW_DIR)/gateway/itc_gw_proto.h
+ITCGWS_SRC_DIR		:= $(SW_DIR)/gateway
 
-ITCGWS_OBJ		:= gateway/itc_gw.o
+ITCGWS_SRCS		= 
+ITCGWS_SRCS		+= itc_gw.c
+
+ITCGWS_OBJ		:= $(ITCGWS_SRCS:%.c=$(OBJ_DIR)/%.o)
 
 ITCGWS_INCDIR		:= \
 			-I$(ITC_DIR)/if \
 			-I$(ITC_DIR)/inc \
 			-I$(SW_DIR)/gateway \
-			-I$(ROOT_DIR)/external/utilsFramework/include
+			-I$(SDK_INC_DIR)
+#			-I$(MOCK_UTILSFWK_INCDIR)
 
-all: $(BIN_DIR)/$(ITCGWS_OBJ) $(BIN_DIR)/gateway/$(TARGET_ITCGWS_W_LIBAR) $(BIN_DIR)/gateway/$(TARGET_ITCGWS_W_LIBSO)
+all: $(ITCGWS_OBJ) $(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBAR) $(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBSO)
 
 # Build target 1 objects
-$(BIN_DIR)/$(ITCGWS_OBJ): $(SW_DIR)/$(ITCGWS_SRC) $(ITCGWS_INCS)
+$(OBJ_DIR)/%.o: $(ITCGWS_SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CC \t\t $@"
-	@$(ITC_CC) $(ITC_CFLAGS) -o $@ $(ITCGWS_INCDIR) $<
+	@$(ITC_CC) $(ITC_CFLAGS) $(ITCGWS_INCDIR) -o $@ $<
 
-$(BIN_DIR)/gateway/$(TARGET_ITCGWS_W_LIBAR): $(BIN_DIR)/$(ITCGWS_OBJ)
+$(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBAR): $(ITCGWS_OBJ)
 	@mkdir -p $(@D)
 	@cd $(<D)
-	@echo "  LINKING \t $@"
-	@$(ITC_CC) $< -L$(ITCLIB_DIR) -litca -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $@
+	@echo "  CCLD \t\t $@"
+	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(SDK_LIB_DIR) -ltraceifa -o $@
+#	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(MOCK_UTILSFWK_LIBDIR) -ltracea -o $@
 
-$(BIN_DIR)/gateway/$(TARGET_ITCGWS_W_LIBSO): $(BIN_DIR)/$(ITCGWS_OBJ)
+$(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBSO): $(ITCGWS_OBJ)
 	@mkdir -p $(@D)
 	@cd $(<D)
-	@echo "  LINKING \t $@"
-	@$(ITC_CC) $< -L$(ITCLIB_DIR) -litc -L$(UTILSFWK_TRACE_LIBDIR) -ltrace -o $@
+	@echo "  CCLD \t\t $@"
+	@$(ITC_CC) $^ -L$(LIB_DIR) -litc -L$(SDK_LIB_DIR) -ltraceif -o $@
+#	@$(ITC_CC) $^ -L$(LIB_DIR) -litc -L$(MOCK_UTILSFWK_LIBDIR) -ltrace -o $@
