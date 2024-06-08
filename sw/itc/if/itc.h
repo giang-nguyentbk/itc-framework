@@ -100,7 +100,7 @@ extern bool itc_delete_mailbox(itc_mbox_id_t mbox_id);
 /*
 *  Send an itc_msg
 */
-extern bool itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace);
+extern bool itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *ns);
 
 /*
 *  Receive an itc_msg.
@@ -147,7 +147,7 @@ extern itc_mbox_id_t itc_current_mbox(void);
 *       Improvement: add one more input, let's say, uint32_t wheretofind. You're be able to select where to find
 *       the target mailbox. Locally, or over processes, or even over hosts???
 */
-extern itc_mbox_id_t itc_locate_sync(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace);
+extern itc_mbox_id_t itc_locate_sync(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *ns);
 // extern itc_mbox_id_t itc_locate_sync(const char *name, uint32_t wheretofind);
 
 /*
@@ -172,7 +172,7 @@ extern int itc_get_fd(itc_mbox_id_t mbox_id);
 
 extern bool itc_get_name(itc_mbox_id_t mbox_id, char *name);
 
-extern bool itc_get_namespace(int32_t timeout, char *namespace);
+extern bool itc_get_namespace(int32_t timeout, char *ns);
 
 /*
 *  NOT IMPLEMENTED YET
@@ -208,8 +208,8 @@ extern itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags);
 extern bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id);
 #define itc_delete_mailbox(mbox_id) itc_delete_mailbox_zz((mbox_id))
 
-extern bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace);
-#define itc_send(msg, to, from, namespace) itc_send_zz((msg), (to), (from), (namespace))
+extern bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *ns);
+#define itc_send(msg, to, from, ns) itc_send_zz((msg), (to), (from), (ns))
 
 extern union itc_msg *itc_receive_zz(int32_t tmo);
 #define itc_receive(tmo) itc_receive_zz(tmo)
@@ -226,8 +226,8 @@ extern size_t itc_size_zz(union itc_msg *msg);
 extern itc_mbox_id_t itc_current_mbox_zz(void);
 #define itc_current_mbox() itc_current_mbox_zz()
 
-extern itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace);
-#define itc_locate_sync(timeout, name, find_only_internal, is_external, namespace) itc_locate_sync_zz((timeout), (name), (find_only_internal), (is_external), (namespace))
+extern itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *ns);
+#define itc_locate_sync(timeout, name, find_only_internal, is_external, ns) itc_locate_sync_zz((timeout), (name), (find_only_internal), (is_external), (ns))
 
 extern int itc_get_fd_zz(itc_mbox_id_t mbox_id);
 #define itc_get_fd(mbox_id) itc_get_fd_zz(mbox_id)

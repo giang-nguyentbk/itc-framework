@@ -827,7 +827,7 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 	return true;
 }
 
-bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
+bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *ns)
 {
 	struct itc_message* message;
 	struct itc_mailbox* to_mbox;
@@ -840,7 +840,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 		return false;
 	}
 
-	if(to == my_threadlocal_mbox->mbox_id && (namespace == NULL || (strcmp(namespace, itc_inst.namespace) == 0)))
+	if(to == my_threadlocal_mbox->mbox_id && (ns == NULL || (strcmp(ns, itc_inst.namespace) == 0)))
 	{
 		TPT_TRACE(TRACE_ERROR, "Not allowed to send messages to myself, which causes deadlock, from = 0x%08x, to = 0x%08x", from, to);
 		return false;
@@ -860,10 +860,10 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	}
 
 	/* If namespace is specified and it differs from our namespace, forward the message to itcgw to send it outside */
-	if(namespace != NULL && (strcmp(namespace, itc_inst.namespace) != 0))
+	if(ns != NULL && (strcmp(ns, itc_inst.namespace) != 0))
 	{
-		TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", namespace, from, to, (*msg)->msgno);
-		if(handle_forward_itc_msg_to_itcgw(msg, to, namespace) == false)
+		TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", ns, from, to, (*msg)->msgno);
+		if(handle_forward_itc_msg_to_itcgw(msg, to, ns) == false)
 		{
 			TPT_TRACE(TRACE_ERROR, "Failed to send message to itcgw!");
 			return false;
@@ -1189,7 +1189,7 @@ bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name)
 	return true;
 }
 
-itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace)
+itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *ns)
 {
 	itc_mbox_id_t mbox_id = ITC_NO_MBOX_ID;
 	struct itc_mailbox *mbox;
@@ -1212,7 +1212,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 		if(!find_only_internal)
 		{
 			*is_external = false;
-			strcpy(namespace, "");
+			strcpy(ns, "");
 		}
 		return mbox->mbox_id;
 	}
@@ -1248,7 +1248,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	if(!find_only_internal)
 	{
 		*is_external = msg->itc_locate_mbox_sync_reply.is_external;
-		strcpy(namespace, msg->itc_locate_mbox_sync_reply.namespace);
+		strcpy(ns, msg->itc_locate_mbox_sync_reply.namespace);
 	}
 
 	pid = msg->itc_locate_mbox_sync_reply.pid;
