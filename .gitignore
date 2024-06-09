@@ -1,5 +1,7 @@
 ^.*
 *.o
 *$
+*.log
+./sw/bin/*
 ./sw/itc/unitTest/memory-allocation/bin/*.*
 !.gitmodules
