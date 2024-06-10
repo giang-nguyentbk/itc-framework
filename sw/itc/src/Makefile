@@ -31,13 +31,13 @@ $(LIB_DIR)/$(TARGET_LIBAR): $(ITC_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  AR \t\t $@"
-	@$(ITC_AR) $(ITC_ARFLAGS) $@ $^
+	@$(ITC_AR) $(ITC_ARFLAGS) -L$(SDK_LIB_DIR) -ltraceifa $@ $^
 
 $(LIB_DIR)/$(TARGET_LIBSO): $(ITC_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $(ITC_SOFLAGS) -o $@ $^
+	@$(ITC_CC) $(ITC_SOFLAGS) -L$(SDK_LIB_DIR) -ltraceif -o $@ $^
 
 install-header-files-itc:
 	@mkdir -p $(INCLUDE_DIR)
