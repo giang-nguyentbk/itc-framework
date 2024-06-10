@@ -11,7 +11,7 @@ ITCCOORD_INCDIR		:= \
 			-I$(SDK_INC_DIR)
 #			-I$(MOCK_UTILSFWK_INCDIR)
 
-all: $(ITCCOORD_OBJS) $(EXEC_DIR)/$(TARGET_ITCCORD_W_LIBAR) $(EXEC_DIR)/$(TARGET_ITCCORD_W_LIBSO)
+all: $(ITCCOORD_OBJS) $(EXEC_DIR)/$(TARGET_ITCCOORD_W_LIBAR) $(EXEC_DIR)/$(TARGET_ITCCOORD_W_LIBSO)
 
 # Build target 1 objects
 $(OBJ_DIR)/%.o: $(ITCCOORD_SRC_DIR)/%.c
@@ -20,14 +20,14 @@ $(OBJ_DIR)/%.o: $(ITCCOORD_SRC_DIR)/%.c
 	@echo "  CC \t\t $@"
 	@$(ITC_CC) $(ITC_CFLAGS) $(ITCCOORD_INCDIR) -o $@ $<
 
-$(EXEC_DIR)/$(TARGET_ITCCORD_W_LIBAR): $(ITCCOORD_OBJS)
+$(EXEC_DIR)/$(TARGET_ITCCOORD_W_LIBAR): $(ITCCOORD_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
 	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(SDK_LIB_DIR) -ltraceifa -o $@
 #	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(MOCK_UTILSFWK_LIBDIR) -ltraceifa -o $@
 
-$(EXEC_DIR)/$(TARGET_ITCCORD_W_LIBSO): $(ITCCOORD_OBJS)
+$(EXEC_DIR)/$(TARGET_ITCCOORD_W_LIBSO): $(ITCCOORD_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
