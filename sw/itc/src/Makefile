@@ -31,7 +31,7 @@ $(LIB_DIR)/$(TARGET_LIBAR): $(ITC_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  AR \t\t $@"
-	@$(ITC_AR) $(ITC_ARFLAGS) -L$(SDK_LIB_DIR) -ltraceifa $@ $^
+	$(ITC_AR) $(ITC_ARFLAGS) -L$(SDK_LIB_DIR) -ltraceifa $@ $^
 
 $(LIB_DIR)/$(TARGET_LIBSO): $(ITC_OBJS)
 	@mkdir -p $(@D)
