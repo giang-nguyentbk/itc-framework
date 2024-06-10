@@ -25,19 +25,19 @@ $(OBJ_DIR)/%.o: $(ITC_SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CC \t\t $@"
-	@$(ITC_CC) $(ITC_LDFLAGS) $(ITC_CFLAGS) $(ITC_INCS) -o $@ $^
+	@$(ITC_CC) $(ITC_LDFLAGS) $(ITC_CFLAGS) $(ITC_INCS) -L$(SDK_LIB_DIR) -ltraceif -o $@ $^
 
 $(LIB_DIR)/$(TARGET_LIBAR): $(ITC_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  AR \t\t $@"
-	$(ITC_AR) $(ITC_ARFLAGS) -L$(SDK_LIB_DIR) -ltraceifa $@ $^
+	@$(ITC_AR) $(ITC_ARFLAGS) $@ $^
 
 $(LIB_DIR)/$(TARGET_LIBSO): $(ITC_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $(ITC_SOFLAGS) -L$(SDK_LIB_DIR) -ltraceif -o $@ $^
+	@$(ITC_CC) $(ITC_SOFLAGS) -o $@ $^
 
 install-header-files-itc:
 	@mkdir -p $(INCLUDE_DIR)
