@@ -428,7 +428,7 @@ static bool setup_udp_mailbox(void)
 		return false;
 	}
 
-	itcgw_inst.udp_mbox_fd = itc_get_fd(itcgw_inst.udp_mbox_id);
+	itcgw_inst.udp_mbox_fd = itc_get_fd();
 	TPT_TRACE(TRACE_INFO, "Setup UDP mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_UDP_NAME);
 	return true;
 }
@@ -942,7 +942,7 @@ static bool setup_tcp_server_mailbox(void)
 		return false;
 	}
 
-	itcgw_inst.tcp_server_mbox_fd = itc_get_fd(itcgw_inst.tcp_server_mbox_id);
+	itcgw_inst.tcp_server_mbox_fd = itc_get_fd();
 	TPT_TRACE(TRACE_INFO, "Create TCP server mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_SER_NAME);
 	return true;
 }
@@ -1233,7 +1233,7 @@ static bool setup_tcp_client_mailbox(void)
 		return false;
 	}
 
-	itcgw_inst.tcp_client_mbox_fd = itc_get_fd(itcgw_inst.tcp_client_mbox_id);
+	itcgw_inst.tcp_client_mbox_fd = itc_get_fd();
 	TPT_TRACE(TRACE_INFO, "Create TCP client mailbox \"%s\" successfully!", ITC_GATEWAY_MBOX_TCP_CLI_NAME);
 	return true;
 }

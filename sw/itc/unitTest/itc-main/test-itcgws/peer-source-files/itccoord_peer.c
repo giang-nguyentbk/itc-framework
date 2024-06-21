@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	itccoord_inst.mbox_fd = itc_get_fd(itccoord_inst.mbox_id);
+	itccoord_inst.mbox_fd = itc_get_fd();
 
 	itccoord_inst.free_list = q_init(rc);
 	CHECK_RC_EXIT(rc);

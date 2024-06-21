@@ -1118,24 +1118,15 @@ itc_mbox_id_t itc_current_mbox_zz()
 	return ITC_NO_MBOX_ID;
 }
 
-int itc_get_fd_zz(itc_mbox_id_t mbox_id)
+int itc_get_fd_zz()
 {
-	struct itc_mailbox* mbox;
+	struct itc_mailbox* mbox = my_threadlocal_mbox;
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
 		// Not initialized yet
 		// ERROR trace is needed
 		TPT_TRACE(TRACE_ERROR, "Not initialized yet!");
-		return -1;
-	}
-
-	mbox = my_threadlocal_mbox;
-
-	if(mbox_id != my_threadlocal_mbox->mbox_id)
-	{
-		// "mbox_id" mailbox is not from this thread
-		TPT_TRACE(TRACE_ERROR, "Mailbox not owned by this thread, mbox_id = 0x%08x, this thread's mbox_id = 0x%08x", mbox_id, mbox->mbox_id);
 		return -1;
 	}
 

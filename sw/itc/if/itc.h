@@ -29,7 +29,7 @@ extern "C" {
 *******************************************************************************/
 #define ITC_MAX_NAME_LENGTH 		255
 #define ITC_MAX_MAILBOXES		65534
-#define ITC_MAX_MAILBOXES_PER_THREAD	255
+#define ITC_MAX_MAILBOXES_PER_PROCESS	255
 
 // If you make sure your mailbox's names you set later will be unique across the entire universe, you can use this flag
 // for itc_init() call
@@ -168,7 +168,7 @@ extern itc_mbox_id_t itc_locate_sync(int32_t timeout, const char *name, bool fin
 *       has been sent to it. This is async mechanism for notification. Additionally, Pthread condition variable is
 *       for sync mechanism instead.
 */
-extern int itc_get_fd(itc_mbox_id_t mbox_id);
+extern int itc_get_fd();
 
 extern bool itc_get_name(itc_mbox_id_t mbox_id, char *name);
 
@@ -229,8 +229,8 @@ extern itc_mbox_id_t itc_current_mbox_zz(void);
 extern itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *ns);
 #define itc_locate_sync(timeout, name, find_only_internal, is_external, ns) itc_locate_sync_zz((timeout), (name), (find_only_internal), (is_external), (ns))
 
-extern int itc_get_fd_zz(itc_mbox_id_t mbox_id);
-#define itc_get_fd(mbox_id) itc_get_fd_zz(mbox_id)
+extern int itc_get_fd_zz();
+#define itc_get_fd() itc_get_fd_zz()
 
 extern bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name);
 #define itc_get_name(mbox_id, name) itc_get_name_zz((mbox_id), (name))

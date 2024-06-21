@@ -56,7 +56,7 @@ itc_mbox_id_t test_itc_sender(union itc_msg *msg);
 itc_mbox_id_t test_itc_receiver(union itc_msg *msg);
 size_t test_itc_size(union itc_msg *msg);
 itc_mbox_id_t test_itc_current_mbox(void);
-int test_itc_get_fd(itc_mbox_id_t mbox_id);
+int test_itc_get_fd();
 void test_itc_get_name(itc_mbox_id_t mbox_id, char *name);
 itc_mbox_id_t test_itc_locate_sync(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace);
 
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 
 
 	(void)test_itc_current_mbox();
-	(void)test_itc_get_fd(mbox_id_sending1_thread);
+	(void)test_itc_get_fd();
 	char name[255];
 	test_itc_get_name(mbox_id_sending1_thread, name);
 	itc_mbox_id_t mbox_id_receiving_thread_located = test_itc_locate_sync(1000, "teamServerMailbox1", 1, NULL, NULL);
@@ -418,11 +418,11 @@ itc_mbox_id_t test_itc_current_mbox()
 	return ret;
 }
 
-int test_itc_get_fd(itc_mbox_id_t mbox_id)
+int test_itc_get_fd()
 {
 	int mbox_fd = 0;
 
-	mbox_fd = itc_get_fd(mbox_id);
+	mbox_fd = itc_get_fd();
 	if(mbox_fd == -1)
 	{
 		PRINT_DASH_START;

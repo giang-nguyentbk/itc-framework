@@ -89,6 +89,7 @@ static struct itc_message *malloc_alloc(struct result_code* rc, size_t size)
                 return NULL;
         }
 
+	memset(retmessage, 0, size);
         return retmessage;
 }
 
