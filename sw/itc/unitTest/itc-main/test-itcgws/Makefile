@@ -55,12 +55,12 @@ $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager
 $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o $(BIN)/itc_posixmq.o
 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_3)
-	sudo setcap 'CAP_SYS_RESOURCE=+ep' $@
+	sudo setcap 'CAP_SYS_RESOURCE=+ep' $(BIN)/$(TARGET_3)
 
 $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o $(BIN)/itc_posixmq.o
 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_4)
-	sudo setcap 'CAP_SYS_RESOURCE=+ep' $@
+	sudo setcap 'CAP_SYS_RESOURCE=+ep' $(BIN)/$(TARGET_4)
 
 $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o $(BIN)/itc_posixmq.o
