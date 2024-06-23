@@ -529,6 +529,8 @@ static int compare_mboxid_in_itcmailbox_tree(const void *pa, const void *pb)
 	const itc_mbox_id_t *mboxid = pa;
 	const struct itc_mailbox *mbox = pb;
 
+	TPT_TRACE(TRACE_DEBUG, "*mboxid = 0x%08x", *mboxid);
+	TPT_TRACE(TRACE_DEBUG, "mbox->mbox_id = 0x%08x", mbox->mbox_id);
 	if(*mboxid == mbox->mbox_id)
 	{
 		return 0;
