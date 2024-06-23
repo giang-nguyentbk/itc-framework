@@ -14,8 +14,7 @@
 #include <mqueue.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <linux/version.h>
-
+// #include <linux/version.h>
 
 #include "itc.h"
 #include "itc_impl.h"

@@ -1606,3 +1606,4 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 
 	return true;
 }
+
