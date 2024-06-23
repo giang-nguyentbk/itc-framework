@@ -16,7 +16,6 @@
 #include <sys/un.h>
 #include <sys/select.h>
 #include <sys/types.h>
-#include <sys/resource.h>
 
 #include "itc.h"
 #include "itc_impl.h"
@@ -159,7 +158,6 @@ static int mbox_name_cmpfunc(const void *pa, const void *pb); // char *mbox_name
 static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mbox_info *mbox1 vs struct itc_mbox_info *mbox2
 static void do_nothing(void *tree_node_data);
 void delete_counterpart_mailboxes_in_mailboxtree(const void *nodep, const VISIT which, const int depth);
-static void change_system_rlimit(void);
 
 
 /*****************************************************************************\/
@@ -228,8 +226,6 @@ int main(int argc, char* argv[])
 
 	// At normal termination we just clean up our resources by registration a exit_handler
 	atexit(itccoord_exit_handler);
-
-	change_system_rlimit();
 
 	if(create_itccoord_dir() == false)
 	{
@@ -1191,31 +1187,4 @@ void delete_counterpart_mailboxes_in_mailboxtree(const void *nodep, const VISIT 
 		TPT_TRACE(TRACE_INFO, "Deleting mailbox \"%s\" from mbox_tree based on a counterpart node in list_mboxes_tree!", (*pnode)->mbox_name);
 		tdelete((*pnode)->mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
 	}
-}
-
-static void change_system_rlimit(void)
-{
-	/*
-	To do this, executable must have CAP_SYS_RESOURCE right, by doing this:
-		1. >> sudo setcap 'CAP_SYS_RESOURCE=+ep' /path/to/executable
-		2. Edit /etc/security/capability.conf to give CAP_SYS_RESOURCE to a user/group.
-	*/
-	struct rlimit rlim;
-	memset(&rlim, 0, sizeof(rlim));
-	rlim.rlim_cur = RLIM_INFINITY;
-	rlim.rlim_max = RLIM_INFINITY;
-	if(setrlimit(RLIMIT_MSGQUEUE, &rlim) == -1)
-	{
-		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_MSGQUEUE, errno = %d", errno);
-	}
-
-	memset(&rlim, 0, sizeof(rlim));
-	rlim.rlim_cur = 2048;
-	rlim.rlim_max = 2048;
-	if(setrlimit(RLIMIT_NOFILE, &rlim) == -1)
-	{
-		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_NOFILE, errno = %d", errno);
-	}
-
-	TPT_TRACE(TRACE_INFO, "Increase system-wide resource limit successfully!");
 }

@@ -14,6 +14,7 @@
 #include <sys/eventfd.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
+#include <sys/resource.h>
 
 #include "itc.h"
 #include "itc_impl.h"
@@ -95,6 +96,7 @@ static bool remove_mbox_from_tree(void **tree, pthread_mutex_t *tree_mtx, struct
 static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mailbox *mbox1 vs struct itc_mailbox *mbox2
 static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox);
 static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t to, char *namespace);
+static void change_system_rlimit(void);
 
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
@@ -142,6 +144,8 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 	}
 
 	itc_inst.pid = getpid();
+
+	change_system_rlimit(); // Each process or executable should do this once, remember update Makefile as well
 
 	ret = pthread_mutex_init(&itc_inst.thread_list_mtx, NULL);
 	if(ret != 0)
@@ -1607,3 +1611,29 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	return true;
 }
 
+static void change_system_rlimit(void)
+{
+	/*
+	To do this, executable must have CAP_SYS_RESOURCE right, by doing this:
+		1. >> sudo setcap 'CAP_SYS_RESOURCE=+ep' /path/to/executable
+		2. Edit /etc/security/capability.conf to give CAP_SYS_RESOURCE to a user/group.
+	*/
+	struct rlimit rlim;
+	memset(&rlim, 0, sizeof(rlim));
+	rlim.rlim_cur = RLIM_INFINITY;
+	rlim.rlim_max = RLIM_INFINITY;
+	if(setrlimit(RLIMIT_MSGQUEUE, &rlim) == -1)
+	{
+		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_MSGQUEUE, errno = %d", errno);
+	}
+
+	memset(&rlim, 0, sizeof(rlim));
+	rlim.rlim_cur = 2048;
+	rlim.rlim_max = 2048;
+	if(setrlimit(RLIMIT_NOFILE, &rlim) == -1)
+	{
+		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_NOFILE, errno = %d", errno);
+	}
+
+	TPT_TRACE(TRACE_INFO, "Increase system-wide resource limit successfully!");
+}
