@@ -1202,8 +1202,8 @@ static void change_system_rlimit(void)
 	*/
 	struct rlimit rlim;
 	memset(&rlim, 0, sizeof(rlim));
-	rlim.rlim_cur = 100000; // Approximate value suitable for 10 msg in a posix msgqueue and max 8192 bytes of msg size
-	rlim.rlim_max = 100000;
+	rlim.rlim_cur = RLIM_INFINITY;
+	rlim.rlim_max = RLIM_INFINITY;
 	if(setrlimit(RLIMIT_MSGQUEUE, &rlim) == -1)
 	{
 		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_MSGQUEUE, errno = %d", errno);
