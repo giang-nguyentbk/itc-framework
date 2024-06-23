@@ -26,7 +26,7 @@ typedef bool (itci_trans_locate_coord)(struct result_code* rc, itc_mbox_id_t *my
 					itc_mbox_id_t *itccoord_mask, itc_mbox_id_t *itccoord_mbox_id);
 
 typedef void (itci_trans_init)(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, \
-                              itc_mbox_id_t itccoord_mask, int nr_mboxes, void *p_active_mbox_tree, \
+                              itc_mbox_id_t itccoord_mask, int nr_mboxes, void **p_active_mbox_tree, \
 			      pthread_mutex_t *mbox_tree_mtx, uint32_t flags);
 
 typedef void (itci_trans_exit)(struct result_code* rc);

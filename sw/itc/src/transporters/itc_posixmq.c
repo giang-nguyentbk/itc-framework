@@ -46,7 +46,7 @@ struct posixmq_instance {
 	pthread_mutex_t			itc_message_buffer_mtx;
 	void				*itc_message_buffer_tree;
 
-	void				*m_p_active_mbox_tree;
+	void				**m_p_active_mbox_tree;
 	pthread_mutex_t			*m_active_mbox_tree_mtx;
 
 	struct posixmq_contactlist	posixmq_cl[MAX_SUPPORTED_PROCESSES];
@@ -85,7 +85,7 @@ static void free_itc_message_in_tree(void *tree_node_data);
 *****                   TRANS INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
 static void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      	int nr_mboxes, void *p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags);
+		      	int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags);
 
 static void posixmq_exit(struct result_code* rc);
 
@@ -114,7 +114,7 @@ struct itci_transport_apis posixmq_trans_apis = { NULL,
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
 void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      int nr_mboxes, void *p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags)
+		      int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags)
 {
 	(void)nr_mboxes;
 
