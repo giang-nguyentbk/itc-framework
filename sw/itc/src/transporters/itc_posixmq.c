@@ -239,9 +239,12 @@ static void posixmq_create_mbox(struct result_code* rc, struct itc_mailbox *mail
 		return;
 	}
 
-	tsearch(mailbox, &posixmq_inst.m_active_mbox_tree, compare_mbox_in_itcmailbox_tree);
+	struct itc_mailbox *tmp = tsearch(mailbox, &posixmq_inst.m_active_mbox_tree, compare_mbox_in_itcmailbox_tree);
+	TPT_TRACE(TRACE_DEBUG, "Adding mailbox \"%s\" 0x%08x into posixmq_tree!", tmp->name, tmp->mbox_id);
+
 	MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
 
+	TPT_TRACE(TRACE_INFO, "Adding mailbox \"%s\" 0x%08x into posixmq_tree!", mailbox->name, mailbox->mbox_id);
 }
 
 static void posixmq_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbox)
