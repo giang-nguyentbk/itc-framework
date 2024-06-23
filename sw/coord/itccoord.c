@@ -1204,10 +1204,18 @@ static void change_system_rlimit(void)
 	memset(&rlim, 0, sizeof(rlim));
 	rlim.rlim_cur = 100000; // Approximate value suitable for 10 msg in a posix msgqueue and max 8192 bytes of msg size
 	rlim.rlim_max = 100000;
-	setrlimit(RLIMIT_MSGQUEUE, &rlim);
+	if(setrlimit(RLIMIT_MSGQUEUE, &rlim) == -1)
+	{
+		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_MSGQUEUE, errno = %d", errno);
+	}
 
 	memset(&rlim, 0, sizeof(rlim));
 	rlim.rlim_cur = 2048;
 	rlim.rlim_max = 2048;
-	setrlimit(RLIMIT_NOFILE, &rlim);
+	if(setrlimit(RLIMIT_NOFILE, &rlim) == -1)
+	{
+		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_NOFILE, errno = %d", errno);
+	}
+
+	TPT_TRACE(TRACE_INFO, "Increase system-wide resource limit successfully!");
 }
