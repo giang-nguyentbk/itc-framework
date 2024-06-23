@@ -806,7 +806,7 @@ static bool close_socket_connection(struct itc_process *proc)
 		tmp_sd = proc->sockfd;
 		proc->sockfd = -1;
 
-		TPT_TRACE(TRACE_INFO, "Remove socket on process pid = %d, proc->sockfd = %d", proc->pid, proc->sockfd);
+		TPT_TRACE(TRACE_INFO, "Remove socket on process pid = %d, proc->sockfd = %d", proc->pid, tmp_sd);
 		while(1)
 		{
 			res = close(tmp_sd);
