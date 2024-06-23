@@ -239,12 +239,7 @@ static void posixmq_create_mbox(struct result_code* rc, struct itc_mailbox *mail
 		return;
 	}
 
-	struct itc_mailbox **tmp = tsearch(mailbox, &posixmq_inst.m_active_mbox_tree, compare_mbox_in_itcmailbox_tree);
-	if(tmp != NULL)
-	{
-		TPT_TRACE(TRACE_DEBUG, "Adding mailbox \"%s\" 0x%08x into posixmq_tree!", (*tmp)->name, (*tmp)->mbox_id);
-	}
-
+	tsearch(mailbox, &posixmq_inst.m_active_mbox_tree, compare_mbox_in_itcmailbox_tree);
 	MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
 
 	TPT_TRACE(TRACE_INFO, "Adding mailbox \"%s\" 0x%08x into posixmq_tree!", mailbox->name, mailbox->mbox_id);
@@ -587,8 +582,6 @@ static int compare_mboxid_in_itcmailbox_tree(const void *pa, const void *pb)
 	const itc_mbox_id_t *mboxid = pa;
 	const struct itc_mailbox *mbox = pb;
 
-	TPT_TRACE(TRACE_DEBUG, "*mboxid = 0x%08x", *mboxid);
-	TPT_TRACE(TRACE_DEBUG, "mbox->mbox_id = 0x%08x", mbox->mbox_id);
 	if(*mboxid == mbox->mbox_id)
 	{
 		return 0;
@@ -605,10 +598,11 @@ static int compare_mbox_in_itcmailbox_tree(const void *pa, const void *pb)
 {
 	const struct itc_mailbox *mbox1 = pa;
 	const struct itc_mailbox *mbox2 = pb;
+
 	if(mbox1->mbox_id == mbox2->mbox_id)
 	{
 		return 0;
-	} else if(mbox1->mbox_id == mbox2->mbox_id)
+	} else if(mbox1->mbox_id > mbox2->mbox_id)
 	{
 		return 1;
 	} else

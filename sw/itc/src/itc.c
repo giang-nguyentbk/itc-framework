@@ -693,7 +693,6 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 		return ITC_NO_MBOX_ID;
 	}
 
-	TPT_TRACE(TRACE_DEBUG, "&itc_inst.local_locating_mbox_tree 0x%08x", &itc_inst.local_locating_mbox_tree);
 	/* Insert mailbox to local_locating_tree */
 	if(insert_mbox_to_tree(&itc_inst.local_locating_mbox_tree, &itc_inst.local_locating_mbox_mtx, new_mbox) == false)
 	{
