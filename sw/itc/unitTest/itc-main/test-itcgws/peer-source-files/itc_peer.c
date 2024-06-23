@@ -148,6 +148,8 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 
 	itc_inst.pid = getpid();
 
+	change_system_rlimit(); // Each process or executable should do this once, remember update Makefile as well
+
 	ret = pthread_mutex_init(&itc_inst.thread_list_mtx, NULL);
 	if(ret != 0)
 	{
