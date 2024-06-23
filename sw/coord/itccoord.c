@@ -148,7 +148,6 @@ static bool create_itccoord_dir(void); // Used to create and grant permission to
 static bool handle_locate_coord_request(int sd); // Handle itc_locate_coord_request from a process
 static bool disconnect_from_process(struct itc_process *proc); // Disconnect from a process that has called lsock_exit or by any reason its socket is closed
 static bool close_socket_connection(struct itc_process *proc);
-// static bool remove_all_mbox_in_process(itc_mbox_id_t mbox_id_in_itccoord);
 static struct itc_process *find_process(itc_mbox_id_t mbox_id);
 static bool connect_to_process(struct itc_process *proc);
 static void handle_incoming_request(void);
@@ -807,7 +806,7 @@ static bool close_socket_connection(struct itc_process *proc)
 		tmp_sd = proc->sockfd;
 		proc->sockfd = -1;
 
-		TPT_TRACE(TRACE_INFO, "Remove socket on process pid = %d", proc->pid);
+		TPT_TRACE(TRACE_INFO, "Remove socket on process pid = %d, proc->sockfd = %d", proc->pid, proc->sockfd);
 		while(1)
 		{
 			res = close(tmp_sd);
