@@ -118,6 +118,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 {
 	(void)nr_mboxes;
 
+	TPT_TRACE(TRACE_DEBUG, "p_active_mbox_tree 0x%08x", p_active_mbox_tree);
 	posixmq_inst.m_p_active_mbox_tree = p_active_mbox_tree;
 	posixmq_inst.m_active_mbox_tree_mtx = mbox_tree_mtx;
 
