@@ -170,6 +170,11 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 	int res = chmod(posixmq_path, 0777);
 	if(res < 0)
 	{
+		/*
+		If the errno = 2 even though mq_open has been successful, you must mount your filesystem /dev/mqueue onto type mqueue
+		by doing this command under root privilege:
+			>> sudo mount -t mqueue none /dev/mqueue
+		*/
 		TPT_TRACE(TRACE_ERROR, "Failed to chmod, file = %s, res = %d, errno = %d!", posixmq_path, res, errno);
 		remove_posixmq();
 		return;

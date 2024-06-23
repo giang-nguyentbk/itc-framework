@@ -115,7 +115,7 @@ $(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanage
 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 $(BIN)/itc_posixmq.o: itc_posixmq.c itc_impl.h itci_trans.h itc.h
-	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+	$(CC) -c $(CFLAGS) -lrt -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 
 # Use "ps -xj" to find the daemon PID and kill it 

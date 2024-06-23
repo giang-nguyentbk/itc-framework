@@ -34,7 +34,7 @@ $(TARGET): $(BIN)/itc_posixmq.o $(BIN)/itc_posixmq_test.o
 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
 
 $(BIN)/itc_posixmq.o: itc_posixmq.c itc.h itc_impl.h itci_trans.h
-	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+	$(CC) -c $(CFLAGS) -lrt -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 $(BIN)/itc_posixmq_test.o: itc_posixmq_test.c itc.h itci_trans.h itc_impl.h
 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $(SIG_DIR) $<
