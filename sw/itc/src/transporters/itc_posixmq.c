@@ -46,8 +46,8 @@ struct posixmq_instance {
 	pthread_mutex_t			itc_message_buffer_mtx;
 	void				*itc_message_buffer_tree;
 
-	void				**m_p_active_mbox_tree;
-	pthread_mutex_t			*m_active_mbox_tree_mtx;
+	void				*m_active_mbox_tree;
+	pthread_mutex_t			m_active_mbox_tree_mtx;
 
 	struct posixmq_contactlist	posixmq_cl[MAX_SUPPORTED_PROCESSES];
 };
@@ -74,6 +74,8 @@ static int compare_mboxid_in_itcmessage_tree(const void *pa, const void *pb);
 static int compare_msg_in_itcmessage_tree(const void *pa, const void *pb);
 static void notify_receiver_about_msg_arrival(struct itc_mailbox* mbox);
 static int compare_mboxid_in_itcmailbox_tree(const void *pa, const void *pb);
+static int compare_mbox_in_itcmailbox_tree(const void *pa, const void *pb);
+static void do_nothing(void *tree_node_data);
 static void posix_msq_rx_thread_func(union sigval sv);
 static void register_notification(mqd_t *p_msqd);
 static void free_itc_message_in_tree(void *tree_node_data);
@@ -85,10 +87,13 @@ static void free_itc_message_in_tree(void *tree_node_data);
 *****                   TRANS INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
 static void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      	int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags);
+		      	int nr_mboxes, uint32_t flags);
 
 static void posixmq_exit(struct result_code* rc);
 
+static void posixmq_create_mbox(struct result_code* rc, struct itc_mailbox *mailbox, uint32_t flags);
+
+static void posixmq_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbox);
 
 static void posixmq_send(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to);
 
@@ -99,8 +104,8 @@ static long posixmq_maxmsgsize(struct result_code* rc);
 struct itci_transport_apis posixmq_trans_apis = { NULL,
                                             	posixmq_init,
                                             	posixmq_exit,
-                                            	NULL,
-                                            	NULL,
+                                            	posixmq_create_mbox,
+                                            	posixmq_delete_mbox,
                                             	posixmq_send,
                                             	posixmq_receive,
                                             	NULL,
@@ -114,13 +119,9 @@ struct itci_transport_apis posixmq_trans_apis = { NULL,
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
 void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags)
+		      int nr_mboxes, uint32_t flags)
 {
 	(void)nr_mboxes;
-
-	TPT_TRACE(TRACE_DEBUG, "p_active_mbox_tree 0x%08x", p_active_mbox_tree);
-	posixmq_inst.m_p_active_mbox_tree = p_active_mbox_tree;
-	posixmq_inst.m_active_mbox_tree_mtx = mbox_tree_mtx;
 
 	if(posixmq_inst.is_initialized == 1)
 	{
@@ -198,6 +199,14 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 		remove_posixmq();
 		return;
 	}
+	
+	res = pthread_mutex_init(&posixmq_inst.m_active_mbox_tree_mtx, NULL);
+	if(res != 0)
+	{
+		TPT_TRACE(TRACE_ERROR, "Failed to pthread_mutex_init, error code = %d", res);
+		remove_posixmq();
+		return;
+	}
 
 	register_notification(&posixmq_inst.my_posix_mqd);
 
@@ -214,6 +223,42 @@ static void posixmq_exit(struct result_code* rc)
 	}
 
 	release_posixmq_resources(rc);
+}
+
+static void posixmq_create_mbox(struct result_code* rc, struct itc_mailbox *mailbox, uint32_t flags)
+{
+	(void)rc;
+	(void)flags;
+
+	MUTEX_LOCK(&posixmq_inst.m_active_mbox_tree_mtx);
+	struct itc_mailbox **iter = NULL;
+	iter = tfind(&mailbox->mbox_id, &posixmq_inst.m_active_mbox_tree, compare_mboxid_in_itcmailbox_tree);
+	if(iter != NULL)
+	{
+		TPT_TRACE(TRACE_ABN, "Mailbox \"%s\" 0x%08x already exists in tree, something abnormal!", mailbox->name, mailbox->mbox_id);
+		return;
+	}
+
+	tsearch(mailbox, &posixmq_inst.m_active_mbox_tree, compare_mbox_in_itcmailbox_tree);
+	MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
+
+}
+
+static void posixmq_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbox)
+{
+	(void)rc;
+
+	MUTEX_LOCK(&posixmq_inst.m_active_mbox_tree_mtx);
+	struct itc_mailbox **iter = NULL;
+	iter = tfind(&mailbox->mbox_id, &posixmq_inst.m_active_mbox_tree, compare_mboxid_in_itcmailbox_tree);
+	if(iter == NULL)
+	{
+		TPT_TRACE(TRACE_ABN, "Mailbox \"%s\" 0x%08x not found in tree, something abnormal!", mailbox->name, mailbox->mbox_id);
+		return;
+	}
+
+	tdelete(mailbox, &posixmq_inst.m_active_mbox_tree, compare_mbox_in_itcmailbox_tree);
+	MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
 }
 
 static void posixmq_send(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to)
@@ -353,8 +398,15 @@ static void release_posixmq_resources(struct result_code* rc)
 	{
 		TPT_TRACE(TRACE_ERROR, "pthread_mutex_destroy error code = %d", ret);
 	}
+	
+	ret = pthread_mutex_destroy(&posixmq_inst.m_active_mbox_tree_mtx);
+	if(ret != 0)
+	{
+		TPT_TRACE(TRACE_ERROR, "pthread_mutex_destroy error code = %d", ret);
+	}
 
 	tdestroy(posixmq_inst.itc_message_buffer_tree, free_itc_message_in_tree);
+	tdestroy(posixmq_inst.m_active_mbox_tree, do_nothing);
 
 	posixmq_inst.is_initialized = -1;
 	memset(&posixmq_inst, 0, sizeof(struct posixmq_instance));
@@ -543,6 +595,27 @@ static int compare_mboxid_in_itcmailbox_tree(const void *pa, const void *pb)
 	}
 }
 
+static int compare_mbox_in_itcmailbox_tree(const void *pa, const void *pb)
+{
+	const struct itc_mailbox *mbox1 = pa;
+	const struct itc_mailbox *mbox2 = pb;
+	if(mbox1->mbox_id == mbox2->mbox_id)
+	{
+		return 0;
+	} else if(mbox1->mbox_id == mbox2->mbox_id)
+	{
+		return 1;
+	} else
+	{
+		return -1;
+	}
+}
+
+static void do_nothing(void *tree_node_data)
+{
+	(void)tree_node_data;
+}
+
 static void posix_msq_rx_thread_func(union sigval sv)
 {
 	ssize_t numRead;
@@ -647,20 +720,20 @@ static void posix_msq_rx_thread_func(union sigval sv)
 	If yes, notify them to pick up the message
 	If they are active but did not pick up the message, so highly possible that receiver not waiting on either
 	itc_receive() or monitor on mbox_fd using epoll/poll/select */
-	MUTEX_LOCK(posixmq_inst.m_active_mbox_tree_mtx);
+	MUTEX_LOCK(&posixmq_inst.m_active_mbox_tree_mtx);
 	struct itc_mailbox **mbox_iter = NULL;
-	mbox_iter = tfind(&message->receiver, posixmq_inst.m_p_active_mbox_tree, compare_mboxid_in_itcmailbox_tree);
+	mbox_iter = tfind(&message->receiver, &posixmq_inst.m_active_mbox_tree, compare_mboxid_in_itcmailbox_tree);
 	if(mbox_iter == NULL)
 	{
 		/* But still store the message in the msg buffer tree if some one want to pick up it later.
 		If still no one does, drop it when newer coming message with same receiver field */
 		TPT_TRACE(TRACE_ABN, "No active mailbox matched incoming message's receiver = 0x%08x", message->receiver);
-		MUTEX_UNLOCK(posixmq_inst.m_active_mbox_tree_mtx);
+		MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
 		return;
 	}
 
 	notify_receiver_about_msg_arrival(*mbox_iter);
-	MUTEX_UNLOCK(posixmq_inst.m_active_mbox_tree_mtx);
+	MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
 }
 
 static void register_notification(mqd_t *p_msqd)

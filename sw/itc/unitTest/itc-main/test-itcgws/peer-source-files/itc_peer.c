@@ -333,8 +333,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 		{
 			rc->flags = ITC_OK;
 			trans_mechanisms[i].itci_trans_init(rc, itc_inst.my_mbox_id_in_itccoord, \
-						itc_inst.itccoord_mask, itc_inst.nr_mboxes, itc_inst.local_locating_mbox_tree, \
-						&itc_inst.local_locating_mbox_mtx, flags);
+						itc_inst.itccoord_mask, itc_inst.nr_mboxes, flags);
 			if(rc->flags != ITC_OK)
 			{
 				// ERROR trace is needed here

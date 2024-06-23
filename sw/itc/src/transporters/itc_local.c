@@ -86,7 +86,7 @@ static void remove_qitem(struct result_code* rc, struct llqueue_item** qitem);
 *****                   TRANS INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
 static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags);
+		      int nr_mboxes, uint32_t flags);
 
 static void local_exit(struct result_code* rc);
 
@@ -117,10 +117,8 @@ struct itci_transport_apis local_trans_apis = { NULL,
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
 static void local_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags)
+		      int nr_mboxes, uint32_t flags)
 {
-	(void)p_active_mbox_tree;
-	(void)mbox_tree_mtx;
         uint32_t mask, nr_localmb_data;
 
 	TPT_TRACE(TRACE_INFO, "ENTER local_init()!");

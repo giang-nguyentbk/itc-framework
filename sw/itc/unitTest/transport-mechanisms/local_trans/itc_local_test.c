@@ -305,8 +305,7 @@ void test_local_init(itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoor
 
 	if(transporter.itci_trans_init != NULL)
 	{
-		transporter.itci_trans_init(rc, my_mbox_id_in_itccoord, itccoord_mask, nr_mboxes, \
-					NULL, NULL, flags);
+		transporter.itci_trans_init(rc, my_mbox_id_in_itccoord, itccoord_mask, nr_mboxes, flags);
 	} else
         {
 		PRINT_DASH_START;

@@ -52,7 +52,7 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 			itc_mbox_id_t* itccoord_mask, itc_mbox_id_t* itccoord_mbox_id);
 
 static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      	int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags);
+		      	int nr_mboxes, uint32_t flags);
 
 static void lsock_exit(struct result_code* rc);
 
@@ -168,13 +168,11 @@ static bool lsock_locate_coord(struct result_code* rc, itc_mbox_id_t* my_mbox_id
 }
 
 static void lsock_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, itc_mbox_id_t itccoord_mask, \
-		      	int nr_mboxes, void **p_active_mbox_tree, pthread_mutex_t *mbox_tree_mtx, uint32_t flags)
+		      	int nr_mboxes, uint32_t flags)
 {
 	(void)nr_mboxes;
 	(void)flags;
 	(void)itccoord_mask;
-	(void)p_active_mbox_tree;
-	(void)mbox_tree_mtx;
 
 	int sd, res, rx_len;
 	struct sockaddr_un coord_addr;
