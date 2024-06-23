@@ -170,7 +170,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 	int res = chmod(posixmq_path, 0777);
 	if(res < 0)
 	{
-		TPT_TRACE(TRACE_ERROR, "Failed to chmod, file = %s!", posixmq_path);
+		TPT_TRACE(TRACE_ERROR, "Failed to chmod, file = %s, res = %d, errno = %d!", posixmq_path, res, errno);
 		remove_posixmq();
 		return;
 	}
