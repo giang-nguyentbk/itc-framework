@@ -1559,6 +1559,7 @@ static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct i
 		found = true;
 	} else
 	{
+		TPT_TRACE(TRACE_INFO, "Adding mailbox \"%s\" 0x%08x into local_locating_mbox_tree!", mbox->name, mbox->mbox_id);
 		tsearch(mbox, tree, mbox_name_cmpfunc2);
 	}
 
