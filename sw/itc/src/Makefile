@@ -8,7 +8,8 @@ ITC_SRCS	+= \
 		helpers/itc_threadmanager.c \
 		transporters/itc_local.c \
 		transporters/itc_lsocket.c \
-		transporters/itc_sysvmq.c
+		transporters/itc_sysvmq.c \
+		transporters/itc_posixmq.c
 
 ITC_OBJS	:= $(ITC_SRCS:%.c=$(OBJ_DIR)/%.o)
 
