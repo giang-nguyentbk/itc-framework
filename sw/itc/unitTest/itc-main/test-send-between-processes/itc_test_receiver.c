@@ -27,9 +27,20 @@
 
 
 static volatile bool isTerminated = false;
+static itc_mbox_id_t receiver_mbox_id = ITC_NO_MBOX_ID;
 
-void interrupt_handler(int dummy) {
-	(void)dummy;
+// void interrupt_handler(int dummy) {
+// 	(void)dummy;
+// 	isTerminated = true;
+// }
+
+static void exit_handler(void) {
+	if(receiver_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(receiver_mbox_id);
+	}
+
+	itc_exit();
 	isTerminated = true;
 }
 
@@ -56,7 +67,8 @@ int main(int argc, char* argv[])
 	(void)argc; // Avoid compiler warning unused variables
 	(void)argv; // Avoid compiler warning unused variables
 
-	signal(SIGINT, interrupt_handler);
+	// signal(SIGINT, interrupt_handler);
+	atexit(exit_handler);
 	
 	PRINT_DASH_END;
 
@@ -64,7 +76,7 @@ int main(int argc, char* argv[])
 
 	union itc_msg* send_msg;
 
-	itc_mbox_id_t receiver_mbox_id = test_itc_create_mailbox("receiverMailbox", 0);
+	receiver_mbox_id = test_itc_create_mailbox("receiverMailbox", 0);
 
 	// sleep(10); // To make sure that senderMailbox is ready for our locating
 
@@ -73,7 +85,7 @@ int main(int argc, char* argv[])
 	// itc_mbox_id_t sender_mbox_id = test_itc_locate_sync(1000, "senderMailbox", 1, NULL, NULL);
 	while(!isTerminated)
 	{
-		rcv_msg = test_itc_receive(ITC_NO_WAIT);
+		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
 
 		if(rcv_msg != NULL)
 		{
@@ -112,11 +124,11 @@ int main(int argc, char* argv[])
 	}
 
 
-	test_itc_delete_mailbox(receiver_mbox_id);
+	// test_itc_delete_mailbox(receiver_mbox_id);
 
-	// test_itc_free(&msg); // This will be freed by receiver "teamServer"
+	// // test_itc_free(&msg); // This will be freed by receiver "teamServer"
 
-	test_itc_exit();
+	// test_itc_exit();
 
 	PRINT_DASH_START;
 
@@ -222,6 +234,7 @@ void test_itc_delete_mailbox(itc_mbox_id_t mbox_id)
 
 void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
 {
+	(void)namespace;
 	if(itc_send(msg, to, from, NULL) == false)
 	{
 		PRINT_DASH_START;

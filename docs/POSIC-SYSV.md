@@ -8,7 +8,7 @@ Inter-process communication and synchronization in Linux/Unix Operating System:
 ![](../assets/IPC.png)
 
 ## SYSTEM V definition
-+ System V is a form of Operating System and a relevant standard which was developed by AT&T as a commercial version. System V standards provide many APIs to interact with UNIX kernel from user space.
++ System V is a set of Operating System and a relevant standard which was developed by AT&T as a commercial version. System V standards provide many APIs to interact with UNIX kernel from user space.
 
 
 ## POSIX definition
@@ -21,10 +21,11 @@ _**A family of standards specified by the IEEE**_ Computer Society for maintaini
 |    NO     |   Communication   	|   Complexicity   |   Message Size   |   Overhead   |   Direction   |   Restriction   |   Remarks   |
 |   :---:   |       :---        	|      :---:       |      :---        |    :---:     |     :---:     |      :---       |    :---     |
 |   1       |   Pipe (named & unamed)	|   Low            |   Medium (~64KB) |   High       |   One         |   One direction | Simple/quick implementation. For small project or just previews.
-|   2       |   Shared Memory         	|   High           |   Large (~32MB)  |   Lowest     |   Two         |   Poor sync     | Fastest but need a secured synchronization, normally work with semanphores.
+|   2       |   Shared Memory         	|   High           |   Large (~32MB)  |   Lowest     |   Two         |   Poor sync     | Fastest but need a secured synchronization, normally work with semaphores.
 |   3       |   Socket               	|   Medium         |   Medium (~64KB) |   Normal     |   Two	     |   Neutral       | Widely used for both loopback and network communication. But overhead of loopback/unix socket still higher than Message Queues. So, primarily used for over-host message passing.
-|   4       |   Message Queue           |   Medium         |   Small (~8KB)   |   Low        |   Two         |   Size Limit    | Quite fast, seem only behind Shared Memory, but has limited message&queue size. But thought that it still enough for trivial applications that exchange small and medium messages. System-V-version Message Queue has no file descriptor (it uses an integer), so poor synchronization, need to have an extra thread only to receive messages. Or just using POSIX-version one as an alternative.
-|   5       |   Mapped Memmory          |   High           |   Large (~32MB)  |   Very High  |   Two         |   High overhead | High overhead if sending messages between indiviual processes so not practical. Only OK or same as Shared Memory if passing messages between a process and its children.
+|   4       |   Message Queue           |   Medium         |   Small (~8KB)   |   Low        |   Two         |   Size Limit    | Quite fast, seem only behind Shared Memory, but has limited message&queue size. But thought that it still enough for trivial applications that exchange small and medium messages. System-V-version Message Queue has no file descriptor (it uses an integer), so poor synchronization, have to create an extra thread just to receive messages. Or we can use POSIX-version one as an alternative.
+|   5       |   Memmory Mapped-files    |   High           |   Large (~32MB)  |   Very High  |   Two         |   High overhead | High overhead if sending messages between indiviual processes (independent processes), so not practical. Only OK or same as Shared Memory if passing messages between a process and its children processes (cooperative processes).
+|   6       |   Cross memory attach	|   Medium            |   Large 	|   Low       |   Two         |   Hard to implemetation in practival product | 
 
 
 ```

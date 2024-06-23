@@ -25,9 +25,19 @@
 	} while(0)
 
 static volatile bool isTerminated = false;
+static itc_mbox_id_t sender_mbox_id = ITC_NO_MBOX_ID;
+// void interrupt_handler(int dummy) {
+// 	(void)dummy;
+// 	isTerminated = true;
+// }
 
-void interrupt_handler(int dummy) {
-	(void)dummy;
+static void exit_handler(void) {
+	if(sender_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(sender_mbox_id);
+	}
+
+	itc_exit();
 	isTerminated = true;
 }
 
@@ -55,7 +65,8 @@ int main(int argc, char* argv[])
 	(void)argc; // Avoid compiler warning unused variables
 	(void)argv; // Avoid compiler warning unused variables
 	
-	signal(SIGINT, interrupt_handler);
+	// signal(SIGINT, interrupt_handler);
+	atexit(exit_handler);
 
 	struct timespec t_start;
 	struct timespec t_end;
@@ -66,7 +77,7 @@ int main(int argc, char* argv[])
 
 	union itc_msg* send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
 
-	itc_mbox_id_t sender_mbox_id = test_itc_create_mailbox("senderMailbox", 0);
+	sender_mbox_id = test_itc_create_mailbox("senderMailbox", 0);
 
 	clock_gettime(CLOCK_REALTIME, &t_start);
 
@@ -85,7 +96,7 @@ int main(int argc, char* argv[])
 		// teamServerMailbox1 always listens to resourceHandlerMailbox1
 		// printf("\tDEBUG: teamServerThread - Reading rx queue...!\n"); SPAM
 		// Because ITC_FROM_ALL is not implemented yet, so must use ITC_NO_WAIT here to check if messages from two sending threads 
-		rcv_msg = test_itc_receive(ITC_NO_WAIT);
+		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
 
 		if(rcv_msg != NULL)
 		{
@@ -122,12 +133,12 @@ int main(int argc, char* argv[])
 	}
 
 
-	test_itc_delete_mailbox(sender_mbox_id);
+	// test_itc_delete_mailbox(sender_mbox_id);
 
-	(void)send_msg;
-	// test_itc_free(&msg); // This will be freed by receiver "teamServer"
+	// (void)send_msg;
+	// // test_itc_free(&msg); // This will be freed by receiver "teamServer"
 
-	test_itc_exit();
+	// test_itc_exit();
 
 	PRINT_DASH_START;
 
@@ -233,6 +244,7 @@ void test_itc_delete_mailbox(itc_mbox_id_t mbox_id)
 
 void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
 {
+	(void)namespace;
 	if(itc_send(msg, to, from, NULL) == false)
 	{
 		PRINT_DASH_START;

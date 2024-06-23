@@ -29,7 +29,7 @@ extern "C" {
 #include "itc.h"
 #include "itc_impl.h"
 
-typedef void (itci_alloc_init)(struct result_code* rc, int max_msgsize);
+typedef void (itci_alloc_init)(struct result_code* rc, long max_msgsize);
 typedef void (itci_alloc_exit)(struct result_code* rc);
 typedef struct itc_message* (itci_alloc_alloc)(struct result_code* rc, size_t size);
 typedef void (itci_alloc_free)(struct result_code* rc, struct itc_message** message);

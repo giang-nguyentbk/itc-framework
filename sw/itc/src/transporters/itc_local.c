@@ -49,7 +49,7 @@ struct local_instance {
         itc_mbox_id_t           itccoord_mask;
         itc_mbox_id_t           local_mbox_mask;
 
-        uint32_t                     nr_localmbx_datas;
+        uint32_t                nr_localmbx_datas;
         struct local_mbox_data  *localmbx_data;
 };
 
@@ -258,7 +258,7 @@ static void local_delete_mbox(struct result_code* rc, struct itc_mailbox *mailbo
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
+		TPT_TRACE(TRACE_ABN, "Rx queue not initialized yet!");
 		// Deleting a local mailbox data in wrong state
 		rc->flags |= ITC_QUEUE_NULL;
 		return;
@@ -308,7 +308,7 @@ static void local_send(struct result_code* rc, struct itc_message *message, itc_
 	if(to_lc_mb_data->rxq == NULL)
 	{
 		// If q is NULL, that means the queue has not been initialized yet by init_queue()
-		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
+		TPT_TRACE(TRACE_ABN, "Rx queue not initialized yet!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return;
 	}
@@ -330,7 +330,7 @@ static struct itc_message *local_receive(struct result_code* rc, struct itc_mail
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
+		TPT_TRACE(TRACE_ABN, "Rx queue not initialized yet!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return NULL;
 	}
@@ -354,7 +354,7 @@ static struct itc_message *local_remove(struct result_code* rc, struct itc_mailb
 
 	if(lc_mb_data->rxq == NULL)
 	{
-		TPT_TRACE(TRACE_ABN, "Already used by another mailbox!");
+		TPT_TRACE(TRACE_ABN, "Rx queue not initialized yet!");
 		rc->flags |= ITC_QUEUE_NULL;
 		return NULL;
 	}

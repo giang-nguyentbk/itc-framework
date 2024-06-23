@@ -20,14 +20,14 @@
    and limit msg size of local and socket trans functions as same as sysvmq???
    What we should do is that we will choose which trans functions should be used depending on message size.
 */
-static int max_mallocsize = 0;
+static long max_mallocsize = 0;
 
 
 
 /*****************************************************************************\/
 *****                   ALLOC INTERFACE IMPLEMENTATION                     *****
 *******************************************************************************/
-static void malloc_init(struct result_code* rc, int max_msgsize);
+static void malloc_init(struct result_code* rc, long max_msgsize);
 static void malloc_exit(struct result_code* rc);
 static struct itc_message* malloc_alloc(struct result_code* rc, size_t size);
 static void malloc_free(struct result_code* rc, struct itc_message** message);
@@ -45,7 +45,7 @@ struct itci_alloc_apis malloc_apis = {  malloc_init,
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
 *******************************************************************************/
-static void malloc_init(struct result_code* rc, int max_msgsize)
+static void malloc_init(struct result_code* rc, long max_msgsize)
 {
         // Because malloc allocator does not need any special scheme_params, see struct itc_malloc_scheme.
         // So we will ignore scheme_params here, users can just input nullptr for this argument.
@@ -53,7 +53,7 @@ static void malloc_init(struct result_code* rc, int max_msgsize)
 
 	if(max_msgsize < 0)
 	{
-		TPT_TRACE(TRACE_ERROR, "Negative max_msgsize = %d!", max_msgsize);
+		TPT_TRACE(TRACE_ERROR, "Negative max_msgsize = %ld!", max_msgsize);
 		rc->flags |= ITC_INVALID_ARGUMENTS;
                 return;
 	}

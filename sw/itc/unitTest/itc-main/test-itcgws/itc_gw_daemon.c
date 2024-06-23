@@ -148,13 +148,13 @@ static bool setup_tcp_client_peer(void);
 static bool handle_accept_new_connection(int sockfd);
 static bool handle_receive_tcp_packet_at_server(int sockfd);
 static bool delete_tcp_peer_resource(int sockfd);
-static bool handle_receive_itcmsg_at_client(int sockfd);
+static bool handle_receive_itcmsg_at_client(int mbox_fd);
 static bool handle_receive_tcp_packet_at_client(int sockfd);
 static bool handle_tcp_client_add_peer(char *addr, char *namespace);
 static bool handle_tcp_client_rmv_peer(int sockfd);
 static bool handle_fwd_data_out(union itc_msg *msg);
 static bool handle_locate_mbox_request(union itc_msg *msg);
-static bool handle_receive_itcmsg_at_udp(int sockfd);
+static bool handle_receive_itcmsg_at_udp(int mbox_fd);
 static bool handle_udp_rmv_peer(char *addr);
 static int recv_data(int sockfd, void *rx_buff, int nr_bytes_to_read);
 static bool handle_udp_get_namespace_request(itc_mbox_id_t mbox_id);
@@ -830,6 +830,9 @@ static void tcp_server_thread_destructor(void* data)
 
 	TPT_TRACE(TRACE_INFO, "Calling tcp server thread destructor...");
 
+	pthread_key_delete(itcgw_inst.tcp_server_destruct_key);
+	pthread_mutex_destroy(&itcgw_inst.tcp_server_mtx);
+
 	/* Do not need to delete mailboxes manually here because ITC system already helped you do that.
 	   Let's recall, when we call itc_create_mailbox(), ITC system actually associates the mailbox_id with your current thread's destructor.
 	   So right once your thread destructor gets called at exit, ITC system helped you delete the related mailbox. */
@@ -1082,46 +1085,32 @@ static bool handle_receive_tcp_packet_at_server(int sockfd)
 
 static bool delete_tcp_peer_resource(int sockfd)
 {
-	int i = 0;
-	for(; i < ITC_GATEWAY_MAX_PEERS; i++)
+	struct tcp_peer_info **iter;
+	iter = tfind(&sockfd, &itcgw_inst.tcp_server_tree, compare_sockfd_tcp_tree);
+	if(iter == NULL)
 	{
-		if(itcgw_inst.tcp_server_peers[i].fd == sockfd)
-		{
-			close(itcgw_inst.tcp_server_peers[i].fd);
-			itcgw_inst.tcp_server_peers[i].fd = -1;
-
-			struct tcp_peer_info **iter;
-			iter = tfind(itcgw_inst.tcp_server_peers[i].addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
-			if(iter == NULL)
-			{
-				TPT_TRACE(TRACE_ABN, "Disconnected peer not found in server tree, something wrong!");
-				return false;
-			}
-
-			tdelete((*iter)->addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
-
-			/* Notify UDP thread about our disconnected peer as well */
-			union itc_msg *req;
-			req = itc_alloc(offsetof(struct itcgw_udp_rmv_peer, addr) + strlen(itcgw_inst.tcp_server_peers[i].addr) + 1, ITCGW_UDP_RMV_PEER);
-			strcpy(req->itcgw_udp_rmv_peer.addr, itcgw_inst.tcp_server_peers[i].addr);
-
-			if(itc_send(&req, itcgw_inst.udp_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
-			{
-				TPT_TRACE(TRACE_INFO, "Failed to send ITCGW_UDP_RMV_PEER to mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME);
-				itc_free(&req);
-				return false;
-			}
-
-			strcpy(itcgw_inst.tcp_server_peers[i].addr, ITC_GATEWAY_NO_ADDR_STRING);
-			return true;
-		}
-	}
-
-	if(i == ITC_GATEWAY_MAX_PEERS)
-	{
-		TPT_TRACE(TRACE_ABN, "Disconnected peer not found in server list, something wrong!");
+		TPT_TRACE(TRACE_ABN, "Disconnected peer not found in server tree, something wrong!");
 		return false;
 	}
+
+	close((*iter)->fd);
+	(*iter)->fd = -1;
+
+	tdelete((*iter)->addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
+
+	/* Notify UDP thread about our disconnected peer as well */
+	union itc_msg *req;
+	req = itc_alloc(offsetof(struct itcgw_udp_rmv_peer, addr) + strlen((*iter)->addr) + 1, ITCGW_UDP_RMV_PEER);
+	strcpy(req->itcgw_udp_rmv_peer.addr, (*iter)->addr);
+
+	if(itc_send(&req, itcgw_inst.udp_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
+	{
+		TPT_TRACE(TRACE_INFO, "Failed to send ITCGW_UDP_RMV_PEER to mailbox %s!", ITC_GATEWAY_MBOX_UDP_NAME);
+		itc_free(&req);
+		return false;
+	}
+
+	strcpy((*iter)->addr, ITC_GATEWAY_NO_ADDR_STRING);
 
 	return true;
 }
@@ -1131,6 +1120,9 @@ static void tcp_client_thread_destructor(void* data)
 	(void)data;
 
 	TPT_TRACE(TRACE_INFO, "Calling tcp client thread destructor...");
+
+	pthread_key_delete(itcgw_inst.tcp_client_destruct_key);
+	pthread_mutex_destroy(&itcgw_inst.tcp_client_mtx);
 
 	/* Do not need to delete mailboxes manually here because ITC system already helped you do that.
 	   Let's recall, when we call itc_create_mailbox(), ITC system actually associates the mailbox_id with your current thread's destructor.
@@ -1267,9 +1259,9 @@ static bool setup_tcp_client_peer(void)
 	return true;
 }
 
-static bool handle_receive_itcmsg_at_client(int sockfd)
+static bool handle_receive_itcmsg_at_client(int mbox_fd)
 {
-	(void)sockfd;
+	(void)mbox_fd;
 	union itc_msg *msg;
 
 	msg = itc_receive(ITC_NO_WAIT);
@@ -1422,34 +1414,20 @@ static bool handle_tcp_client_add_peer(char *addr, char *namespace)
 
 static bool handle_tcp_client_rmv_peer(int sockfd)
 {
-	int i = 0;
-	for(; i < ITC_GATEWAY_MAX_PEERS; i++)
+	struct tcp_peer_info **iter;
+	iter = tfind(&sockfd, &itcgw_inst.tcp_client_tree, compare_sockfd_tcp_tree);
+	if(iter == NULL)
 	{
-		if(itcgw_inst.tcp_client_peers[i].fd == sockfd)
-		{
-			close(itcgw_inst.tcp_client_peers[i].fd);
-			itcgw_inst.tcp_client_peers[i].fd = -1;
-
-			struct tcp_peer_info **iter;
-			iter = tfind(itcgw_inst.tcp_client_peers[i].addr, &itcgw_inst.tcp_client_tree, compare_addr_tcp_tree);
-			if(iter == NULL)
-			{
-				TPT_TRACE(TRACE_ABN, "Disconnected peer not found in client tree, something wrong!");
-				return false;
-			}
-
-			tdelete((*iter)->addr, &itcgw_inst.tcp_client_tree, compare_addr_tcp_tree);
-
-			strcpy(itcgw_inst.tcp_client_peers[i].addr, ITC_GATEWAY_NO_ADDR_STRING);
-			return true;
-		}
-	}
-
-	if(i == ITC_GATEWAY_MAX_PEERS)
-	{
-		TPT_TRACE(TRACE_ABN, "Disconnected peer not found in client list, something wrong!");
+		TPT_TRACE(TRACE_ABN, "Disconnected peer not found in client tree, something wrong!");
 		return false;
 	}
+
+	close((*iter)->fd);
+	(*iter)->fd = -1;
+
+	tdelete((*iter)->addr, &itcgw_inst.tcp_client_tree, compare_addr_tcp_tree);
+
+	strcpy((*iter)->addr, ITC_GATEWAY_NO_ADDR_STRING);
 
 	return true;
 }
@@ -1496,9 +1474,9 @@ static bool handle_fwd_data_out(union itc_msg *msg)
 	return true;
 }
 
-static bool handle_receive_itcmsg_at_udp(int sockfd)
+static bool handle_receive_itcmsg_at_udp(int mbox_fd)
 {
-	(void)sockfd;
+	(void)mbox_fd;
 	union itc_msg *msg;
 
 	msg = itc_receive(ITC_NO_WAIT);

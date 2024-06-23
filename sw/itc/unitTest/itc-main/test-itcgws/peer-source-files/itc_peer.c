@@ -25,7 +25,6 @@
 
 #include "traceIf.h"
 
-
 /*****************************************************************************\/
 *****                      INTERNAL TYPES IN ITC.C                         *****
 *******************************************************************************/
@@ -79,6 +78,7 @@ static __thread struct itc_mailbox*	my_threadlocal_mbox = NULL; // A thread only
 static __thread struct result_code* rc = NULL; // A thread only owns one return code
 
 extern struct itci_transport_apis local_trans_apis;
+extern struct itci_transport_apis posixmq_trans_apis;
 extern struct itci_transport_apis sysvmq_trans_apis;
 extern struct itci_transport_apis lsock_trans_apis;
 
@@ -104,7 +104,7 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 *******************************************************************************/
 bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init_flags)
 {
-	int max_msgsize = ITC_MAX_MSGSIZE;
+	long max_msgsize = ITC_MAX_MSGSIZE;
 	uint32_t flags = 0;
 	int ret = 0;
 
@@ -157,8 +157,9 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 	nr_mboxes += 1; // We will need 1 extra mailboxes for sysvmq
 
 	trans_mechanisms[ITC_TRANS_LOCAL]	= local_trans_apis;
-	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
 	trans_mechanisms[ITC_TRANS_LSOCK]	= lsock_trans_apis;
+	trans_mechanisms[ITC_TRANS_POSIXVMQ]	= posixmq_trans_apis;
+	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
 
 	if(alloc_scheme == ITC_MALLOC)
 	{
@@ -169,7 +170,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 	{
 		if(trans_mechanisms[i].itci_trans_maxmsgsize != NULL)
 		{
-			int msgsize = 0;
+			long msgsize = 0;
 
 			msgsize = trans_mechanisms[i].itci_trans_maxmsgsize(rc);
 			rc->flags = ITC_OK;
@@ -369,6 +370,16 @@ bool itc_exit_zz()
 		return false;
 	}
 
+	if(rc == NULL)
+	{
+		rc = (struct result_code*)malloc(sizeof(struct result_code));
+		if(rc == NULL)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_alloc_zz()!");
+                	return false;
+		}	
+	}
+
 	rc->flags = ITC_OK;
 	for(uint32_t i = 0; i < itc_inst.nr_mboxes; i++)
 	{
@@ -466,6 +477,13 @@ bool itc_exit_zz()
 		return false;
 	}
 
+	ret = pthread_mutex_destroy(&itc_inst.thread_list_mtx);
+	if(ret != 0)
+	{
+		TPT_TRACE(TRACE_ERROR, "pthread_mutex_destroy error code = %d", ret);
+		return false;
+	}
+
 	if(alloc_mechanisms.itci_alloc_exit != NULL)
 	{
 		alloc_mechanisms.itci_alloc_exit(rc);
@@ -509,6 +527,16 @@ union itc_msg *itc_alloc_zz(size_t size, uint32_t msgno)
 		return NULL;
 	}
 
+	if(rc == NULL)
+	{
+		rc = (struct result_code*)malloc(sizeof(struct result_code));
+		if(rc == NULL)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_alloc_zz()!");
+                	return false;
+		}	
+	}
+
 	rc->flags = ITC_OK;
 	message = alloc_mechanisms.itci_alloc_alloc(rc, size + ITC_HEADER_SIZE + 1);
 	rc->flags = ITC_OK;
@@ -532,7 +560,7 @@ union itc_msg *itc_alloc_zz(size_t size, uint32_t msgno)
 bool itc_free_zz(union itc_msg **msg)
 {
 	struct itc_message* message;
-	char* endpoint;
+	char* endpoint = NULL;
 
 	TPT_TRACE(TRACE_INFO, "Freeing itc msg msgno 0x%08x", (*msg)->msgno);
 
@@ -551,7 +579,7 @@ bool itc_free_zz(union itc_msg **msg)
 	}
 
 	message = CONVERT_TO_MESSAGE(*msg);
-	endpoint = (char*)((unsigned long)(&message->msgno) + message->size);
+	endpoint = (char*)((unsigned long)(&message->msgno) + (unsigned long)message->size);
 
 	if(message->flags & ITC_FLAGS_MSG_INRXQUEUE)
 	{
@@ -559,8 +587,18 @@ bool itc_free_zz(union itc_msg **msg)
 		return false;
 	} else if(*endpoint != ENDPOINT)
 	{
-		TPT_TRACE(TRACE_ABN, "Invalid *endpoint = 0x%1x!", *endpoint & 0xFF);
+		TPT_TRACE(TRACE_ABN, "Invalid *endpoint = 0x%02x!", *endpoint & 0xFF);
 		return false;
+	}
+
+	if(rc == NULL)
+	{
+		rc = (struct result_code*)malloc(sizeof(struct result_code));
+		if(rc == NULL)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_free_zz()!");
+                	return false;
+		}	
 	}
 
 	rc->flags = ITC_OK;
@@ -597,19 +635,17 @@ itc_mbox_id_t itc_create_mailbox_zz(const char *name, uint32_t flags)
 		return ITC_NO_MBOX_ID;
 	}
 
-	if(rc != NULL)
-	{
-		rc->flags = ITC_OK;
-	} else
+	if(rc == NULL)
 	{
 		rc = (struct result_code*)malloc(sizeof(struct result_code));
 		if(rc == NULL)
 		{
-			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_create_mailbox()!");
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_create_mailbox_zz()!");
                 	return false;
 		}	
 	}
-
+	
+	rc->flags = ITC_OK;
 	new_mbox = q_dequeue(rc, itc_inst.free_mboxes_queue);
 	rc->flags = ITC_OK;
 	if(new_mbox == NULL)
@@ -765,6 +801,16 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 
 	mbox->mbox_state = MBOX_UNUSED;
 
+	if(rc == NULL)
+	{
+		rc = (struct result_code*)malloc(sizeof(struct result_code));
+		if(rc == NULL)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_delete_mailbox_zz()!");
+                	return false;
+		}	
+	}
+
 	rc->flags = ITC_OK;
 	MUTEX_UNLOCK(rxq_mtx);
 
@@ -831,12 +877,10 @@ bool itc_delete_mailbox_zz(itc_mbox_id_t mbox_id)
 	return true;
 }
 
-bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
+bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *ns)
 {
 	struct itc_message* message;
 	struct itc_mailbox* to_mbox;
-
-
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -846,7 +890,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 		return false;
 	}
 
-	if(to == my_threadlocal_mbox->mbox_id && (namespace == NULL || (strcmp(namespace, itc_inst.namespace) == 0)))
+	if(to == my_threadlocal_mbox->mbox_id && (ns == NULL || (strcmp(ns, itc_inst.namespace) == 0)))
 	{
 		TPT_TRACE(TRACE_ERROR, "Not allowed to send messages to myself, which causes deadlock, from = 0x%08x, to = 0x%08x", from, to);
 		return false;
@@ -866,10 +910,10 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	}
 
 	/* If namespace is specified and it differs from our namespace, forward the message to itcgw to send it outside */
-	if(namespace != NULL && (strcmp(namespace, itc_inst.namespace) != 0))
+	if(ns != NULL && (strcmp(ns, itc_inst.namespace) != 0))
 	{
-		TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", namespace, from, to, (*msg)->msgno);
-		if(handle_forward_itc_msg_to_itcgw(msg, to, namespace) == false)
+		TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", ns, from, to, (*msg)->msgno);
+		if(handle_forward_itc_msg_to_itcgw(msg, to, ns) == false)
 		{
 			TPT_TRACE(TRACE_ERROR, "Failed to send message to itcgw!");
 			return false;
@@ -885,6 +929,16 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	message = CONVERT_TO_MESSAGE(*msg);
 	message->sender = my_threadlocal_mbox->mbox_id;
 	message->receiver = to;
+
+	if(rc == NULL)
+	{
+		rc = (struct result_code*)malloc(sizeof(struct result_code));
+		if(rc == NULL)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_send_zz()!");
+                	return false;
+		}	
+	}
 
 	rc->flags = ITC_OK;
 	to_mbox = find_mbox(to);
@@ -985,6 +1039,16 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 		calc_abs_time(&ts, tmo);
 	}
 
+	if(rc == NULL)
+	{
+		rc = (struct result_code*)malloc(sizeof(struct result_code));
+		if(rc == NULL)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_receive_zz()!");
+                	return false;
+		}	
+	}
+
 	rc->flags = ITC_OK;
 	do
 	{
@@ -1026,6 +1090,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				if(ret != 0)
 				{
 					// ERROR trace is needed here
+					MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 					TPT_TRACE(TRACE_ERROR, "pthread_cond_wait error code = %d", ret);
 					return NULL;
 				}
@@ -1041,6 +1106,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				} else if(ret != 0)
 				{
 					// ERROR trace is needed here
+					MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 					TPT_TRACE(TRACE_ERROR, "pthread_cond_timedwait error code = %d", ret);
 					return NULL;
 				}
@@ -1054,6 +1120,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				if(read(mbox->p_rxq_info->rxq_fd, &readbuf, 8) < 0)
 				{
 					// ERROR trace is needed here
+					MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 					TPT_TRACE(TRACE_ERROR, "Failed to read()!");
 					return NULL;
 				}
@@ -1124,9 +1191,9 @@ itc_mbox_id_t itc_current_mbox_zz()
 	return ITC_NO_MBOX_ID;
 }
 
-int itc_get_fd_zz(itc_mbox_id_t mbox_id)
+int itc_get_fd_zz()
 {
-	struct itc_mailbox* mbox;
+	struct itc_mailbox* mbox = my_threadlocal_mbox;
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -1136,13 +1203,14 @@ int itc_get_fd_zz(itc_mbox_id_t mbox_id)
 		return -1;
 	}
 
-	mbox = my_threadlocal_mbox;
-
-	if(mbox_id != my_threadlocal_mbox->mbox_id)
+	if(rc == NULL)
 	{
-		// "mbox_id" mailbox is not from this thread
-		TPT_TRACE(TRACE_ERROR, "Mailbox not owned by this thread, mbox_id = 0x%08x, this thread's mbox_id = 0x%08x", mbox_id, mbox->mbox_id);
-		return -1;
+		rc = (struct result_code*)malloc(sizeof(struct result_code));
+		if(rc == NULL)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to malloc rc for itc_receive_zz()!");
+                	return false;
+		}	
 	}
 
 	rc->flags = ITC_OK;
@@ -1195,7 +1263,7 @@ bool itc_get_name_zz(itc_mbox_id_t mbox_id, char *name)
 	return true;
 }
 
-itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *namespace)
+itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_only_internal, bool *is_external, char *ns)
 {
 	itc_mbox_id_t mbox_id = ITC_NO_MBOX_ID;
 	struct itc_mailbox *mbox;
@@ -1218,7 +1286,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 		if(!find_only_internal)
 		{
 			*is_external = false;
-			strcpy(namespace, "");
+			strcpy(ns, "");
 		}
 		return mbox->mbox_id;
 	}
@@ -1254,7 +1322,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	if(!find_only_internal)
 	{
 		*is_external = msg->itc_locate_mbox_sync_reply.is_external;
-		strcpy(namespace, msg->itc_locate_mbox_sync_reply.namespace);
+		strcpy(ns, msg->itc_locate_mbox_sync_reply.namespace);
 	}
 
 	pid = msg->itc_locate_mbox_sync_reply.pid;
@@ -1343,8 +1411,12 @@ static void release_all_itc_resources()
 	tdestroy(itc_inst.local_locating_mbox_tree, do_nothing);
 
 	free(itc_inst.mboxes);
-	free(rc);
-	rc = NULL;
+
+	if(rc != NULL)
+	{
+		free(rc);
+		rc = NULL;
+	}
 	memset(&itc_inst, 0, sizeof(struct itc_instance));
 
 	my_threadlocal_mbox = NULL;
@@ -1368,8 +1440,11 @@ static void mailbox_destructor_at_thread_exit(void* data)
 		}
 	}
 
-	free(rc);
-	rc = NULL;
+	if(rc != NULL)
+	{
+		free(rc);
+		rc = NULL;
+	}
 }
 
 static struct itc_mailbox* find_mbox(itc_mbox_id_t mbox_id)

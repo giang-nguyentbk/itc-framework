@@ -109,6 +109,7 @@ struct itc_process {
 	int			sockfd; // socket fd of the process
 	struct sockaddr_un	sockaddr;
 	process_state_e		state;
+	void			*list_mboxes_tree;
 };
 
 struct itccoord_instance {
@@ -159,6 +160,8 @@ static void handle_remove_mbox(itc_mbox_id_t mbox_id, char *mbox_name);
 static void handle_locate_mbox(itc_mbox_id_t from_mbox, int32_t timeout, bool find_only_internal, char *mbox_name);
 static int mbox_name_cmpfunc(const void *pa, const void *pb); // char *mbox_name vs struct itc_mbox_info *mbox2
 static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mbox_info *mbox1 vs struct itc_mbox_info *mbox2
+static void do_nothing(void *tree_node_data);
+void delete_counterpart_mailboxes_in_mailboxtree(const void *nodep, const VISIT which, const int depth);
 
 
 /*****************************************************************************\/
@@ -470,6 +473,12 @@ static void itccoord_exit_handler(void)
 			TPT_TRACE(TRACE_ERROR, "Failed to close socket for pid = %d", proc->pid);
 			return;
 		}
+
+		/* Destroy list of mailbox tree which manages mailboxes in each process */
+		if(proc->pid != -1)
+		{
+			tdestroy(proc->list_mboxes_tree, do_nothing); // Main tree will be in charge of freeing itc_mbox_info nodes
+		}
 	}
 
 	close(itccoord_inst.sockfd);
@@ -772,6 +781,7 @@ static bool disconnect_from_process(struct itc_process *proc)
 	TPT_TRACE(TRACE_INFO, "Remove process mbox_id = 0x%08x from used_list!", proc->mbox_id_in_itccoord);
 	q_remove(rc, itccoord_inst.used_list, proc);
 	proc->state = PROC_UNUSED;
+	proc->pid = -1;
 
 	/* Close socket connection is for the corresponding process */
 	if(close_socket_connection(proc) == false)
@@ -780,7 +790,8 @@ static bool disconnect_from_process(struct itc_process *proc)
 		return false;
 	}
 
-	// remove_all_mbox_in_process(proc->mbox_id_in_itccoord);
+	twalk(proc->list_mboxes_tree, delete_counterpart_mailboxes_in_mailboxtree);
+	tdestroy(proc->list_mboxes_tree, free);
 
 	memset(&proc->sockaddr, 0, sizeof(struct sockaddr_un));
 	TPT_TRACE(TRACE_INFO, "Enqueue process mbox_id = 0x%08x to free_list!", proc->mbox_id_in_itccoord);
@@ -992,6 +1003,7 @@ static void handle_add_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
 	} else
 	{
 		tsearch(mbox, &itccoord_inst.mbox_tree, mbox_name_cmpfunc2);
+		tsearch(mbox, &(proc->list_mboxes_tree), mbox_name_cmpfunc2);
 	}
 }
 
@@ -1020,6 +1032,7 @@ static void handle_remove_mbox(itc_mbox_id_t mbox_id, char *mbox_name)
 
 	mbox = *iter;
 	tdelete(mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
+	tdelete(mbox_name, &(proc->list_mboxes_tree), mbox_name_cmpfunc);
 	free(mbox);
 }
 
@@ -1142,3 +1155,40 @@ static int mbox_name_cmpfunc2(const void *pa, const void *pb)
 	return strcmp(mbox1->mbox_name, mbox2->mbox_name);
 }
 
+static void do_nothing(void *tree_node_data)
+{
+	(void)tree_node_data;
+}
+
+void delete_counterpart_mailboxes_in_mailboxtree(const void *nodep, const VISIT which, const int depth)
+{
+	(void)depth;
+	struct itc_mbox_info **pnode = NULL;
+
+	switch (which) {
+	case preorder:
+		break;
+	case postorder:
+		pnode = (struct itc_mbox_info **)nodep;
+		break;
+	case endorder:
+		break;
+	case leaf:
+		pnode = (struct itc_mbox_info **)nodep;
+		break;
+	}
+
+	if(pnode != NULL)
+	{
+		struct itc_mbox_info **iter;
+		iter = tfind((*pnode)->mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
+		if(iter == NULL)
+		{
+			TPT_TRACE(TRACE_ABN, "Mailbox name \"%s\" in list_mboxes_tree not found in mbox_tree, something abnormal!", (*pnode)->mbox_name);
+			return;
+		}
+
+		TPT_TRACE(TRACE_INFO, "Deleting mailbox \"%s\" from mbox_tree based on a counterpart node in list_mboxes_tree!", (*pnode)->mbox_name);
+		tdelete((*pnode)->mbox_name, &itccoord_inst.mbox_tree, mbox_name_cmpfunc);
+	}
+}

@@ -50,7 +50,7 @@ struct sysvmq_instance {
 
 	int				is_initialized;
 	int				is_terminated;
-	int				max_msgsize;
+	long				max_msgsize;
 	char*				rx_buffer;
 
 	struct sysvmq_contactlist	sysvmq_cl[MAX_SUPPORTED_PROCESSES];
@@ -93,7 +93,7 @@ static void sysvmq_exit(struct result_code* rc);
 
 static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc_mbox_id_t to);
 
-static int sysvmq_maxmsgsize(struct result_code* rc);
+static long sysvmq_maxmsgsize(struct result_code* rc);
 
 static void* sysvmq_rx_thread(void *data);
 
@@ -152,7 +152,7 @@ void sysvmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, i
 	while(!(tmp_mask & 0x1))
 	{
 		tmp_mask = tmp_mask >> 1;
-		tmp_shift++; // Should be 20 currently
+		tmp_shift++; // Should be 20 for current design
 	}
 
 	sysvmq_inst.my_sysvmq_id		= -1; // Will be only specified when rx thread starts
@@ -209,14 +209,14 @@ static void sysvmq_exit(struct result_code* rc)
 	memset(&sysvmq_inst, 0, sizeof(struct sysvmq_instance));
 }
 
-static int sysvmq_maxmsgsize(struct result_code* rc)
+static long sysvmq_maxmsgsize(struct result_code* rc)
 {
 	// struct msginfo from <bits/msg.h> included in <sys/msg.h>
 	struct msginfo info;
 
 	if(sysvmq_inst.max_msgsize > 0)
 	{
-		TPT_TRACE(TRACE_INFO, "Get max msg size successfully, max_msgsize = %u!", sysvmq_inst.max_msgsize);
+		TPT_TRACE(TRACE_INFO, "Return already read max msg size, %u bytes!", sysvmq_inst.max_msgsize);
 		return sysvmq_inst.max_msgsize;
 	}
 
@@ -227,8 +227,10 @@ static int sysvmq_maxmsgsize(struct result_code* rc)
 		rc->flags |= ITC_SYSCALL_ERROR;
 	}
 
-	sysvmq_inst.max_msgsize = MIN(info.msgmax, info.msgmnb);
+	int max_msgsize_tmp = MIN(info.msgmax, info.msgmnb);
+	sysvmq_inst.max_msgsize = (long)(max_msgsize_tmp < 0 ? 0 : max_msgsize_tmp);
 
+	TPT_TRACE(TRACE_INFO, "Retrieve max msg size successfully, %u bytes!", sysvmq_inst.max_msgsize);
 	return sysvmq_inst.max_msgsize;
 }
 
@@ -241,7 +243,7 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 
 	if(!sysvmq_inst.is_initialized)
 	{
-		TPT_TRACE(TRACE_INFO, "Already initialized!");
+		TPT_TRACE(TRACE_ABN, "Not initialized yet!");
 		rc->flags |= ITC_NOT_INIT_YET;
 		return;
 	}
@@ -256,7 +258,7 @@ static void sysvmq_send(struct result_code* rc, struct itc_message *message, itc
 		return;
 	}
 
-	size = message->size + ITC_HEADER_SIZE; // We need not to send ENDPOINT
+	size = message->size + ITC_HEADER_SIZE + 1; // Will send ENDPOINT as well for sanity check on receiver side
 	txmsg = (long*)malloc(sizeof(long) + size);
 	*txmsg = ITC_SYSV_MSQ_TX_MSG;
 	memcpy((void*)(txmsg + 1), message, size);
@@ -384,7 +386,7 @@ static void* sysvmq_rx_thread(void *data)
 	if(sysvmq_inst.rx_buffer == NULL)
 	{
 		// ERROR trace is needed here
-		TPT_TRACE(TRACE_ERROR, "Failed to malloc");
+		TPT_TRACE(TRACE_ERROR, "Failed to malloc sysvmq_inst.rx_buffer!");
 		free(rc_tmp);
 		return NULL;
 	}
@@ -418,6 +420,12 @@ static void* sysvmq_rx_thread(void *data)
 
 			// ERROR trace is needed here
 			TPT_TRACE(TRACE_ERROR, "Negative rx message length, rx_len = %ld!", rx_len);
+		}
+
+		if(rx_len <= (long)(sizeof(long) + ITC_HEADER_SIZE))
+		{
+			TPT_TRACE(TRACE_ABN, "Received malform message from some mailbox, msg size too small (%ld)!", rx_len);
+			continue;
 		}
 
 		forward_sysvmq_msg(&rc_tmp_stack, sysvmq_inst.rx_buffer, rx_len + sizeof(long), sysvmq_inst.my_sysvmq_id);
@@ -612,6 +620,13 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 
 	rxmsg = (struct itc_message*)(buffer + 8);
 
+	char *endpoint = (char*)((unsigned long)(&rxmsg->msgno) + rxmsg->size);
+	if(*endpoint != ENDPOINT)
+	{
+		TPT_TRACE(TRACE_ABN, "Received malform message from some mailbox, invalid ENDPOINT 0x%02x!", *endpoint & 0xFF);
+		return;
+	}
+
 #ifdef UNITTEST
 	struct itc_message* tmp_message;
 	tmp_message = (struct itc_message *)malloc(rxmsg->size + ITC_HEADER_SIZE + 1);
@@ -624,9 +639,7 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 	message = CONVERT_TO_MESSAGE(msg);
 
 	flags = message->flags; // Saved flags
-
-	memcpy(message, rxmsg, (rxmsg->size + ITC_HEADER_SIZE));
-
+	memcpy(message, rxmsg, (rxmsg->size + ITC_HEADER_SIZE + 1));
 	message->flags = flags; // Retored flags
 
 #ifdef UNITTEST

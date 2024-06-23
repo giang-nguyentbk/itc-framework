@@ -16,6 +16,8 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <pthread.h>
+
 #include "itc_impl.h"
 #include "itc.h"
 
@@ -39,7 +41,7 @@ typedef struct itc_message *(itci_trans_receive)(struct result_code* rc, struct 
 typedef struct itc_message *(itci_trans_remove)(struct result_code* rc, struct itc_mailbox *mbox, \
 			     struct itc_message *removemessage);
 
-typedef int (itci_trans_maxmsgsize)(struct result_code* rc);
+typedef long (itci_trans_maxmsgsize)(struct result_code* rc);
 
 /*
 *  1. Local trans: implemented as a rx message queue for each mailbox. Only manage message passing within a process and
