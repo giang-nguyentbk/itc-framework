@@ -525,7 +525,7 @@ static struct sysvmq_contactlist* get_sysvmq_cl(struct result_code* rc, itc_mbox
 
 	if(cl->mbox_id_in_itccoord == 0)
 	{
-		TPT_TRACE(TRACE_INFO, "Add contact list!");
+		// TPT_TRACE(TRACE_INFO, "Add contact list!"); // TBD
 		add_sysvmq_cl(rc, cl, mbox_id);
 	}
 
@@ -572,7 +572,7 @@ static int get_sysvmq_id(struct result_code* rc, itc_mbox_id_t mbox_id)
 	new_mbx_id = mbox_id & sysvmq_inst.itccoord_mask;
 	proj_id = (new_mbx_id >> sysvmq_inst.itccoord_shift);
 
-	TPT_TRACE(TRACE_INFO, "Get sysv message queue: proj_id = %d!", proj_id);
+	// TPT_TRACE(TRACE_INFO, "Get sysv message queue: proj_id = %d!", proj_id); // TBD
 	key = ftok(ITC_SYSVMSQ_FILENAME, proj_id);
 
 	if(key == -1)
@@ -647,10 +647,11 @@ static void forward_sysvmq_msg(struct result_code* rc, char* buffer, int length,
 	// API itc_send is an external interface, so do not care about it if everything we pass into it is all correct.
 	TPT_TRACE(TRACE_DEBUG, "ENTER UNITTEST!");
 	free(tmp_message);
-#endif
+#else
 
-	TPT_TRACE(TRACE_INFO, "Forwarding a message to local mailbox from external mbox = 0x%08x", message->sender);
+	// TPT_TRACE(TRACE_INFO, "Forwarding a message to local mailbox from external mbox = 0x%08x", message->sender); // TBD
 	itc_send(&msg, message->receiver, ITC_MY_MBOX_ID, NULL);
+#endif
 }
 
 static void rxthread_destructor(void* data)

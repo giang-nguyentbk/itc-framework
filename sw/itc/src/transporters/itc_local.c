@@ -301,7 +301,7 @@ static void local_send(struct result_code* rc, struct itc_message *message, itc_
 	if(rc->flags != ITC_OK)
 	{
 		// Cannot find local mailbox data for this mailbox id in this process
-		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", to);
+		// TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x", to); // TBD
 		return;
 	}
 
@@ -420,7 +420,7 @@ static struct local_mbox_data* find_localmbx_data(struct result_code* rc, itc_mb
 
 	if((mbox_id & local_inst.itccoord_mask) != local_inst.my_mbox_id_in_itccoord)
 	{
-		TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x, my_mbox_id_in_itccoord = 0x%08x", (mbox_id & local_inst.itccoord_mask), local_inst.my_mbox_id_in_itccoord);
+		// TPT_TRACE(TRACE_ABN, "Not belong to this process, mbox_id = 0x%08x, my_mbox_id_in_itccoord = 0x%08x", (mbox_id & local_inst.itccoord_mask), local_inst.my_mbox_id_in_itccoord); // TBD
 		rc->flags |= ITC_NOT_THIS_PROC;
 		return NULL;
 	}
@@ -479,7 +479,7 @@ static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct it
 	// If not, just update the last item to point to new item and move q->tail to new item as well. 
 	if(q->tail == NULL)
 	{
-		TPT_TRACE(TRACE_INFO, "RX queue is empty, add a new one!");
+		// TPT_TRACE(TRACE_INFO, "RX queue is empty, add a new one!"); // TDB
 		q->head = new_qitem;
 		q->tail = new_qitem;
 	} else
@@ -509,7 +509,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 	// In case queue has only one item
 	if(q->head == q->tail)
 	{
-		TPT_TRACE(TRACE_INFO, "RX queue has only one item, dequeue it!");
+		// TPT_TRACE(TRACE_INFO, "RX queue has only one item, dequeue it!"); // TDB
 		remove_qitem(rc, &q->head);
 		// Both head and tail should be moved to NULL
 		q->head = NULL;

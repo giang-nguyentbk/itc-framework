@@ -79,9 +79,9 @@ static __thread struct itc_mailbox*	my_threadlocal_mbox = NULL; // A thread only
 static __thread struct result_code* rc = NULL; // A thread only owns one return code
 
 extern struct itci_transport_apis local_trans_apis;
-extern struct itci_transport_apis posixmq_trans_apis;
-extern struct itci_transport_apis sysvmq_trans_apis;
 extern struct itci_transport_apis lsock_trans_apis;
+// extern struct itci_transport_apis posixmq_trans_apis;
+extern struct itci_transport_apis sysvmq_trans_apis;
 
 extern struct itci_alloc_apis malloc_apis;
 
@@ -162,7 +162,7 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 
 	trans_mechanisms[ITC_TRANS_LOCAL]	= local_trans_apis;
 	trans_mechanisms[ITC_TRANS_LSOCK]	= lsock_trans_apis;
-	trans_mechanisms[ITC_TRANS_POSIXVMQ]	= posixmq_trans_apis;
+	// trans_mechanisms[ITC_TRANS_POSIXVMQ]	= posixmq_trans_apis;
 	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
 
 	if(alloc_scheme == ITC_MALLOC)
@@ -516,7 +516,7 @@ union itc_msg *itc_alloc_zz(size_t size, uint32_t msgno)
 	struct itc_message* message;
 	char* endpoint;
 
-	TPT_TRACE(TRACE_INFO, "Allocating itc msg msgno 0x%08x, size = %lu", msgno, size);
+	// TPT_TRACE(TRACE_INFO, "Allocating itc msg msgno 0x%08x, size = %lu", msgno, size); // TBD
 
 	if(size < sizeof(msgno))
 	{
@@ -566,7 +566,7 @@ bool itc_free_zz(union itc_msg **msg)
 	struct itc_message* message;
 	char* endpoint = NULL;
 
-	TPT_TRACE(TRACE_INFO, "Freeing itc msg msgno 0x%08x", (*msg)->msgno);
+	// TPT_TRACE(TRACE_INFO, "Freeing itc msg msgno 0x%08x", (*msg)->msgno); // TBD
 
 	if(itc_inst.mboxes == NULL)
 	{
@@ -886,6 +886,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	struct itc_message* message;
 	struct itc_mailbox* to_mbox;
 
+	TPT_TRACE(TRACE_INFO, "ENTER: itc_send_zz!");
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
 		// Not initialized yet
@@ -928,7 +929,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	}
 
 	/* Otherwise send message locally within our host */
-	TPT_TRACE(TRACE_INFO, "Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x", from, to, (*msg)->msgno);
+	// TPT_TRACE(TRACE_INFO, "Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x", from, to, (*msg)->msgno); // TDB
 
 	message = CONVERT_TO_MESSAGE(*msg);
 	message->sender = my_threadlocal_mbox->mbox_id;
@@ -973,7 +974,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 				}
 			} else
 			{
-				TPT_TRACE(TRACE_INFO, "Sent successfully on trans_mechanism[%u]!", idx);
+				// TPT_TRACE(TRACE_INFO, "Sent successfully on trans_mechanism[%u]!", idx); // TDB
 				break;
 			}
 		}
@@ -1014,11 +1015,11 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 		MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx));
 
 		pthread_setcancelstate(saved_cancel_state, NULL);
-		TPT_TRACE(TRACE_INFO, "Notify receiver about sent messages!");
+		// TPT_TRACE(TRACE_INFO, "Notify receiver about sent messages!"); // TDB
 	}
 
+	// TPT_TRACE(TRACE_INFO, "EXIT: itc_send_zz!"); // TDB
 	*msg = NULL;
-
 	return true;
 }
 
@@ -1028,6 +1029,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 	struct itc_mailbox* mbox;
 	struct timespec ts;
 
+	// TPT_TRACE(TRACE_INFO, "ENTER: itc_receive_zz!"); // TDB
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
 		// Not initialized yet
@@ -1068,7 +1070,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				message = trans_mechanisms[i].itci_trans_receive(rc, mbox);
 				if(message != NULL)
 				{
-					TPT_TRACE(TRACE_INFO, "Received a message on trans_mechanisms[%u]!", i);
+					// TPT_TRACE(TRACE_INFO, "Received a message on trans_mechanisms[%u]!", i); // TDB
 					break;
 				}
 			}
@@ -1079,17 +1081,13 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 			if(tmo == ITC_NO_WAIT)
 			{
 				/* If nothing in rx queue, return immediately */
-				// TPT_TRACE(TRACE_INFO, "No message in rx queue, return!"); spam warning
 				mbox->p_rxq_info->is_in_rx = false;
 				MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
-				/* Sleep a little bit to avoid EDEADLK when deleting the mailbox in case of using ITC_NO_WAIT in while true loop
-				*  Hope this will not affect much to the latency, but it's safe and worth doing this */
-				sleep(0.01);
 				break;
 			} else if(tmo == ITC_WAIT_FOREVER)
 			{
 				/* Wait undefinitely until we receive something from rx queue */
-				TPT_TRACE(TRACE_INFO, "Waiting for incoming messages...!");
+				// TPT_TRACE(TRACE_INFO, "Waiting for incoming messages...!"); // TDB
 				int ret = pthread_cond_wait(&(mbox->p_rxq_info->rxq_cond), &(mbox->p_rxq_info->rxq_mtx));
 				if(ret != 0)
 				{
@@ -1138,6 +1136,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 		MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 	} while(message == NULL);
 
+	TPT_TRACE(TRACE_INFO, "EXIT: itc_receive_zz!");
 	return (union itc_msg*)((message == NULL) ? NULL : CONVERT_TO_MSG(message));
 }
 
@@ -1463,7 +1462,7 @@ static struct itc_mailbox* find_mbox(itc_mbox_id_t mbox_id)
 		}
 	}
 
-	TPT_TRACE(TRACE_ABN, "Mailbox not belong to this process, mbox_id = 0x%08x", mbox_id);
+	// TPT_TRACE(TRACE_ABN, "Mailbox not belong to this process, mbox_id = 0x%08x", mbox_id); // TBD
 	return NULL;
 }
 

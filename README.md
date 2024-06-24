@@ -177,7 +177,22 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 
 ![](./assets/itcgws_exe.png?raw=true)
 
-### 8. Future Improvements
+### 8. Performance and latency evaluation
+```
+1. Thread to Thread (local thread shared memory)
+	+ Measured time: ~55 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+```
+![](./assets/local_pe_excel.png?raw=true)
+
+![](./assets/local_pe.png?raw=true)
+
+```
+1. Process to Process (sysvmq)
+	+ Measured time: ~135 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+```
+![](./assets/sysvmq_pe.png?raw=true)
+
+### 9. Future Improvements
 ```
 1. One message can be only sent to one receiver:
 	+ The current implementation is implicitly understood as Single Input Single Out SISO, which means a sender

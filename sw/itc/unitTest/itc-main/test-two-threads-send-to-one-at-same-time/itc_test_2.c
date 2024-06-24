@@ -299,6 +299,7 @@ void test_itc_delete_mailbox(itc_mbox_id_t mbox_id)
 
 void test_itc_send(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char *namespace)
 {
+	(void)namespace;
 	if(itc_send(msg, to, from, NULL) == false)
 	{
 		PRINT_DASH_START;
@@ -574,7 +575,7 @@ static void* sending2_thread(void* data)
 	printf("\tDEBUG: sending2_thread - Resuming sending msg_2...\n");
 
 	clock_gettime(CLOCK_MONOTONIC, &t_start);
-	test_itc_send(&msg_2, mbox_id_receiving_thread, ITC_MY_MBOX_ID);
+	test_itc_send(&msg_2, mbox_id_receiving_thread, ITC_MY_MBOX_ID, NULL);
 	clock_gettime(CLOCK_MONOTONIC, &t_end);
 	unsigned long int difftime = calc_time_diff(t_start, t_end);
 	printf("\tDEBUG: sending2_thread - Time needed to send msg_2 = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);

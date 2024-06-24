@@ -5,7 +5,7 @@ BIN = ./bin
 # -DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 # -DMUTEX_TRACE_UNITTEST #-DMUTEX_TRACE_TIME_UNITTEST
 # #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
-CFLAGS = -g -Wall -Wextra -lpthread -DUNITTEST #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
+CFLAGS = -g -Wall -Wextra -lpthread -lrt #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 CC = gcc
 
 SDK_SYSROOT_DIR		:= $(SDKSYSROOT)
@@ -39,12 +39,20 @@ all: create_bin $(TARGET_SENDER) $(TARGET_RECEIVER)
 create_bin:
 	@mkdir -p $(BIN)
 
+# $(TARGET_SENDER): $(BIN)/itc_s.o $(BIN)/itc_test_sender.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -DMOCK_SENDER_UNITTEST -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_SENDER)
+
+# $(TARGET_RECEIVER): $(BIN)/itc_r.o $(BIN)/itc_test_receiver.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -DMOCK_RECEIVER_UNITTEST -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_RECEIVER)
+
 $(TARGET_SENDER): $(BIN)/itc_s.o $(BIN)/itc_test_sender.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o $(BIN)/itc_posixmq.o
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
 	$(CC) $^ $(CFLAGS) -DMOCK_SENDER_UNITTEST -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_SENDER)
 
 $(TARGET_RECEIVER): $(BIN)/itc_r.o $(BIN)/itc_test_receiver.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o $(BIN)/itc_posixmq.o
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
 	$(CC) $^ $(CFLAGS) -DMOCK_RECEIVER_UNITTEST -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_RECEIVER)
 
 $(BIN)/itc_s.o: itc.c itc_impl.h itc.h itci_alloc.h itci_trans.h itc_threadmanager.h itc_proto.h itc_queue.h
@@ -77,8 +85,8 @@ $(BIN)/itc_lsocket.o: itc_lsocket.c itc_impl.h itci_trans.h itc.h itc_proto.h
 $(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
-$(BIN)/itc_posixmq.o: itc_posixmq.c itc_impl.h itci_trans.h itc.h
-	$(CC) -c $(CFLAGS) -lrt -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+# $(BIN)/itc_posixmq.o: itc_posixmq.c itc_impl.h itci_trans.h itc.h
+# 	$(CC) -c $(CFLAGS) -lrt -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 rs:
 	$(BIN)/$(TARGET_SENDER)
