@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
 	itc_mbox_id_t sender_mbox_id = ITC_NO_MBOX_ID;
 	bool is_external = false;
 	char namespace[255];
+	int numOfCycles = 7;
 	while(!isTerminated)
 	{
 		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
@@ -140,7 +141,11 @@ int main(int argc, char* argv[])
 						test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, NULL);
 					}
 					printf("\tDEBUG: receiver - Activated device from receiver!\n");
-					isTerminated = true;
+					--numOfCycles;
+					if(numOfCycles < 1)
+					{
+						isTerminated = true;
+					}
 					break;
 				}
 

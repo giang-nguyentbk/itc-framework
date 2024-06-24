@@ -109,6 +109,7 @@ int main(int argc, char* argv[])
 	printf("\tDEBUG: sender - Time needed to send message = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
 
 	union itc_msg* rcv_msg;
+	int numOfCycles = 7;
 	while(!isTerminated)
 	{
 		// teamServerMailbox1 always listens to resourceHandlerMailbox1
@@ -148,7 +149,11 @@ int main(int argc, char* argv[])
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
 					printf("\tDEBUG: sender - Connect Sequence Done!\n");
-					isTerminated = true;
+					--numOfCycles;
+					if(numOfCycles < 1)
+					{
+						isTerminated = true;
+					}
 					break;
 				}
 
