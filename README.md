@@ -187,10 +187,16 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 ![](./assets/local_pe.png?raw=true)
 
 ```
-1. Process to Process (sysvmq)
+2. Process to Process (sysvmq)
 	+ Measured time: ~135 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
 ```
 ![](./assets/sysvmq_pe.png?raw=true)
+
+```
+3. Host to Host (local + sysvmq + TCP socket)
+	+ Measured time: ~500 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+```
+![](./assets/over_host_pe_excel.png?raw=true)
 
 ### 9. Future Improvements
 ```

@@ -333,9 +333,19 @@ static void itcgw_exit_handler(void)
 	tdestroy(itcgw_inst.tcp_client_tree, do_nothing);
 
 	TPT_TRACE(TRACE_INFO, "Deleting UDP, TCP server, TCP client mailboxes...");
-	if(itcgw_inst.udp_mbox_id != 0 || itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	if(itcgw_inst.udp_mbox_id != ITC_NO_MBOX_ID)
 	{
 		itc_delete_mailbox(itcgw_inst.udp_mbox_id);
+	}
+
+	if(itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
+	}
+
+	if(itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	{
+		itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
 	}
 
 	int ret = pthread_cancel(itcgw_inst.tcp_server_tid);
