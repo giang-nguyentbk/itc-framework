@@ -153,6 +153,22 @@ int main(int argc, char* argv[])
 					if(numOfCycles < 1)
 					{
 						isTerminated = true;
+					} else
+					{
+						union itc_msg* send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+						if(send_msg != NULL)
+						{
+							send_msg->InterfaceAbcModuleXyzSetup1Req.clientId = 1;
+							send_msg->InterfaceAbcModuleXyzSetup1Req.param1 = 1;
+							send_msg->InterfaceAbcModuleXyzSetup1Req.pattern = 1;
+							send_msg->InterfaceAbcModuleXyzSetup1Req.procedureId = 1;
+							send_msg->InterfaceAbcModuleXyzSetup1Req.serverId = 1;
+						} else
+						{
+							return -1;
+						}
+
+						test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, namespace);
 					}
 					break;
 				}
