@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 	char namespace[255];
 	while(!isTerminated)
 	{
-		rcv_msg = test_itc_receive(ITC_NO_WAIT);
+		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
 
 		if(rcv_msg != NULL)
 		{

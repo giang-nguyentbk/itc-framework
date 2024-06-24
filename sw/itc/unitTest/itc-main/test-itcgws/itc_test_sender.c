@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 		// teamServerMailbox1 always listens to resourceHandlerMailbox1
 		// printf("\tDEBUG: teamServerThread - Reading rx queue...!\n"); SPAM
 		// Because ITC_FROM_ALL is not implemented yet, so must use ITC_NO_WAIT here to check if messages from two sending threads 
-		rcv_msg = test_itc_receive(ITC_NO_WAIT);
+		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
 
 		if(rcv_msg != NULL)
 		{
