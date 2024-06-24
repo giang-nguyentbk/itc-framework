@@ -26,8 +26,6 @@ $(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBAR): $(ITCGWS_OBJ)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
 	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(SDK_LIB_DIR) -ltraceifa -o $@
-	@echo "  ROOT \t\t $@"
-	@sudo setcap 'CAP_SYS_RESOURCE=+ep' $@
 #	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(MOCK_UTILSFWK_LIBDIR) -ltraceifa -o $@
 
 $(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBSO): $(ITCGWS_OBJ)
@@ -35,6 +33,4 @@ $(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBSO): $(ITCGWS_OBJ)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
 	@$(ITC_CC) $^ -L$(LIB_DIR) -litc -L$(SDK_LIB_DIR) -ltraceif -o $@
-	@echo "  ROOT \t\t $@"
-	@sudo setcap 'CAP_SYS_RESOURCE=+ep' $@
 #	@$(ITC_CC) $^ -L$(LIB_DIR) -litc -L$(MOCK_UTILSFWK_LIBDIR) -ltraceif -o $@

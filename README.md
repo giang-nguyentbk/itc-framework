@@ -15,7 +15,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 28058 lines (updated 3/5/2024)
 -> Total: 34335 lines (updated 7/6/2024)
 -> Total: 24186 lines (updated 7/6/2024) -> Optimization
--> Total: 25662 lines (updated 23/6/2024) -> Optimization
+-> Total: 25662 lines (updated 23/6/2024)
 ```
 
 ## Fundamental knowledge:

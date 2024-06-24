@@ -101,7 +101,7 @@ extern "C" {
 #define CLZ(val) __builtin_clz(val)
 #define CONVERT_TO_MESSAGE(msg) (struct itc_message*)((unsigned long)msg - ITC_HEADER_SIZE) // See itc_message in README
 
-#define CONVERT_TO_MSG(message) (union itc_msg*)(&(message->msgno))
+#define CONVERT_TO_MSG(message) (union itc_msg*)(&message->msgno)
 
 #define CHECK_RC_EXIT(rc)				\
 	do						\
@@ -246,7 +246,6 @@ typedef	enum {
 	ITC_INVALID_TRANS = -1,
 	ITC_TRANS_LOCAL	= 0,
 	ITC_TRANS_LSOCK,
-	// ITC_TRANS_POSIXVMQ,
 	ITC_TRANS_SYSVMQ,
 	ITC_NUM_TRANS
 } itc_transport_e;

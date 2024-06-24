@@ -80,7 +80,6 @@ static __thread struct result_code* rc = NULL; // A thread only owns one return 
 
 extern struct itci_transport_apis local_trans_apis;
 extern struct itci_transport_apis lsock_trans_apis;
-// extern struct itci_transport_apis posixmq_trans_apis;
 extern struct itci_transport_apis sysvmq_trans_apis;
 
 extern struct itci_alloc_apis malloc_apis;
@@ -99,7 +98,6 @@ static bool remove_mbox_from_tree(void **tree, pthread_mutex_t *tree_mtx, struct
 static int mbox_name_cmpfunc2(const void *pa, const void *pb); // struct itc_mailbox *mbox1 vs struct itc_mailbox *mbox2
 static bool insert_mbox_to_tree(void **tree, pthread_mutex_t *tree_mtx, struct itc_mailbox *mbox);
 static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t to, char *namespace);
-static void change_system_rlimit(void);
 
 /*****************************************************************************\/
 *****                        FUNCTION DEFINITIONS                          *****
@@ -148,8 +146,6 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 
 	itc_inst.pid = getpid();
 
-	change_system_rlimit(); // Each process or executable should do this once, remember update Makefile as well
-
 	ret = pthread_mutex_init(&itc_inst.thread_list_mtx, NULL);
 	if(ret != 0)
 	{
@@ -162,7 +158,6 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 
 	trans_mechanisms[ITC_TRANS_LOCAL]	= local_trans_apis;
 	trans_mechanisms[ITC_TRANS_LSOCK]	= lsock_trans_apis;
-	// trans_mechanisms[ITC_TRANS_POSIXVMQ]	= posixmq_trans_apis;
 	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
 
 	if(alloc_scheme == ITC_MALLOC)
@@ -1613,7 +1608,6 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	return true;
 }
 
-static void change_system_rlimit(void)
 {
 	/*
 	To do this, executable must have CAP_SYS_RESOURCE right, by doing this:

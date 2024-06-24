@@ -16,7 +16,6 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <pthread.h>
 
 #include "itc_impl.h"
 #include "itc.h"
