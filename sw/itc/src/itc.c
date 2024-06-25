@@ -77,8 +77,8 @@ static __thread struct result_code* rc = NULL; // A thread only owns one return 
 
 extern struct itci_transport_apis local_trans_apis;
 extern struct itci_transport_apis lsock_trans_apis;
-// extern struct itci_transport_apis posixmq_trans_apis;
-extern struct itci_transport_apis sysvmq_trans_apis;
+extern struct itci_transport_apis posixmq_trans_apis;
+// extern struct itci_transport_apis sysvmq_trans_apis;
 
 extern struct itci_alloc_apis malloc_apis;
 
@@ -159,8 +159,8 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 
 	trans_mechanisms[ITC_TRANS_LOCAL]	= local_trans_apis;
 	trans_mechanisms[ITC_TRANS_LSOCK]	= lsock_trans_apis;
-	// trans_mechanisms[ITC_TRANS_POSIXVMQ]	= posixmq_trans_apis;
-	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
+	trans_mechanisms[ITC_TRANS_POSIXVMQ]	= posixmq_trans_apis;
+	// trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
 
 	if(alloc_scheme == ITC_MALLOC)
 	{
@@ -1617,13 +1617,15 @@ static void change_system_rlimit(void)
 		1. >> sudo setcap 'CAP_SYS_RESOURCE=+ep' /path/to/executable
 		2. Edit /etc/security/capability.conf to give CAP_SYS_RESOURCE to a user/group.
 	*/
+	int success = 1;
 	struct rlimit rlim;
 	memset(&rlim, 0, sizeof(rlim));
 	rlim.rlim_cur = RLIM_INFINITY;
 	rlim.rlim_max = RLIM_INFINITY;
 	if(setrlimit(RLIMIT_MSGQUEUE, &rlim) == -1)
 	{
-		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_MSGQUEUE, errno = %d", errno);
+		success = -1;
+		TPT_TRACE(TRACE_ABN, "Failed to set rlimit RLIMIT_MSGQUEUE, errno = %d", errno);
 	}
 
 	memset(&rlim, 0, sizeof(rlim));
@@ -1631,8 +1633,12 @@ static void change_system_rlimit(void)
 	rlim.rlim_max = 2048;
 	if(setrlimit(RLIMIT_NOFILE, &rlim) == -1)
 	{
-		TPT_TRACE(TRACE_ERROR, "Failed to set rlimit RLIMIT_NOFILE, errno = %d", errno);
+		success = -1;
+		TPT_TRACE(TRACE_ABN, "Failed to set rlimit RLIMIT_NOFILE, errno = %d", errno);
 	}
 
-	TPT_TRACE(TRACE_INFO, "Increase system-wide resource limit successfully!");
+	if(success > 0)
+	{
+		TPT_TRACE(TRACE_INFO, "Increase system-wide resource limit successfully!");
+	}
 }

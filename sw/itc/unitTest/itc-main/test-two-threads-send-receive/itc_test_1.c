@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 
 	clock_gettime(CLOCK_REALTIME, &t_start);
 
-	itc_mbox_id_t mbox_id_2 = 0x00500002; // 0x00500002 if enable itc_sysvmq, otherwise 0x00500001
+	itc_mbox_id_t mbox_id_2 = 0x00500001; // 0x00500002 if enable itc_sysvmq, otherwise 0x00500001
 	test_itc_send(&msg, mbox_id_2, ITC_MY_MBOX_ID, NULL);
 
 	clock_gettime(CLOCK_REALTIME, &t_end);

@@ -321,7 +321,7 @@ static struct itc_message *posixmq_receive(struct result_code* rc, struct itc_ma
 	{
 		ret_message = (struct itc_message*)(*iter);
 		tdelete(&(my_mbox->mbox_id), &posixmq_inst.itc_message_buffer_tree, compare_mboxid_in_itcmessage_tree);
-		TPT_TRACE(TRACE_INFO, "Found itc message in POSIX message queue early!");
+		// TPT_TRACE(TRACE_INFO, "Found itc message in POSIX message queue's buffer!"); // TBD
 		MUTEX_UNLOCK(&posixmq_inst.itc_message_buffer_mtx);
 		return ret_message;
 	}
@@ -436,7 +436,7 @@ static struct posixmq_contactlist* get_posixmq_cl(struct result_code* rc, itc_mb
 
 	if(cl->mbox_id_in_itccoord == 0)
 	{
-		TPT_TRACE(TRACE_INFO, "Add contact list!");
+		// TPT_TRACE(TRACE_INFO, "Add contact list!"); // TBD
 		add_posixmq_cl(rc, cl, mbox_id);
 	}
 
@@ -489,7 +489,7 @@ static mqd_t get_posix_mqd(struct result_code* rc, itc_mbox_id_t mbox_id)
 		return -1;
 	}
 
-	TPT_TRACE(TRACE_INFO, "Get posix message queue descriptor %s successfully, msqd = %d!", partner_name, msqd);
+	// TPT_TRACE(TRACE_INFO, "Get posix message queue descriptor %s successfully, msqd = %d!", partner_name, msqd); // TBD
 	return msqd;
 }
 
@@ -573,7 +573,7 @@ static void notify_receiver_about_msg_arrival(struct itc_mailbox* mbox)
 	MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 
 	pthread_setcancelstate(saved_cancel_state, NULL);
-	TPT_TRACE(TRACE_INFO, "Notify mailbox receiver 0x%08x about an incoming messages!", mbox->mbox_id);
+	// TPT_TRACE(TRACE_INFO, "Notify mailbox receiver 0x%08x about an incoming messages!", mbox->mbox_id); // TBD
 }
 
 static int compare_mboxid_in_itcmailbox_tree(const void *pa, const void *pb)
@@ -659,7 +659,7 @@ static void posix_msq_rx_thread_func(union sigval sv)
 		return;
 	} else
 	{
-		TPT_TRACE(TRACE_INFO, "Received %ld bytes from mq_receive()!", numRead);
+		// TPT_TRACE(TRACE_INFO, "Received %ld bytes from mq_receive()!", numRead); // TBD
 	}
 
 	struct itc_message* message;
@@ -711,7 +711,7 @@ static void posix_msq_rx_thread_func(union sigval sv)
 #endif
 	}
 
-	TPT_TRACE(TRACE_INFO, "Inserting this itc message into msg tree, msgno = 0x%08x, receiver = 0x%08x", message->msgno, message->receiver);
+	// TPT_TRACE(TRACE_INFO, "Inserting this itc message into msg tree, msgno = 0x%08x, receiver = 0x%08x", message->msgno, message->receiver); // TBD
 	tsearch(message, &posixmq_inst.itc_message_buffer_tree, compare_msg_in_itcmessage_tree);
 	MUTEX_UNLOCK(&posixmq_inst.itc_message_buffer_mtx);
 

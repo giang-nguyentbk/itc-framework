@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 
 	clock_gettime(CLOCK_REALTIME, &t_start);
 
-	itc_mbox_id_t receiver_mbox_id = 0x00900001;
+	itc_mbox_id_t receiver_mbox_id = 0x00900000; // 0x00900001 if enable itc_sysvmq, otherwise 0x00900000
 
 	// itc_mbox_id_t receiver_mbox_id = test_itc_locate_sync(1000, "receiverMailbox", 1, NULL, NULL);
 	test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, NULL);
@@ -91,6 +91,7 @@ int main(int argc, char* argv[])
 	printf("\tDEBUG: sender - Time needed to send message = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
 
 	union itc_msg* rcv_msg;
+	int numOfCycles = 10;
 	while(!isTerminated)
 	{
 		// teamServerMailbox1 always listens to resourceHandlerMailbox1
@@ -118,7 +119,15 @@ int main(int argc, char* argv[])
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
 					printf("\tDEBUG: sender - Connect Sequence Done!\n");
-					isTerminated = true;
+					--numOfCycles;
+					if(numOfCycles < 1)
+					{
+						isTerminated = true;
+					} else
+					{
+						send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateReqS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
+						test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, NULL);
+					}
 					break;
 				}
 
