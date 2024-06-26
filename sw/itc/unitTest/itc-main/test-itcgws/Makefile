@@ -214,8 +214,8 @@ killa:
 	@$(kill_itcgws)
 	@echo 'proc_itccoord == ['$(proc_itccoord)']'
 	@$(kill_itccoord)
-	@rm -rf /tmp/itc || rm -rf /dev/mqueue/*
-	@netstat -a | grep itc
+	rm -rf /tmp/itc
+	rm -rf /dev/mqueue/*
 
 
 
