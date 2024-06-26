@@ -1272,7 +1272,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	itc_mbox_id_t mbox_id = ITC_NO_MBOX_ID;
 	struct itc_mailbox *mbox;
 	union itc_msg *msg;
-	pid_t pid;
+	// pid_t pid;
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -1329,7 +1329,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 		strcpy(ns, msg->itc_locate_mbox_sync_reply.namespace);
 	}
 
-	pid = msg->itc_locate_mbox_sync_reply.pid;
+	// pid = msg->itc_locate_mbox_sync_reply.pid;
 	// TPT_TRACE(TRACE_INFO, "Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!", name, mbox_id, pid); // TBD
 	itc_free(&msg);
 	return mbox_id;
