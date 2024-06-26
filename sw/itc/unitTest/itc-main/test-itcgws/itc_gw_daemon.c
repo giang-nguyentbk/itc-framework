@@ -1066,17 +1066,18 @@ static bool handle_receive_tcp_packet_at_server(int sockfd)
 	header->receiver		= ntohl(header->receiver);
 	header->sender			= ntohl(header->sender);
 
-	TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd);
-	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: msgno: 0x%08x", header->msgno);
-	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: payloadLen: %u", header->payloadLen);
-	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: protRev: %u", header->protRev);
-	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: receiver: %u", header->receiver);
-	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: sender: %u", header->sender);
+	/* Optimize send-receive latency */
+	// TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd); // TBD
+	// TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: msgno: 0x%08x", header->msgno); // TBD
+	// TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: payloadLen: %u", header->payloadLen); // TBD
+	// TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: protRev: %u", header->protRev); // TBD
+	// TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: receiver: %u", header->receiver); // TBD
+	// TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: sender: %u", header->sender); // TBD
 
 	switch (header->msgno)
 	{
 	case ITCGW_ITC_DATA_FWD:
-		TPT_TRACE(TRACE_INFO, "Received ITCGW_ITC_DATA_FWD!");
+		// TPT_TRACE(TRACE_INFO, "Received ITCGW_ITC_DATA_FWD!"); // TBD
 		handle_receive_data_fwd(sockfd, header);
 		break;
 	
@@ -1291,7 +1292,7 @@ static bool handle_receive_itcmsg_at_client(int mbox_fd)
 		break;
 
 	case ITC_FWD_DATA_TO_ITCGWS:
-		TPT_TRACE(TRACE_INFO, "Received ITC_FWD_DATA_TO_ITCGWS to namespace \"%s\"", msg->itc_fwd_data_to_itcgws.to_namespace);
+		// TPT_TRACE(TRACE_INFO, "Received ITC_FWD_DATA_TO_ITCGWS to namespace \"%s\"", msg->itc_fwd_data_to_itcgws.to_namespace); // TBD
 		handle_fwd_data_out(msg);
 		break;
 	
@@ -1480,7 +1481,7 @@ static bool handle_fwd_data_out(union itc_msg *msg)
 	}
 
 	free(rep);
-	TPT_TRACE(TRACE_INFO, "Sent ITCGW_ITC_DATA_FWD to peer with namespace \"%s\" successfully!", (*iter)->namespace);
+	// TPT_TRACE(TRACE_INFO, "Sent ITCGW_ITC_DATA_FWD to peer with namespace \"%s\" successfully!", (*iter)->namespace); // TBD
 	return true;
 }
 
@@ -1592,9 +1593,9 @@ static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header)
 	rep->errorcode			= ntohl(rep->errorcode);
 	rep->payload_length 		= ntohl(rep->payload_length);
 
-	TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd);
-	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: errorcode: %u", rep->errorcode);
-	TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: payload_length: \"%u\"", rep->payload_length);
+	// TPT_TRACE(TRACE_INFO, "Receiving %d bytes from fd %d", size, sockfd); // TBD
+	// TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: errorcode: %u", rep->errorcode); // TBD
+	// TPT_TRACE(TRACE_INFO, "Re-interpret TCP packet: payload_length: \"%u\"", rep->payload_length); // TBD
 	
 	union itc_msg *msg;
 	msg = itc_alloc(((struct itc_message *)&rep->payload)->size, ((struct itc_message *)&rep->payload)->msgno);
@@ -1602,7 +1603,7 @@ static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header)
 
 	memcpy(message, ((struct itc_message *)&rep->payload), rep->payload_length);
 
-	TPT_TRACE(TRACE_INFO, "Received not-known-yet message msgno 0x%08x, from a mbox 0x%08x outside our host!", message->msgno, message->sender);
+	// TPT_TRACE(TRACE_INFO, "Received not-known-yet message msgno 0x%08x, from a mbox 0x%08x outside our host!", message->msgno, message->sender); // TBD
 
 	if(!itc_send(&msg, message->receiver, ITC_MY_MBOX_ID, NULL))
 	{
@@ -1610,7 +1611,7 @@ static bool handle_receive_data_fwd(int sockfd, struct itcgw_header *header)
 		return false;
 	}
 	
-	TPT_TRACE(TRACE_INFO, "Forwardeding message to our internal mailbox 0x%08x", message->receiver);
+	// TPT_TRACE(TRACE_INFO, "Forwardeding message to our internal mailbox 0x%08x", message->receiver); // TBD
 	return true;
 }
 

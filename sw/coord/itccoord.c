@@ -10,7 +10,6 @@
 #include <pthread.h>
 #include <errno.h>
 #include <stdbool.h>
-#include <syscall.h>
 
 #include <sys/stat.h>
 #include <sys/socket.h>

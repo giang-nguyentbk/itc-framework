@@ -64,6 +64,8 @@ struct itc_instance {
 	uint32_t			local_mbox_mask; // mask for local mailbox id
 	struct itc_mailbox*		mboxes; // List of mailboxes allocated by malloc
 
+	itc_mbox_id_t 			itcgw_mboxid;
+
 	char				namespace[ITC_MAX_NAME_LENGTH];	
 };
 
@@ -149,6 +151,8 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 	itc_inst.pid = getpid();
 
 	change_system_rlimit(); // Each process or executable should do this once, remember update Makefile as well
+
+	itc_inst.itcgw_mboxid = ITC_NO_MBOX_ID;
 
 	ret = pthread_mutex_init(&itc_inst.thread_list_mtx, NULL);
 	if(ret != 0)
@@ -917,7 +921,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	/* If namespace is specified and it differs from our namespace, forward the message to itcgw to send it outside */
 	if(ns != NULL && (strcmp(ns, itc_inst.namespace) != 0))
 	{
-		TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", ns, from, to, (*msg)->msgno);
+		// TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", ns, from, to, (*msg)->msgno); // TBD
 		if(handle_forward_itc_msg_to_itcgw(msg, to, ns) == false)
 		{
 			TPT_TRACE(TRACE_ERROR, "Failed to send message to itcgw!");
@@ -929,7 +933,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	}
 
 	/* Otherwise send message locally within our host */
-	// TPT_TRACE(TRACE_INFO, "Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x", from, to, (*msg)->msgno); // TDB
+	// TPT_TRACE(TRACE_INFO, "Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x", from, to, (*msg)->msgno); // TBD
 
 	message = CONVERT_TO_MESSAGE(*msg);
 	message->sender = my_threadlocal_mbox->mbox_id;
@@ -974,7 +978,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 				}
 			} else
 			{
-				// TPT_TRACE(TRACE_INFO, "Sent successfully on trans_mechanism[%u]!", idx); // TDB
+				// TPT_TRACE(TRACE_INFO, "Sent successfully on trans_mechanism[%u]!", idx); // TBD
 				break;
 			}
 		}
@@ -1015,10 +1019,10 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 		MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx));
 
 		pthread_setcancelstate(saved_cancel_state, NULL);
-		// TPT_TRACE(TRACE_INFO, "Notify receiver about sent messages!"); // TDB
+		// TPT_TRACE(TRACE_INFO, "Notify receiver about sent messages!"); // TBD
 	}
 
-	// TPT_TRACE(TRACE_INFO, "EXIT: itc_send_zz!"); // TDB
+	// TPT_TRACE(TRACE_INFO, "EXIT: itc_send_zz!"); // TBD
 	*msg = NULL;
 	return true;
 }
@@ -1029,7 +1033,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 	struct itc_mailbox* mbox;
 	struct timespec ts;
 
-	// TPT_TRACE(TRACE_INFO, "ENTER: itc_receive_zz!"); // TDB
+	// TPT_TRACE(TRACE_INFO, "ENTER: itc_receive_zz!"); // TBD
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
 		// Not initialized yet
@@ -1070,7 +1074,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				message = trans_mechanisms[i].itci_trans_receive(rc, mbox);
 				if(message != NULL)
 				{
-					// TPT_TRACE(TRACE_INFO, "Received a message on trans_mechanisms[%u]!", i); // TDB
+					// TPT_TRACE(TRACE_INFO, "Received a message on trans_mechanisms[%u]!", i); // TBD
 					break;
 				}
 			}
@@ -1087,7 +1091,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 			} else if(tmo == ITC_WAIT_FOREVER)
 			{
 				/* Wait undefinitely until we receive something from rx queue */
-				// TPT_TRACE(TRACE_INFO, "Waiting for incoming messages...!"); // TDB
+				// TPT_TRACE(TRACE_INFO, "Waiting for incoming messages...!"); // TBD
 				int ret = pthread_cond_wait(&(mbox->p_rxq_info->rxq_cond), &(mbox->p_rxq_info->rxq_mtx));
 				if(ret != 0)
 				{
@@ -1271,7 +1275,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	itc_mbox_id_t mbox_id = ITC_NO_MBOX_ID;
 	struct itc_mailbox *mbox;
 	union itc_msg *msg;
-	pid_t pid;
+	// pid_t pid;
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -1295,7 +1299,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	}
 
 	/* If cannot find locally, send a message ITC_LOCATE_MBOX_SYNC_REQ to itc_coord asking for seeking across processes. */
-	TPT_TRACE(TRACE_INFO, "Mailbox %s not found in local process, send ITC_LOCATE_MBOX_SYNC_REQUEST to itccoord!", name);
+	// TPT_TRACE(TRACE_INFO, "Mailbox %s not found in local process, send ITC_LOCATE_MBOX_SYNC_REQUEST to itccoord!", name); // TBD
 	msg = itc_alloc(offsetof(struct itc_locate_mbox_sync_request, mbox_name) + strlen(name) + 1, ITC_LOCATE_MBOX_SYNC_REQUEST);
 	msg->itc_locate_mbox_sync_request.from_mbox = my_threadlocal_mbox->mbox_id;
 	msg->itc_locate_mbox_sync_request.timeout = timeout;
@@ -1328,8 +1332,8 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 		strcpy(ns, msg->itc_locate_mbox_sync_reply.namespace);
 	}
 
-	pid = msg->itc_locate_mbox_sync_reply.pid;
-	TPT_TRACE(TRACE_INFO, "Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!", name, mbox_id, pid);
+	// pid = msg->itc_locate_mbox_sync_reply.pid;
+	// TPT_TRACE(TRACE_INFO, "Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!", name, mbox_id, pid); // TBD
 	itc_free(&msg);
 	return mbox_id;
 }
@@ -1594,16 +1598,19 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	req->itc_fwd_data_to_itcgws.payload_length = payload_len;
 	memcpy(req->itc_fwd_data_to_itcgws.payload, message, payload_len);
 
-	int32_t timeout = 1000; // Wait max 1000 ms for locating mailbox name
-	itc_mbox_id_t itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_TCP_CLI_NAME2, 1, NULL, NULL); // TEST ONLY
-	if(itcgw_mboxid == ITC_NO_MBOX_ID)
+	if(itc_inst.itcgw_mboxid == ITC_NO_MBOX_ID)
 	{
-		TPT_TRACE(TRACE_ERROR, "Failed to locate mailbox %s even after %d ms!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2, timeout); // TEST ONLY
-		itc_free(&req);
-		return false;
+		int32_t timeout = 1000; // Wait max 1000 ms for locating mailbox name
+		itc_inst.itcgw_mboxid = itc_locate_sync(timeout, ITC_GATEWAY_MBOX_TCP_CLI_NAME2, 1, NULL, NULL); // TEST ONLY
+		if(itc_inst.itcgw_mboxid == ITC_NO_MBOX_ID)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to locate mailbox %s even after %d ms!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2, timeout); // TEST ONLY
+			itc_free(&req);
+			return false;
+		}
 	}
 
-	if(itc_send(&req, itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
+	if(itc_send(&req, itc_inst.itcgw_mboxid, ITC_MY_MBOX_ID, NULL) == false)
 	{
 		TPT_TRACE(TRACE_ERROR, "Failed to send message to mailbox %s!", ITC_GATEWAY_MBOX_TCP_CLI_NAME2); // TEST ONLY
 		itc_free(&req);
