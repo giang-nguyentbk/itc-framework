@@ -918,7 +918,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	/* If namespace is specified and it differs from our namespace, forward the message to itcgw to send it outside */
 	if(ns != NULL && (strcmp(ns, itc_inst.namespace) != 0))
 	{
-		TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", ns, from, to, (*msg)->msgno);
+		// TPT_TRACE(TRACE_INFO, "Prepare to send message outside host, namespace = %s, from 0x%08x to 0x%08x, msgno = 0x%08x", ns, from, to, (*msg)->msgno); // TBD
 		if(handle_forward_itc_msg_to_itcgw(msg, to, ns) == false)
 		{
 			TPT_TRACE(TRACE_ERROR, "Failed to send message to itcgw!");
@@ -930,7 +930,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 	}
 
 	/* Otherwise send message locally within our host */
-	TPT_TRACE(TRACE_INFO, "Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x", from, to, (*msg)->msgno); // TBD
+	// TPT_TRACE(TRACE_INFO, "Prepare to send message from 0x%08x to 0x%08x, msgno = 0x%08x", from, to, (*msg)->msgno); // TBD
 
 	message = CONVERT_TO_MESSAGE(*msg);
 	message->sender = my_threadlocal_mbox->mbox_id;
@@ -975,7 +975,7 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 				}
 			} else
 			{
-				TPT_TRACE(TRACE_INFO, "Sent successfully on trans_mechanism[%u]!", idx); // TBD
+				// TPT_TRACE(TRACE_INFO, "Sent successfully on trans_mechanism[%u]!", idx); // TBD
 				break;
 			}
 		}
@@ -1016,10 +1016,10 @@ bool itc_send_zz(union itc_msg **msg, itc_mbox_id_t to, itc_mbox_id_t from, char
 		MUTEX_UNLOCK(&(to_mbox->p_rxq_info->rxq_mtx));
 
 		pthread_setcancelstate(saved_cancel_state, NULL);
-		TPT_TRACE(TRACE_INFO, "Notify receiver about sent messages!"); // TBD
+		// TPT_TRACE(TRACE_INFO, "Notify receiver about sent messages!"); // TBD
 	}
 
-	TPT_TRACE(TRACE_INFO, "EXIT: itc_send_zz!"); // TBD
+	// TPT_TRACE(TRACE_INFO, "EXIT: itc_send_zz!"); // TBD
 	*msg = NULL;
 	return true;
 }
@@ -1030,7 +1030,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 	struct itc_mailbox* mbox;
 	struct timespec ts;
 
-	TPT_TRACE(TRACE_INFO, "ENTER: itc_receive_zz!"); // TBD
+	// TPT_TRACE(TRACE_INFO, "ENTER: itc_receive_zz!"); // TBD
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
 		// Not initialized yet
@@ -1071,7 +1071,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 				message = trans_mechanisms[i].itci_trans_receive(rc, mbox);
 				if(message != NULL)
 				{
-					TPT_TRACE(TRACE_INFO, "Received a message on trans_mechanisms[%u]!", i); // TBD
+					// TPT_TRACE(TRACE_INFO, "Received a message on trans_mechanisms[%u]!", i); // TBD
 					break;
 				}
 			}
@@ -1088,7 +1088,7 @@ union itc_msg *itc_receive_zz(int32_t tmo)
 			} else if(tmo == ITC_WAIT_FOREVER)
 			{
 				/* Wait undefinitely until we receive something from rx queue */
-				TPT_TRACE(TRACE_INFO, "Waiting for incoming messages...!"); // TBD
+				// TPT_TRACE(TRACE_INFO, "Waiting for incoming messages...!"); // TBD
 				int ret = pthread_cond_wait(&(mbox->p_rxq_info->rxq_cond), &(mbox->p_rxq_info->rxq_mtx));
 				if(ret != 0)
 				{
