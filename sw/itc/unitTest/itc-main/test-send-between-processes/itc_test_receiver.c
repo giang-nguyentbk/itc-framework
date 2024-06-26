@@ -81,8 +81,10 @@ int main(int argc, char* argv[])
 	// sleep(10); // To make sure that senderMailbox is ready for our locating
 
 	union itc_msg* rcv_msg;
-	itc_mbox_id_t sender_mbox_id = 0x00500001; // At this time only use hard-code each other's mailbox id to interact because itccoord is not implemented yet
+	// At this time only use hard-code each other's mailbox id to interact because itccoord is not implemented yet
+	itc_mbox_id_t sender_mbox_id = 0x00500001; // 0x00500001 if enable itc_sysvmq, otherwise 0x00500000
 	// itc_mbox_id_t sender_mbox_id = test_itc_locate_sync(1000, "senderMailbox", 1, NULL, NULL);
+	int numOfCycles = 15;
 	while(!isTerminated)
 	{
 		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
@@ -109,7 +111,11 @@ int main(int argc, char* argv[])
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateCfmS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM);
 					test_itc_send(&send_msg, sender_mbox_id, ITC_MY_MBOX_ID, NULL);
 					printf("\tDEBUG: receiver - Activated device from receiver!\n");
-					isTerminated = true;
+					--numOfCycles;
+					if(numOfCycles < 1)
+					{
+						isTerminated = true;
+					}
 					break;
 				}
 
