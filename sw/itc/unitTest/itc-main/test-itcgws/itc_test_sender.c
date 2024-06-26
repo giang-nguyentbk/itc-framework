@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 	printf("\tDEBUG: sender - Time needed to send message = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
 
 	union itc_msg* rcv_msg;
-	int numOfCycles = 7;
+	int numOfCycles = 15;
 	while(!isTerminated)
 	{
 		// teamServerMailbox1 always listens to resourceHandlerMailbox1

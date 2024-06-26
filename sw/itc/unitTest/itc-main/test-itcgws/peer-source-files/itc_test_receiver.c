@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 	itc_mbox_id_t sender_mbox_id = ITC_NO_MBOX_ID;
 	bool is_external = false;
 	char namespace[255];
-	int numOfCycles = 7;
+	int numOfCycles = 15;
 	while(!isTerminated)
 	{
 		rcv_msg = test_itc_receive(ITC_WAIT_FOREVER);
