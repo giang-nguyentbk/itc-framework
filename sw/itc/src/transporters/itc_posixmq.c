@@ -82,7 +82,7 @@ static void do_nothing(void *tree_node_data);
 static void posix_msq_rx_thread_func(union sigval sv);
 static void register_notification(mqd_t *p_msqd);
 static void free_itc_message_in_tree(void *tree_node_data);
-static void print_queue();
+// static void print_queue();
 static void process_received_message(char *rx_buffer, ssize_t num);
 
 
@@ -652,9 +652,10 @@ static void posix_msq_rx_thread_func(union sigval sv)
 			{
 				/* Non blocking mode, EAGAIN returned if msg queue was just empty */
 				register_notification(mqdp);
-				print_queue();
-				TPT_TRACE(TRACE_ABN, "POSIX message queue has been emptied!");
-				break;
+				return;
+				// print_queue();
+				// TPT_TRACE(TRACE_ABN, "POSIX message queue has been emptied!");
+				// break;
 			} else
 			{
 				// ERROR trace is needed here
@@ -666,8 +667,6 @@ static void posix_msq_rx_thread_func(union sigval sv)
 			process_received_message(posixmq_inst.rx_buffer, numRead);
 		}
 	}
-
-	print_queue();
 }
 
 static void register_notification(mqd_t *p_msqd)
@@ -685,32 +684,32 @@ static void register_notification(mqd_t *p_msqd)
 }
 
 
-static void print_queue()
-{
-	FILE *fptr;
-	fptr = fopen("/dev/mqueue/itc_rx_posixmq_0x00100000", "r"); 
-	if (fptr == NULL)
-	{
-		TPT_TRACE(TRACE_ERROR, "Cannot open file!\n");
-		return;
-	}
+// static void print_queue()
+// {
+// 	FILE *fptr;
+// 	fptr = fopen("/dev/mqueue/itc_rx_posixmq_0x00100000", "r"); 
+// 	if (fptr == NULL)
+// 	{
+// 		TPT_TRACE(TRACE_ERROR, "Cannot open file!\n");
+// 		return;
+// 	}
 
-	char buff[256];
+// 	char buff[256];
 
-	char c = fgetc(fptr);
-	int i = 0;
-	while (c != EOF)
-	{
-		buff[i] = c;
-		c = fgetc(fptr);
-		++i;
-	}
+// 	char c = fgetc(fptr);
+// 	int i = 0;
+// 	while (c != EOF)
+// 	{
+// 		buff[i] = c;
+// 		c = fgetc(fptr);
+// 		++i;
+// 	}
 
-	buff[i] = '\0';
-	TPT_TRACE(TRACE_DEBUG, "itccoord POSIX mqueue: %s\n", buff);
+// 	buff[i] = '\0';
+// 	TPT_TRACE(TRACE_DEBUG, "itccoord POSIX mqueue: %s\n", buff);
 
-	fclose(fptr);
-}
+// 	fclose(fptr);
+// }
 
 static void process_received_message(char *rx_buffer, ssize_t num)
 {

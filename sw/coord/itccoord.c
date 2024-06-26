@@ -327,7 +327,6 @@ int main(int argc, char* argv[])
 	struct itcq_node *iter;
 	struct itc_process *proc;
 	int zc_counter = 0; // Zombie process check
-	TPT_TRACE(TRACE_DEBUG, "CHECKPOINT 1!");
 	while(true)
 	{
 		/* We use FD_... macros to manage a set of file desciptors that are actually sock fd created by lsock_init function */
@@ -354,23 +353,16 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		TPT_TRACE(TRACE_DEBUG, "CHECKPOINT 2!");
-		TPT_TRACE(TRACE_DEBUG, "Thread ID: %d", syscall(SYS_gettid));
 		// Monitor those fd to see if any incoming data on them
 		res = select(max_fd, &proc_fd_list, NULL, NULL, NULL);
-		TPT_TRACE(TRACE_DEBUG, "CHECKPOINT 2.5!");
-		TPT_TRACE(TRACE_DEBUG, "Thread ID: %d", syscall(SYS_gettid));
 		if(res < 0)
 		{
 			TPT_TRACE(TRACE_ERROR, "Failed to select(), errno = %d!", errno);
 			exit(EXIT_FAILURE);
 		} else
 		{
-			TPT_TRACE(TRACE_DEBUG, "CHECKPOINT 3!");
-			TPT_TRACE(TRACE_DEBUG, "Thread ID: %d", syscall(SYS_gettid));
 			if(FD_ISSET(itccoord_inst.sockfd, &proc_fd_list))
 			{
-				TPT_TRACE(TRACE_DEBUG, "CHECKPOINT 4!");
 				if(handle_locate_coord_request(itccoord_inst.sockfd) == false)
 				{
 					TPT_TRACE(TRACE_ERROR, "Failed to handle_locate_coord_request()!");
