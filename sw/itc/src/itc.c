@@ -1296,7 +1296,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	}
 
 	/* If cannot find locally, send a message ITC_LOCATE_MBOX_SYNC_REQ to itc_coord asking for seeking across processes. */
-	TPT_TRACE(TRACE_INFO, "Mailbox %s not found in local process, send ITC_LOCATE_MBOX_SYNC_REQUEST to itccoord!", name);
+	// TPT_TRACE(TRACE_INFO, "Mailbox %s not found in local process, send ITC_LOCATE_MBOX_SYNC_REQUEST to itccoord!", name); // TBD
 	msg = itc_alloc(offsetof(struct itc_locate_mbox_sync_request, mbox_name) + strlen(name) + 1, ITC_LOCATE_MBOX_SYNC_REQUEST);
 	msg->itc_locate_mbox_sync_request.from_mbox = my_threadlocal_mbox->mbox_id;
 	msg->itc_locate_mbox_sync_request.timeout = timeout;
@@ -1330,7 +1330,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	}
 
 	pid = msg->itc_locate_mbox_sync_reply.pid;
-	TPT_TRACE(TRACE_INFO, "Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!", name, mbox_id, pid);
+	// TPT_TRACE(TRACE_INFO, "Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!", name, mbox_id, pid); // TBD
 	itc_free(&msg);
 	return mbox_id;
 }
