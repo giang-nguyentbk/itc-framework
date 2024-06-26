@@ -332,19 +332,21 @@ static void itcgw_exit_handler(void)
 	tdestroy(itcgw_inst.tcp_server_tree, do_nothing);
 	tdestroy(itcgw_inst.tcp_client_tree, do_nothing);
 
-	TPT_TRACE(TRACE_INFO, "Deleting UDP, TCP server, TCP client mailboxes...");
 	if(itcgw_inst.udp_mbox_id != ITC_NO_MBOX_ID)
 	{
+		TPT_TRACE(TRACE_INFO, "Deleting UDP mailbox...");
 		itc_delete_mailbox(itcgw_inst.udp_mbox_id);
 	}
 
 	if(itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
 	{
+		TPT_TRACE(TRACE_INFO, "Deleting TCP server mailbox...");
 		itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
 	}
 
 	if(itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
 	{
+		TPT_TRACE(TRACE_INFO, "Deleting TCP client mailbox...");
 		itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
 	}
 
