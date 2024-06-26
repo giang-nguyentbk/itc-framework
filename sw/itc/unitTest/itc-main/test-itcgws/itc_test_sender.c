@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 
 
 	printf("\tDEBUG: sender - Waiting a bit to ensure two host are connected!\n");
-	// sleep(10); // Wait a bit before two itcgws connected, ready to locating mailbox outside our host
+	// sleep(2); // Wait a bit before two itcgws connected, ready to locating mailbox outside our host
 
 	// itc_mbox_id_t receiver_mbox_id = 0x00200001;
 	bool is_external = false;

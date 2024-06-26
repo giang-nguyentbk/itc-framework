@@ -198,13 +198,25 @@ runr:
 # After this we have to manually "ps -xj" to find the daemon PID and kill it or kill it automatically by
 proc_itcgws = $(shell ps -ef | grep itc_gw | grep -v grep | awk '{ print $$2 ; }')
 proc_itccoord = $(shell ps -ef | grep itc_coord | grep -v grep | awk '{ print $$2 ; }')
+proc_sender = $(shell ps -ef | grep itc_test_sender | grep -v grep | awk '{ print $$2 ; }')
+proc_receiver = $(shell ps -ef | grep itc_test_receiver | grep -v grep | awk '{ print $$2 ; }')
 kill_itcgws = $(if $(proc_itcgws), "kill" "-15" $(proc_itcgws), "echo" "no matching processes")
 kill_itccoord = $(if $(proc_itccoord), "kill" "-15" $(proc_itccoord), "echo" "no matching processes")
+kill_sender = $(if $(proc_sender), "kill" "-15" $(proc_sender), "echo" "no matching processes")
+kill_receiver = $(if $(proc_receiver), "kill" "-15" $(proc_receiver), "echo" "no matching processes")
 killa:
+	@echo "Cleaning up resources..."
+	@echo 'proc_sender == ['$(proc_sender)']'
+	@$(kill_sender)
+	@echo 'proc_receiver == ['$(proc_receiver)']'
+	@$(kill_receiver)
 	@echo 'proc_itcgws == ['$(proc_itcgws)']'
 	@$(kill_itcgws)
 	@echo 'proc_itccoord == ['$(proc_itccoord)']'
 	@$(kill_itccoord)
+	@rm -rf /tmp/itc || rm -rf /dev/mqueue/*
+	@netstat -a | grep itc
+
 
 
 clean-exe:

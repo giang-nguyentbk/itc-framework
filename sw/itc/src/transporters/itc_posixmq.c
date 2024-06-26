@@ -10,6 +10,8 @@
 #include <signal.h>
 #include <pthread.h>
 #include <fcntl.h>
+#include <syscall.h>
+#include <sys/prctl.h>
 
 #include <mqueue.h>
 #include <sys/types.h>
@@ -25,6 +27,7 @@
 /*****************************************************************************\/
 *****                    INTERNAL TYPES IN SYSV-ATOR                       *****
 *******************************************************************************/
+#define MAX_NUM_MESSAGES_ALLOWED_IN_TREE	100
 
 struct posixmq_contactlist {
 	itc_mbox_id_t	mbox_id_in_itccoord;
@@ -44,6 +47,7 @@ struct posixmq_instance {
 
 	pthread_mutex_t			itc_message_buffer_mtx;
 	void				*itc_message_buffer_tree;
+	unsigned int			num_messages;
 
 	void				*m_active_mbox_tree;
 	pthread_mutex_t			m_active_mbox_tree_mtx;
@@ -78,6 +82,8 @@ static void do_nothing(void *tree_node_data);
 static void posix_msq_rx_thread_func(union sigval sv);
 static void register_notification(mqd_t *p_msqd);
 static void free_itc_message_in_tree(void *tree_node_data);
+static void print_queue();
+static void process_received_message(char *rx_buffer, ssize_t num);
 
 
 
@@ -122,6 +128,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 {
 	(void)nr_mboxes;
 
+	TPT_TRACE(TRACE_DEBUG, "Thread ID: %d", syscall(SYS_gettid));
 	if(posixmq_inst.is_initialized == 1)
 	{
 		if(flags & ITC_FLAGS_FORCE_REINIT)
@@ -140,6 +147,8 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 			return;
 		}
 	}
+
+	posixmq_inst.num_messages = 0;
 
 	// Calculate itccoord_shift value
 	int tmp_shift, tmp_mask;
@@ -320,8 +329,9 @@ static struct itc_message *posixmq_receive(struct result_code* rc, struct itc_ma
 	if(iter != NULL)
 	{
 		ret_message = (struct itc_message*)(*iter);
+		--posixmq_inst.num_messages;
 		tdelete(&(my_mbox->mbox_id), &posixmq_inst.itc_message_buffer_tree, compare_mboxid_in_itcmessage_tree);
-		// TPT_TRACE(TRACE_INFO, "Found itc message in POSIX message queue's buffer!"); // TBD
+		TPT_TRACE(TRACE_INFO, "Found itc message in POSIX message queue's buffer!"); // TBD
 		MUTEX_UNLOCK(&posixmq_inst.itc_message_buffer_mtx);
 		return ret_message;
 	}
@@ -415,11 +425,11 @@ static void release_posixmq_resources(struct result_code* rc)
 static void remove_posixmq()
 {
 	if (mq_close(posixmq_inst.my_posix_mqd) == -1) {
-		TPT_TRACE(TRACE_ERROR, "Failed to mq_close, my_posix_mqd = %d!", posixmq_inst.my_posix_mqd);
+		TPT_TRACE(TRACE_ERROR, "Failed to mq_close, my_posix_mqd = %d, errno = %d!", posixmq_inst.my_posix_mqd, errno);
 	}
 
 	if (mq_unlink(posixmq_inst.my_posixmq_name) == -1) {
-		TPT_TRACE(TRACE_ERROR, "Failed to mq_unlink, my_posixmq_name = %s!", posixmq_inst.my_posixmq_name);
+		TPT_TRACE(TRACE_ERROR, "Failed to mq_unlink, my_posixmq_name = %s, errno = %d!", posixmq_inst.my_posixmq_name, errno);
 	}
 }
 
@@ -536,13 +546,10 @@ static int compare_mboxid_in_itcmessage_tree(const void *pa, const void *pb)
 
 static int compare_msg_in_itcmessage_tree(const void *pa, const void *pb)
 {
-	const struct itc_message *msg1 = pa;
-	const struct itc_message *msg2 = pb;
-
-	if(msg1->receiver == msg2->receiver)
+	if((unsigned long)pa == (unsigned long)pb)
 	{
 		return 0;
-	} else if(msg1->receiver > msg2->receiver)
+	} else if((unsigned long)pa > (unsigned long)pb)
 	{
 		return 1;
 	} else
@@ -573,7 +580,7 @@ static void notify_receiver_about_msg_arrival(struct itc_mailbox* mbox)
 	MUTEX_UNLOCK(&(mbox->p_rxq_info->rxq_mtx));
 
 	pthread_setcancelstate(saved_cancel_state, NULL);
-	// TPT_TRACE(TRACE_INFO, "Notify mailbox receiver 0x%08x about an incoming messages!", mbox->mbox_id); // TBD
+	TPT_TRACE(TRACE_INFO, "Notify mailbox receiver 0x%08x about an incoming messages!", mbox->mbox_id); // TBD
 }
 
 static int compare_mboxid_in_itcmailbox_tree(const void *pa, const void *pb)
@@ -620,13 +627,18 @@ static void posix_msq_rx_thread_func(union sigval sv)
 	ssize_t numRead;
 	mqd_t *mqdp = NULL;
 
-	mqdp = sv.sival_ptr;
-	register_notification(mqdp);
+	char tn[20];
+	sprintf(tn, "POSIXMQ(%ld)", syscall(SYS_gettid));
+	prctl(PR_SET_NAME, tn, 0, 0, 0);
 
+	TPT_TRACE(TRACE_INFO, "START: New thread to receive POSIX message!"); // TBD
+
+	mqdp = sv.sival_ptr;
 	int num_retries = 100;
 	while (1)
 	{
-		numRead = mq_receive(*mqdp, posixmq_inst.rx_buffer, posixmq_inst.max_msgsize, NULL);
+		// print_queue();
+		numRead = mq_receive(*mqdp, posixmq_inst.rx_buffer, posixmq_inst.max_msgsize, NULL);		
 
 		if(numRead < 0)
 		{
@@ -639,7 +651,9 @@ static void posix_msq_rx_thread_func(union sigval sv)
 			} else if(errno == EAGAIN)
 			{
 				/* Non blocking mode, EAGAIN returned if msg queue was just empty */
-				TPT_TRACE(TRACE_ABN, "Received notification of msg arrival but msg queue was empty, something abnormal!");
+				register_notification(mqdp);
+				print_queue();
+				TPT_TRACE(TRACE_ABN, "POSIX message queue has been emptied!");
 				break;
 			} else
 			{
@@ -649,25 +663,73 @@ static void posix_msq_rx_thread_func(union sigval sv)
 			}
 		} else
 		{
-			break;
+			process_received_message(posixmq_inst.rx_buffer, numRead);
 		}
 	}
 
-	if(numRead <= ITC_HEADER_SIZE)
+	print_queue();
+}
+
+static void register_notification(mqd_t *p_msqd)
+{
+	struct sigevent sev;
+	sev.sigev_value.sival_ptr = p_msqd;
+	sev.sigev_notify = SIGEV_THREAD;
+	sev.sigev_notify_function = posix_msq_rx_thread_func;
+	sev.sigev_notify_attributes = NULL;
+
+	if(mq_notify(*p_msqd, &sev) == -1)
+ 	{
+		TPT_TRACE(TRACE_ERROR, "Failed to mq_notify(), errno = %d", errno);
+	}
+}
+
+
+static void print_queue()
+{
+	FILE *fptr;
+	fptr = fopen("/dev/mqueue/itc_rx_posixmq_0x00100000", "r"); 
+	if (fptr == NULL)
 	{
-		TPT_TRACE(TRACE_ABN, "Received malform message from some mailbox, msg size too small (%ld)!", numRead);
+		TPT_TRACE(TRACE_ERROR, "Cannot open file!\n");
+		return;
+	}
+
+	char buff[256];
+
+	char c = fgetc(fptr);
+	int i = 0;
+	while (c != EOF)
+	{
+		buff[i] = c;
+		c = fgetc(fptr);
+		++i;
+	}
+
+	buff[i] = '\0';
+	TPT_TRACE(TRACE_DEBUG, "itccoord POSIX mqueue: %s\n", buff);
+
+	fclose(fptr);
+}
+
+static void process_received_message(char *rx_buffer, ssize_t num)
+{
+	if(num <= ITC_HEADER_SIZE)
+	{
+		TPT_TRACE(TRACE_ABN, "Received malform message from some mailbox, msg size too small (%ld)!", num);
 		return;
 	} else
 	{
-		// TPT_TRACE(TRACE_INFO, "Received %ld bytes from mq_receive()!", numRead); // TBD
+		TPT_TRACE(TRACE_INFO, "Received %ld bytes from mq_receive()!", num); // TBD
 	}
 
+	// print_queue();
 	struct itc_message* message;
 	struct itc_message* rxmsg;
 	union itc_msg* msg;
 	uint16_t flags;
 
-	rxmsg = (struct itc_message *)posixmq_inst.rx_buffer;
+	rxmsg = (struct itc_message *)rx_buffer;
 
 	char *endpoint = (char*)((unsigned long)(&rxmsg->msgno) + rxmsg->size);
 	if(*endpoint != ENDPOINT)
@@ -691,28 +753,23 @@ static void posix_msq_rx_thread_func(union sigval sv)
 	memcpy(message, rxmsg, (rxmsg->size + ITC_HEADER_SIZE + 1));
 	message->flags = flags; // Retored flags
 
-	struct itc_message** msg_iter = NULL;
-
-	/* First save the incoming message into our tree buffer */
-
-	MUTEX_LOCK(&posixmq_inst.itc_message_buffer_mtx);
-	msg_iter = tfind(message, &posixmq_inst.itc_message_buffer_tree, compare_msg_in_itcmessage_tree);
-	if(msg_iter != NULL)
+	if(posixmq_inst.num_messages > MAX_NUM_MESSAGES_ALLOWED_IN_TREE)
 	{
-		TPT_TRACE(TRACE_ABN, "There was another one itc message for this receiver 0x%08x already in msg tree. Seems no one picking them up, drop the older!", (*msg_iter)->receiver);
-		struct itc_message *tmp = *msg_iter;
-		tdelete((*msg_iter), &posixmq_inst.itc_message_buffer_tree, compare_msg_in_itcmessage_tree);
+		TPT_TRACE(TRACE_ERROR, "POSIX MQ message tree-buffer overflow with %u un-handled itc messages!", posixmq_inst.num_messages);
 #ifdef UNITTEST
-	free(tmp);
-	tmp = NULL;
+		free(message);
+		message = NULL;
 #else
-	union itc_msg *tmp_msg = CONVERT_TO_MSG(tmp);
-	itc_free(&tmp_msg);
+		itc_free(&msg);
 #endif
+		return;
 	}
 
-	// TPT_TRACE(TRACE_INFO, "Inserting this itc message into msg tree, msgno = 0x%08x, receiver = 0x%08x", message->msgno, message->receiver); // TBD
+	/* First save the incoming message into our tree buffer */
+	MUTEX_LOCK(&posixmq_inst.itc_message_buffer_mtx);
+	TPT_TRACE(TRACE_INFO, "Inserting this itc message into tree-buffer, msgno = 0x%08x, receiver = 0x%08x", message->msgno, message->receiver); // TBD
 	tsearch(message, &posixmq_inst.itc_message_buffer_tree, compare_msg_in_itcmessage_tree);
+	++posixmq_inst.num_messages;
 	MUTEX_UNLOCK(&posixmq_inst.itc_message_buffer_mtx);
 
 	/* Try to find if any active mbox in this process matches receiver field of the incoming message 
@@ -734,23 +791,6 @@ static void posix_msq_rx_thread_func(union sigval sv)
 	notify_receiver_about_msg_arrival(*mbox_iter);
 	MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
 }
-
-static void register_notification(mqd_t *p_msqd)
-{
-	struct sigevent sev;
-	sev.sigev_value.sival_ptr = p_msqd;
-	sev.sigev_notify = SIGEV_THREAD;
-	sev.sigev_notify_function = posix_msq_rx_thread_func;
-	sev.sigev_notify_attributes = NULL;
-
-	if(mq_notify(*p_msqd, &sev) == -1)
- 	{
-		TPT_TRACE(TRACE_ERROR, "Failed to mq_notify(), errno = %d", errno);
-	}
-}
-
-
-
 
 
 
