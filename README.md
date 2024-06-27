@@ -180,7 +180,7 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 ### 8. Performance and latency evaluation
 ```
 1. Thread to Thread (local thread shared memory)
-	+ Measured time: ~55 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+	+ Measured time: ~50 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
 ```
 ![](./assets/local_pe_excel.png?raw=true)
 
@@ -188,15 +188,15 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 
 ```
 2. Process to Process (sysvmq)
-	+ Measured time: ~135 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+	+ Measured time: ~100 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
 ```
 ![](./assets/sysvmq_pe_excel.png?raw=true)
 
 ```
 3. Host to Host (local + sysvmq + TCP socket)
-	+ Measured time: ~500 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+	+ Measured time: ~300 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
 ```
-![](./assets/over_host_pe_excel.png?raw=true)
+![](./assets/over_host_sysvmq_excel.png?raw=true)
 
 ### 9. Future Improvements
 ```

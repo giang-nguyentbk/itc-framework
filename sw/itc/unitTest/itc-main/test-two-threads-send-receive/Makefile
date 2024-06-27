@@ -40,13 +40,13 @@ all: create_bin $(TARGET)
 create_bin:
 	@mkdir -p $(BIN)
 
-$(TARGET): $(BIN)/itc.o $(BIN)/itc_test_1.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o 
-	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
-
 # $(TARGET): $(BIN)/itc.o $(BIN)/itc_test_1.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o 
 # 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
+
+$(TARGET): $(BIN)/itc.o $(BIN)/itc_test_1.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+	   $(BIN)/itc_local.o
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
 
 $(BIN)/itc.o: itc.c itc_impl.h itc.h itci_alloc.h itci_trans.h itc_threadmanager.h itc_proto.h itc_queue.h
 	$(CC) -c  $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
@@ -66,11 +66,11 @@ $(BIN)/itc_malloc.o: itc_malloc.c itc_impl.h itci_alloc.h itc.h
 $(BIN)/itc_local.o: itc_local.c itc_impl.h itci_trans.h itc.h
 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
-$(BIN)/itc_lsocket.o: itc_lsocket.c itc_impl.h itci_trans.h itc.h itc_proto.h
-	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+# $(BIN)/itc_lsocket.o: itc_lsocket.c itc_impl.h itci_trans.h itc.h itc_proto.h
+# 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
-$(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
-	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+# $(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
+# 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 run:
 	$(BIN)/$(TARGET)
