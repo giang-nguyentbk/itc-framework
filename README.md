@@ -14,8 +14,9 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 28385 lines (updated 22/4/2024)
 -> Total: 28058 lines (updated 3/5/2024)
 -> Total: 34335 lines (updated 7/6/2024)
--> Total: 24186 lines (updated 7/6/2024) -> Optimization
+-> Total: 24186 lines (updated 7/6/2024) -> itc-v1.0.1: optimization
 -> Total: 25662 lines (updated 23/6/2024)
+-> Total: 26940 lines (updated 23/6/2024) -> itc-v2.0.0: posixmq + posixshm
 ```
 
 ## Fundamental knowledge:
