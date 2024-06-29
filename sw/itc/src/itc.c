@@ -1286,7 +1286,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 	itc_mbox_id_t mbox_id = ITC_NO_MBOX_ID;
 	struct itc_mailbox *mbox;
 	union itc_msg *msg;
-	// pid_t pid;
+	// pid_t pid; // TBD
 
 	if(itc_inst.mboxes == NULL || my_threadlocal_mbox == NULL)
 	{
@@ -1343,7 +1343,7 @@ itc_mbox_id_t itc_locate_sync_zz(int32_t timeout, const char *name, bool find_on
 		strcpy(ns, msg->itc_locate_mbox_sync_reply.namespace);
 	}
 
-	// pid = msg->itc_locate_mbox_sync_reply.pid;
+	// pid = msg->itc_locate_mbox_sync_reply.pid; // TBD
 	// TPT_TRACE(TRACE_INFO, "Locating mailbox \"%s\" successfully with mbox_id = 0x%08x from pid = %d!", name, mbox_id, pid); // TBD
 	itc_free(&msg);
 	return mbox_id;
@@ -1598,6 +1598,14 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	message->receiver 	= to;
 
 	size_t payload_len = message->size + ITC_HEADER_SIZE; // No need to carry the ENDPOINT
+
+	/* Tech debt: add a solution into itcgws in order to truncate byte stream into chunk of 1500 bytes and send over TCP */
+	if(payload_len > ITC_GATEWAY_ETH_PACKET_SIZE)
+	{
+		TPT_TRACE(TRACE_ERROR, "Message too large to send over TCP socket, size = %lu bytes, MTU limit = %u bytes!", payload_len, ITC_GATEWAY_ETH_PACKET_SIZE);
+		return false;
+	}
+
 	union itc_msg *req;
 	req = itc_alloc(offsetof(struct itc_fwd_data_to_itcgws, payload) + payload_len, ITC_FWD_DATA_TO_ITCGWS);
 

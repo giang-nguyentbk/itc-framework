@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1ReqS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+	// union itc_msg* send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1ReqS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
 	// memset(send_msg->InterfaceAbcModuleXyzSetup1Req.large_pl, 0xCC, 10485000);
 
 	itc_mbox_id_t sender_mbox_id = test_itc_create_mailbox("senderMailbox", 0);
@@ -129,6 +129,7 @@ int main(int argc, char* argv[])
 					printf("\tDEBUG: sender - Received MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM, sender = 0x%08x, receiver = 0x%08x, payload length = %lu\n", \
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
+
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateReqS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
 					if(send_msg != NULL)
 					{

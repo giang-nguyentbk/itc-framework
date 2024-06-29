@@ -98,6 +98,7 @@ int main(int argc, char* argv[])
 					printf("\tDEBUG: receiver - Received MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ, sender = 0x%08x, receiver = 0x%08x, payload length = %lu\n", \
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
+
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1CfmS), MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM);
 					if(send_msg != NULL)
 					{
@@ -110,7 +111,7 @@ int main(int argc, char* argv[])
 					}
 
 					// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1CfmS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM);
-					// memset(send_msg->InterfaceAbcModuleXyzSetup1Cfm.large_pl, 0xCC, 10485000);
+					memset(send_msg->InterfaceAbcModuleXyzSetup1Cfm.large_pl, 0xCC, 10485000);
 
 					if(is_external)
 					{
@@ -127,6 +128,7 @@ int main(int argc, char* argv[])
 					printf("\tDEBUG: receiver - Received MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ, sender = 0x%08x, receiver = 0x%08x, payload length = %lu\n", \
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
+
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateCfmS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM);
 					if(send_msg != NULL)
 					{

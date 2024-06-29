@@ -1601,6 +1601,14 @@ static bool handle_forward_itc_msg_to_itcgw(union itc_msg **msg, itc_mbox_id_t t
 	message->receiver 	= to;
 
 	size_t payload_len = message->size + ITC_HEADER_SIZE; // No need to carry the ENDPOINT
+
+	/* Tech debt: add a solution into itcgws in order to truncate byte stream into chunk of 1500 bytes and send over TCP */
+	if(payload_len > ITC_GATEWAY_ETH_PACKET_SIZE)
+	{
+		TPT_TRACE(TRACE_ERROR, "Message too large to send over TCP socket, size = %lu bytes, MTU limit = %u bytes!", payload_len, ITC_GATEWAY_ETH_PACKET_SIZE);
+		return false;
+	}
+
 	union itc_msg *req;
 	req = itc_alloc(offsetof(struct itc_fwd_data_to_itcgws, payload) + payload_len, ITC_FWD_DATA_TO_ITCGWS);
 

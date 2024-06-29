@@ -242,6 +242,7 @@ killa:
 	@$(kill_itccoord)
 	rm -rf /tmp/itc
 	rm -rf /dev/mqueue/*
+	rm -rf /dev/shm/*
 
 
 
