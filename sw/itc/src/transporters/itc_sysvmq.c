@@ -397,13 +397,13 @@ static void* sysvmq_rx_thread(void *data)
 
 	for(;;)
 	{
-		rx_len = msgrcv(sysvmq_inst.my_sysvmq_id, sysvmq_inst.rx_buffer, sysvmq_inst.max_msgsize - sizeof(long), 0, 0);
 		if(sysvmq_inst.is_terminated)
 		{
 			TPT_TRACE(TRACE_INFO, "Terminating sysvmq rx thread!");
 			break;
 		}
 
+		rx_len = msgrcv(sysvmq_inst.my_sysvmq_id, sysvmq_inst.rx_buffer, sysvmq_inst.max_msgsize - sizeof(long), 0, 0);
 		if(rx_len < 0)
 		{
 			if((errno == EIDRM || errno == EINVAL) && !repeat)
@@ -447,6 +447,16 @@ static void release_sysvmq_resources(struct result_code* rc)
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
+
+	ret = pthread_mutex_destroy(&sysvmq_inst.thread_mtx);
+	if(ret != 0)
+	{
+		TPT_TRACE(TRACE_ERROR, "pthread_mutex_destroy error code = %d", ret);
+		rc->flags |= ITC_SYSCALL_ERROR;
+		return;
+	}
+
+	sysvmq_inst.is_terminated = 1;
 
 	memset(&sysvmq_inst, 0, sizeof(struct sysvmq_instance));
 }

@@ -10,7 +10,6 @@
 #include <signal.h>
 #include <pthread.h>
 #include <fcntl.h>
-#include <syscall.h>
 #include <sys/prctl.h>
 
 #include <mqueue.h>
@@ -128,7 +127,6 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 {
 	(void)nr_mboxes;
 
-	TPT_TRACE(TRACE_DEBUG, "Thread ID: %d", syscall(SYS_gettid));
 	if(posixmq_inst.is_initialized == 1)
 	{
 		if(flags & ITC_FLAGS_FORCE_REINIT)
@@ -163,7 +161,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 	posixmq_inst.itccoord_mask 	= itccoord_mask;
 	posixmq_inst.itccoord_shift	= tmp_shift;
 
-	sprintf(posixmq_inst.my_posixmq_name, "/itc_rx_posixmq_0x%08x", my_mbox_id_in_itccoord);
+	sprintf(posixmq_inst.my_posixmq_name, "/itc_posixmq_0x%08x", my_mbox_id_in_itccoord);
 
 	char posixmq_path[128];
 	sprintf(posixmq_path, "/dev/mqueue%s", posixmq_inst.my_posixmq_name);
@@ -176,6 +174,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 
 	if ((posixmq_inst.my_posix_mqd = mq_open(posixmq_inst.my_posixmq_name, O_RDONLY | O_CREAT | O_CLOEXEC | O_NONBLOCK, 0666, &attr)) == -1) {
 		TPT_TRACE(TRACE_ERROR, "Failed to mq_open, errno = %d!", errno);
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
@@ -189,6 +188,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 		*/
 		TPT_TRACE(TRACE_ERROR, "Failed to chmod, file = %s, res = %d, errno = %d!", posixmq_path, res, errno);
 		remove_posixmq();
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
@@ -197,6 +197,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 	{
 		TPT_TRACE(TRACE_ERROR, "Failed to malloc posixmq_inst.rx_buffer!");
 		remove_posixmq();
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
@@ -205,6 +206,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 	{
 		TPT_TRACE(TRACE_ERROR, "Failed to pthread_mutex_init, error code = %d", res);
 		remove_posixmq();
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 	
@@ -213,6 +215,7 @@ void posixmq_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord, 
 	{
 		TPT_TRACE(TRACE_ERROR, "Failed to pthread_mutex_init, error code = %d", res);
 		remove_posixmq();
+		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}
 
@@ -490,7 +493,7 @@ static mqd_t get_posix_mqd(struct result_code* rc, itc_mbox_id_t mbox_id)
 	mqd_t msqd = -1;
 
 	partner_mboxid_in_itccoord = mbox_id & posixmq_inst.itccoord_mask;
-	sprintf(partner_name, "/itc_rx_posixmq_0x%08x", partner_mboxid_in_itccoord);
+	sprintf(partner_name, "/itc_posixmq_0x%08x", partner_mboxid_in_itccoord);
 
 	if ((msqd = mq_open(partner_name, O_WRONLY)) == -1)
 	{
@@ -653,6 +656,8 @@ static void posix_msq_rx_thread_func(union sigval sv)
 			{
 				/* Non blocking mode, EAGAIN returned if msg queue was just empty */
 				register_notification(mqdp);
+				/* DO NOT perform any extra actions here to prevent a situation,
+				where there's probably a new message coming into the queue at this point, then it will be never processed then */
 				return;
 				// print_queue();
 				// TPT_TRACE(TRACE_ABN, "POSIX message queue has been emptied!");

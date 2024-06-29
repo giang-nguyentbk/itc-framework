@@ -79,8 +79,15 @@ static __thread struct result_code* rc = NULL; // A thread only owns one return 
 
 extern struct itci_transport_apis local_trans_apis;
 extern struct itci_transport_apis lsock_trans_apis;
+#if defined UT_POSIXMQ_PLUGIN
 extern struct itci_transport_apis posixmq_trans_apis;
-// extern struct itci_transport_apis sysvmq_trans_apis;
+#elif defined UT_SYSVMQ_PLUGIN
+extern struct itci_transport_apis sysvmq_trans_apis;
+#elif defined UT_POSIXSHM_PLUGIN
+extern struct itci_transport_apis posixshm_trans_apis;
+#else
+extern struct itci_transport_apis sysvmq_trans_apis;
+#endif
 
 extern struct itci_alloc_apis malloc_apis;
 
@@ -163,8 +170,15 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 
 	trans_mechanisms[ITC_TRANS_LOCAL]	= local_trans_apis;
 	trans_mechanisms[ITC_TRANS_LSOCK]	= lsock_trans_apis;
-	trans_mechanisms[ITC_TRANS_POSIXVMQ]	= posixmq_trans_apis;
-	// trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
+#if defined UT_POSIXMQ_PLUGIN
+	trans_mechanisms[ITC_TRANS_POSIXMQ]	= posixmq_trans_apis;
+#elif defined UT_SYSVMQ_PLUGIN
+	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
+#elif defined UT_POSIXSHM_PLUGIN
+	trans_mechanisms[ITC_TRANS_POSIXSHM]	= posixshm_trans_apis;
+#else
+	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
+#endif
 
 	if(alloc_scheme == ITC_MALLOC)
 	{

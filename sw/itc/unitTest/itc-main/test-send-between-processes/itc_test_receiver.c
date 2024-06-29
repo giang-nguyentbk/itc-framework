@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 
 	union itc_msg* rcv_msg;
 	// At this time only use hard-code each other's mailbox id to interact because itccoord is not implemented yet
-	itc_mbox_id_t sender_mbox_id = 0x00500000; // 0x00500001 if enable itc_sysvmq, otherwise 0x00500000
+	itc_mbox_id_t sender_mbox_id = 0x00500001; // 0x00500001 if enable itc_sysvmq or itc_posixshm, otherwise 0x00500000
 	// itc_mbox_id_t sender_mbox_id = test_itc_locate_sync(1000, "senderMailbox", 1, NULL, NULL);
 	int numOfCycles = 10;
 	while(!isTerminated)
@@ -99,6 +99,8 @@ int main(int argc, char* argv[])
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1CfmS), MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM);
+					// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1CfmS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM);
+					// memset(send_msg->InterfaceAbcModuleXyzSetup1Cfm.large_pl, 0xCC, 10485000);
 					test_itc_send(&send_msg, sender_mbox_id, ITC_MY_MBOX_ID, NULL);
 					break;
 				}
@@ -109,6 +111,8 @@ int main(int argc, char* argv[])
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateCfmS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM);
+					// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzActivateCfmS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM);
+					// memset(send_msg->InterfaceAbcModuleXyzActivateCfm.large_pl, 0xCC, 10485000);
 					test_itc_send(&send_msg, sender_mbox_id, ITC_MY_MBOX_ID, NULL);
 					printf("\tDEBUG: receiver - Activated device from receiver!\n");
 					--numOfCycles;

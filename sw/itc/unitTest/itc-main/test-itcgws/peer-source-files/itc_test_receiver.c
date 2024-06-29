@@ -108,6 +108,10 @@ int main(int argc, char* argv[])
 					{
 						return -1;
 					}
+
+					// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1CfmS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM);
+					// memset(send_msg->InterfaceAbcModuleXyzSetup1Cfm.large_pl, 0xCC, 10485000);
+
 					if(is_external)
 					{
 						test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, namespace);
@@ -133,6 +137,10 @@ int main(int argc, char* argv[])
 					{
 						return -1;
 					}
+
+					// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzActivateCfmS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM);
+					// memset(send_msg->InterfaceAbcModuleXyzActivateCfm.large_pl, 0xCC, 10485000);
+
 					if(is_external)
 					{
 						test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, namespace);

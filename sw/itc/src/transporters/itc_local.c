@@ -479,7 +479,7 @@ static void enqueue_message(struct result_code* rc, struct rxqueue* q, struct it
 	// If not, just update the last item to point to new item and move q->tail to new item as well. 
 	if(q->tail == NULL)
 	{
-		TPT_TRACE(TRACE_INFO, "RX queue is empty, add a new one!"); // TDB
+		// TPT_TRACE(TRACE_INFO, "RX queue is empty, add a new one!"); // TBD
 		q->head = new_qitem;
 		q->tail = new_qitem;
 	} else
@@ -509,7 +509,7 @@ static struct itc_message* dequeue_message(struct result_code* rc, struct rxqueu
 	// In case queue has only one item
 	if(q->head == q->tail)
 	{
-		TPT_TRACE(TRACE_INFO, "RX queue has only one item, dequeue it!"); // TDB
+		// TPT_TRACE(TRACE_INFO, "RX queue has only one item, dequeue it!"); // TBD
 		remove_qitem(rc, &q->head);
 		// Both head and tail should be moved to NULL
 		q->head = NULL;

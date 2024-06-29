@@ -75,17 +75,20 @@ int main(int argc, char* argv[])
 
 	test_itc_init(10, ITC_MALLOC, 0);
 
-	union itc_msg* send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+	// Test to send massive itc message via posixshm, ~10MB
+	// union itc_msg* send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1ReqS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+	// memset(send_msg->InterfaceAbcModuleXyzSetup1Req.large_pl, 0xCC, 10485000);
 
 	sender_mbox_id = test_itc_create_mailbox("senderMailbox", 0);
 
-	clock_gettime(CLOCK_REALTIME, &t_start);
+	union itc_msg* send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+	
 
-	itc_mbox_id_t receiver_mbox_id = 0x00900000; // 0x00900001 if enable itc_sysvmq, otherwise 0x00900000
+	itc_mbox_id_t receiver_mbox_id = 0x00900001; // 0x00900001 if enable itc_sysvmq or itc_posixshm, otherwise 0x00900000
 
 	// itc_mbox_id_t receiver_mbox_id = test_itc_locate_sync(1000, "receiverMailbox", 1, NULL, NULL);
+	clock_gettime(CLOCK_REALTIME, &t_start);
 	test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, NULL);
-
 	clock_gettime(CLOCK_REALTIME, &t_end);
 	unsigned long int difftime = calc_time_diff(t_start, t_end);
 	printf("\tDEBUG: sender - Time needed to send message = %lu (ns) -> %lu (ms)!\n", difftime, difftime/1000000);
@@ -109,6 +112,8 @@ int main(int argc, char* argv[])
 						test_itc_sender(rcv_msg), test_itc_receiver(rcv_msg), test_itc_size(rcv_msg));
 					test_itc_free(&rcv_msg);
 					send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateReqS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
+					// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzActivateReqS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
+					// memset(send_msg->InterfaceAbcModuleXyzActivateReq.large_pl, 0xCC, 10485000);
 					test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, NULL);
 					break;
 				}
@@ -125,7 +130,9 @@ int main(int argc, char* argv[])
 						isTerminated = true;
 					} else
 					{
-						send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzActivateReqS), MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ);
+						send_msg = test_itc_alloc(sizeof(struct InterfaceAbcModuleXyzSetup1ReqS), MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+						// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1ReqS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_REQ);
+						// memset(send_msg->InterfaceAbcModuleXyzSetup1Req.large_pl, 0xCC, 10485000);
 						test_itc_send(&send_msg, receiver_mbox_id, ITC_MY_MBOX_ID, NULL);
 					}
 					break;

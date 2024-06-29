@@ -32,7 +32,7 @@ extern "C" {
 #define ENDPOINT (char)0xAA
 #define ITC_HEADER_SIZE 16 // itc_message: flags + receiver + sender + size. Also is the offset between
                                 // the starting of itc_message and the starting of itc_msg.
-#define ITC_MAX_MSGSIZE	(1024*1024)
+#define ITC_MAX_MSGSIZE	(10*1024*1024)
 
 #define ITC_COORD_MASK			0xFFF00000
 #define ITC_COORD_SHIFT			20
@@ -246,8 +246,15 @@ typedef	enum {
 	ITC_INVALID_TRANS = -1,
 	ITC_TRANS_LOCAL	= 0,
 	ITC_TRANS_LSOCK,
-	ITC_TRANS_POSIXVMQ,
-	// ITC_TRANS_SYSVMQ,
+#if defined UT_POSIXMQ_PLUGIN
+	ITC_TRANS_POSIXMQ,
+#elif defined UT_SYSVMQ_PLUGIN
+	ITC_TRANS_SYSVMQ,
+#elif defined UT_POSIXSHM_PLUGIN
+	ITC_TRANS_POSIXSHM,
+#else
+	ITC_TRANS_SYSVMQ,
+#endif
 	ITC_NUM_TRANS
 } itc_transport_e;
 
