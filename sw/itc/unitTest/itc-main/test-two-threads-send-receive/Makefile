@@ -45,6 +45,14 @@ create_bin:
 # 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
 
 $(TARGET): $(BIN)/itc.o $(BIN)/itc_test_1.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o 
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
+
+# $(TARGET): $(BIN)/itc.o $(BIN)/itc_test_1.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o 
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
+
+$(TARGET): $(BIN)/itc.o $(BIN)/itc_test_1.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
 	   $(BIN)/itc_local.o
 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET)
 
@@ -71,6 +79,9 @@ $(BIN)/itc_local.o: itc_local.c itc_impl.h itci_trans.h itc.h
 
 # $(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
 # 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+
+$(BIN)/itc_posixmq.o: itc_posixmq.c itc_impl.h itci_trans.h itc.h
+	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 run:
 	$(BIN)/$(TARGET)

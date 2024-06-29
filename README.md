@@ -135,18 +135,6 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 ![](./assets/itc_gateway.png?raw=true)
 
 ### 5. Unit Test
-+ Generalised Malloc:
-
-![](./assets/malloc-UT.png?raw=true)
-
-+ Local transportation:
-
-![](./assets/local-UT.png?raw=true)
-
-+ Sysvmq transportation:
-
-![](./assets/sysvmq-UT.png?raw=true)
-
 + Thread manager:
 
 ![](./assets/thread-man-UT.png?raw=true)
@@ -164,8 +152,6 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 + itcgws:
 
 ![](./assets/itcgws_log.png?raw=true)
-
-![](./assets/itcgws_log_1.png?raw=true)
 
 ### 7. Build static and dynamic library
 
@@ -197,6 +183,30 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 	+ Measured time: ~300 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
 ```
 ![](./assets/over_host_sysvmq_excel.png?raw=true)
+
+```
+4. Process to Process (posixmq)
+	+ Measured time: ~185 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+```
+![](./assets/posixmq_pe_excel.png?raw=true)
+
+```
+5. Host to Host (local + posixmq + TCP socket)
+	+ Measured time: ~400 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+```
+![](./assets/over_host_posixmq_excel.png?raw=true)
+
+```
+6. Process to Process (posixshm)
+	+ Measured time: ~100 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+```
+![](./assets/posixshm_pe_excel.png?raw=true)
+
+```
+7. Host to Host (local + posixshm + TCP socket)
+	+ Measured time: ~200 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+```
+![](./assets/over_host_posixshm_excel.png?raw=true)
 
 ### 9. Future Improvements
 ```

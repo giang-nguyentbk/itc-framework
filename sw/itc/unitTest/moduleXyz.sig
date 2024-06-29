@@ -14,6 +14,7 @@ struct InterfaceAbcModuleXyzSetup1ReqS {
         uint32_t procedureId;
         uint32_t pattern;
         uint32_t param1;
+	char     large_pl[1];
 };
 
 #define MODULE_XYZ_INTERFACE_ABC_ACTIVATE_REQ   (MODULE_XYZ_INTERFACE_ABC_SIG_BASE + 0x2)
@@ -24,6 +25,7 @@ struct InterfaceAbcModuleXyzActivateReqS {
         uint32_t procedureId;
         uint32_t temperature;
         uint32_t speed;
+	char     large_pl[1];
 };
 
 #define MODULE_XYZ_INTERFACE_ABC_DEACTIVATE_REQ (MODULE_XYZ_INTERFACE_ABC_SIG_BASE + 0x3)
@@ -34,6 +36,7 @@ struct InterfaceAbcModuleXyzDeactivateReqS {
         uint32_t procedureId;
         uint32_t temperature;
         uint32_t speed;
+	char     large_pl[1];
 };
 
 #define MODULE_XYZ_INTERFACE_ABC_RELEASE_REQ    (MODULE_XYZ_INTERFACE_ABC_SIG_BASE + 0x4)
@@ -42,6 +45,7 @@ struct InterfaceAbcModuleXyzReleaseReqS {
         uint32_t serverId;
         uint32_t clientId;
         uint32_t procedureId;
+	char     large_pl[1];
 };
 
 // Confirm messages to acknowledge that we have received Request messages.
@@ -51,6 +55,7 @@ struct InterfaceAbcModuleXyzSetup1CfmS {
         uint32_t serverId;
         uint32_t clientId;
         uint32_t procedureId;
+	char     large_pl[1];
 };
 
 #define MODULE_XYZ_INTERFACE_ABC_ACTIVATE_CFM   (MODULE_XYZ_INTERFACE_ABC_SIG_BASE + 0x6)
@@ -59,6 +64,7 @@ struct InterfaceAbcModuleXyzActivateCfmS {
         uint32_t serverId;
         uint32_t clientId;
         uint32_t procedureId;
+	char     large_pl[1];
 };
 
 
@@ -68,6 +74,7 @@ struct InterfaceAbcModuleXyzDeactivateCfmS {
         uint32_t serverId;
         uint32_t clientId;
         uint32_t procedureId;
+	char     large_pl[1];
 };
 
 #define MODULE_XYZ_INTERFACE_ABC_RELEASE_CFM    (MODULE_XYZ_INTERFACE_ABC_SIG_BASE + 0x8)
@@ -76,6 +83,7 @@ struct InterfaceAbcModuleXyzReleaseCfmS {
         uint32_t serverId;
         uint32_t clientId;
         uint32_t procedureId;
+	char     large_pl[1];
 };
 
 
@@ -89,6 +97,7 @@ struct InterfaceAbcModuleXyzActivateIndS {
         uint32_t procedureId;
         uint32_t temperature;
         uint32_t speed;
+	char     large_pl[1];
 };
 
 #define MODULE_XYZ_INTERFACE_ABC_DEACTIVATE_IND (MODULE_XYZ_INTERFACE_ABC_SIG_BASE + 0xA)
@@ -99,6 +108,7 @@ struct InterfaceAbcModuleXyzDeactivateIndS {
         uint32_t procedureId;
         uint32_t temperature;
         uint32_t speed;
+	char     large_pl[1];
 };
 
 union itc_msg {
