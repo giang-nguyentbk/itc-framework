@@ -1,19 +1,13 @@
-all: send receive filegen
+all: sender receiver
 
-send: sender.c
-	gcc -Wall -Werror -Wextra -o send sender.c
+sender: sender.c
+	gcc -Wall -Werror -Wextra -lpthread -lrt -o sender sender.c
 
-receive: receiver.c
-	gcc -Wall -Werror -Wextra -o receive receiver.c
+receiver: receiver.c
+	gcc -Wall -Werror -Wextra -lpthread -lrt -o receiver receiver.c
 
-filegen: sysvmsq_file_generator.c
-	gcc -Wall -Werror -Wextra -o filegen sysvmsq_file_generator.c
-
-gen:
-	./filegen
-
-rmgen:
-	rm -rf /tmp/sysvmsq
+rmv:
+	rm -rf /dev/mqueue/*
 
 clean:
-	rm -rf ./send ./receive ./filegen
+	rm -rf ./sender ./receiver

@@ -84,6 +84,30 @@ extern "C" {
 #define ITC_SYSVMSQ_FILENAME 		"/tmp/itc/sysvmsq/sysvmsq_file"
 #endif
 
+#ifndef ITC_SYSVSHM_FOLDER
+#define ITC_SYSVSHM_FOLDER 		"/tmp/itc/sysvshm/"
+#endif
+
+#ifndef ITC_SYSVSHM_FILENAME
+#define ITC_SYSVSHM_FILENAME 		"/tmp/itc/sysvshm/sysvshm_file"
+#endif
+
+#ifndef ITC_SYSVSHM_UNLIMIT_FILENAME
+#define ITC_SYSVSHM_UNLIMIT_FILENAME 	"/tmp/itc/sysvshm/sysvshm_large_file"
+#endif
+
+#ifndef ITC_SYSVSHM_SEM_MUTEX
+#define ITC_SYSVSHM_SEM_MUTEX 		"/tmp/itc/sysvshm/sem_mutex"
+#endif
+
+#ifndef ITC_SYSVSHM_SEM_NOTIFY
+#define ITC_SYSVSHM_SEM_NOTIFY 		"/tmp/itc/sysvshm/sem_notify"
+#endif
+
+#ifndef ITC_SYSVSHM_SEM_SLOT
+#define ITC_SYSVSHM_SEM_SLOT 		"/tmp/itc/sysvshm/sem_slot"
+#endif
+
 #ifndef ITC_ITCGWS_LOGFILE
 #define ITC_ITCGWS_LOGFILE 		"itcgws.log"
 #endif
@@ -252,6 +276,8 @@ typedef	enum {
 	ITC_TRANS_SYSVMQ,
 #elif defined UT_POSIXSHM_PLUGIN
 	ITC_TRANS_POSIXSHM,
+#elif defined UT_SYSVSHM_PLUGIN
+	ITC_TRANS_SYSVSHM,
 #else
 	ITC_TRANS_SYSVMQ,
 #endif

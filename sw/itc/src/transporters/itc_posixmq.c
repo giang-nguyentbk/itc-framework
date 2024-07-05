@@ -712,7 +712,7 @@ static void register_notification(mqd_t *p_msqd)
 // 	}
 
 // 	buff[i] = '\0';
-// 	TPT_TRACE(TRACE_DEBUG, "itccoord POSIX mqueue: %s\n", buff);
+// 	TPT_TRACE(TRACE_INFO, "itccoord POSIX mqueue: %s\n", buff);
 
 // 	fclose(fptr);
 // }

@@ -479,7 +479,7 @@ static void generate_msqfile(struct result_code* rc)
 
 	if(res < 0 && errno != EEXIST)
 	{
-		TPT_TRACE(TRACE_ERROR, "Failed to mkdir /tmp/itc/sysvmq/");
+		TPT_TRACE(TRACE_ERROR, "Failed to mkdir /tmp/itc/sysvmsq/");
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
 	}

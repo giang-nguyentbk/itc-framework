@@ -122,8 +122,8 @@ static struct posixshm_instance posixshm_inst; // One instance per a process, mu
 /*****************************************************************************\/
 *****                   INTERNAL FUNCTIONS PROTOTYPES                      *****
 *******************************************************************************/
-static void init_posixshm(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord);
-static void init_posixshm_semaphores(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord);
+static void init_posixshm(struct result_code* rc);
+static void init_posixshm_semaphores(struct result_code* rc);
 static void remove_posixshm();
 static void remove_posixshm_semaphores();
 static void init_posixshm_rx_thread(struct result_code* rc);
@@ -231,9 +231,9 @@ void posixshm_init(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord,
 	posixshm_inst.pool_offset[POOL_16352]		= 13 * POSIXSHM_PAGE_SIZE;
 	posixshm_inst.pool_offset[POOL_UNLIMIT]		= 25 * POSIXSHM_PAGE_SIZE;
 
-	init_posixshm_semaphores(rc, my_mbox_id_in_itccoord);
+	init_posixshm_semaphores(rc);
 
-	init_posixshm(rc, my_mbox_id_in_itccoord);
+	init_posixshm(rc);
 	
 	init_posixshm_rx_thread(rc);
 
@@ -331,7 +331,7 @@ static void posixshm_send(struct result_code* rc, struct itc_message *message, i
 		cl->metadata = (struct posixshm_metadata_t *)mmap(NULL, (POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages) * POSIXSHM_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, cl->posixshm_id, 0);
 		cl->metadata->num_unlimit_pages = num_unlimit_pages;
 		cl->metadata->num_pages = POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages;
-		new_slot = (struct posixshm_slot_info_t *)((unsigned long)cl->metadata + 25*POSIXSHM_PAGE_SIZE);
+		new_slot = (struct posixshm_slot_info_t *)((unsigned long)cl->metadata + posixshm_inst.pool_offset[whichpool]);
 		new_slot->next_slot.whichpool = -1;
 		new_slot->next_slot.whichslot = -1;
 		new_slot->pool_type = POOL_UNLIMIT;
@@ -379,6 +379,18 @@ static void posixshm_send(struct result_code* rc, struct itc_message *message, i
 	new_slot->is_in_use = true;
 
 	memcpy((void *)((unsigned long)new_slot + POSIXSHM_SLOT_HEADER_SIZE), message, message->size + ITC_HEADER_SIZE + 1);
+
+	// Unmmap unlimited slot to save space for our sender's virtual address space
+	if(whichpool == POOL_UNLIMIT && num_unlimit_pages > (posixshm_inst.slot_sizes[POOL_16352] / POSIXSHM_PAGE_SIZE))
+	{
+		if(munmap(cl->metadata, (POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages) * POSIXSHM_PAGE_SIZE) == -1)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to munmap(POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages), errno = %d!", errno);
+			return;
+		}
+
+		cl->metadata = (struct posixshm_metadata_t *)mmap(NULL, POSIXSHM_STATIC_ALLOC_PAGES * POSIXSHM_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, cl->posixshm_id, 0);
+	}
 
 	// Release mutex lock
 	if(sem_post(cl->m_sem_mutex) == -1)
@@ -509,6 +521,13 @@ static void* posixshm_rx_thread(void *data)
 					break;
 				}
 
+				int res = ftruncate(posixshm_inst.my_shmid, POSIXSHM_STATIC_ALLOC_PAGES * POSIXSHM_PAGE_SIZE);
+				if(res < 0)
+				{
+					TPT_TRACE(TRACE_ERROR, "Failed to ftruncate, res = %d, errno = %d!", res, errno);
+					break;
+				}
+
 				posixshm_inst.my_shm_ptr = (struct posixshm_metadata_t *)mmap(NULL, POSIXSHM_STATIC_ALLOC_PAGES*POSIXSHM_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, posixshm_inst.my_shmid, 0);
 				posixshm_inst.my_shm_ptr->num_unlimit_pages = 0;
 				posixshm_inst.my_shm_ptr->num_pages = POSIXSHM_STATIC_ALLOC_PAGES;
@@ -540,9 +559,9 @@ static void* posixshm_rx_thread(void *data)
 /*****************************************************************************\/
 *****                  INTERNAL FUNCTIONS IMPLEMENTATION                   *****
 *******************************************************************************/
-static void init_posixshm(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord)
+static void init_posixshm(struct result_code* rc)
 {
-	sprintf(posixshm_inst.my_posixshm_name, "/itc_posixshm_0x%08x", my_mbox_id_in_itccoord);
+	sprintf(posixshm_inst.my_posixshm_name, "/itc_posixshm_0x%08x", posixshm_inst.my_mbox_id_in_itccoord);
 	if ((posixshm_inst.my_shmid = shm_open(posixshm_inst.my_posixshm_name, O_RDWR | O_CREAT | O_EXCL, 0666)) == -1) {
 		TPT_TRACE(TRACE_ERROR, "Failed to mq_open, errno = %d!", errno);
 		rc->flags |= ITC_SYSCALL_ERROR;
@@ -577,9 +596,9 @@ static void init_posixshm(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_it
 	sem_post(posixshm_inst.my_sem_mutex);
 }
 
-static void init_posixshm_semaphores(struct result_code* rc, itc_mbox_id_t my_mbox_id_in_itccoord)
+static void init_posixshm_semaphores(struct result_code* rc)
 {
-	sprintf(posixshm_inst.my_sem_mutex_name, "/itc_posixshm_sem_mutex_0x%08x", my_mbox_id_in_itccoord);
+	sprintf(posixshm_inst.my_sem_mutex_name, "/itc_posixshm_sem_mutex_0x%08x", posixshm_inst.my_mbox_id_in_itccoord);
 	if ((posixshm_inst.my_sem_mutex = sem_open(posixshm_inst.my_sem_mutex_name, O_CREAT | O_EXCL, 0666, 0)) == SEM_FAILED) {
 		TPT_TRACE(TRACE_ERROR, "Failed to sem_open, semaphore %s, errno = %d!", posixshm_inst.my_sem_mutex_name, errno);
 		rc->flags |= ITC_SYSCALL_ERROR;
@@ -597,7 +616,7 @@ static void init_posixshm_semaphores(struct result_code* rc, itc_mbox_id_t my_mb
 		return;
 	}
 	
-	sprintf(posixshm_inst.my_sem_notify_name, "/itc_posixshm_sem_notify_0x%08x", my_mbox_id_in_itccoord);
+	sprintf(posixshm_inst.my_sem_notify_name, "/itc_posixshm_sem_notify_0x%08x", posixshm_inst.my_mbox_id_in_itccoord);
 	if ((posixshm_inst.my_sem_notify = sem_open(posixshm_inst.my_sem_notify_name, O_CREAT | O_EXCL, 0666, 0)) == SEM_FAILED) {
 		TPT_TRACE(TRACE_ERROR, "Failed to sem_open, semaphore %s, errno = %d!", posixshm_inst.my_sem_notify_name, errno);
 		rc->flags |= ITC_SYSCALL_ERROR;
@@ -615,7 +634,7 @@ static void init_posixshm_semaphores(struct result_code* rc, itc_mbox_id_t my_mb
 		return;
 	}
 
-	sprintf(posixshm_inst.my_sem_slot_name, "/itc_posixshm_sem_slot_0x%08x", my_mbox_id_in_itccoord);
+	sprintf(posixshm_inst.my_sem_slot_name, "/itc_posixshm_sem_slot_0x%08x", posixshm_inst.my_mbox_id_in_itccoord);
 	if ((posixshm_inst.my_sem_slot = sem_open(posixshm_inst.my_sem_slot_name, O_CREAT | O_EXCL, 0666, MAX_POSIXSHM_SLOTS)) == SEM_FAILED) {
 		TPT_TRACE(TRACE_ERROR, "Failed to sem_open, semaphore %s, errno = %d!", posixshm_inst.my_sem_slot_name, errno);
 		rc->flags |= ITC_SYSCALL_ERROR;

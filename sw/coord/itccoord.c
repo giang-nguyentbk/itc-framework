@@ -484,6 +484,12 @@ static void itccoord_exit_handler(void)
 	rmdir(ITC_ITCCOORD_FOLDER);
 	remove(ITC_SYSVMSQ_FILENAME);
 	rmdir(ITC_SYSVMSQ_FOLDER);
+	remove(ITC_SYSVSHM_FILENAME);
+	remove(ITC_SYSVSHM_UNLIMIT_FILENAME);
+	remove(ITC_SYSVSHM_SEM_MUTEX);
+	remove(ITC_SYSVSHM_SEM_NOTIFY);
+	remove(ITC_SYSVSHM_SEM_SLOT);
+	rmdir(ITC_SYSVSHM_FOLDER);
 	rmdir(ITC_BASE_PATH);
 	TPT_TRACE(TRACE_INFO, "Remove all directories successfully!");
 
