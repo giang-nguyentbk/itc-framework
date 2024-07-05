@@ -83,6 +83,7 @@ static void register_notification(mqd_t *p_msqd);
 static void free_itc_message_in_tree(void *tree_node_data);
 // static void print_queue();
 static void process_received_message(char *rx_buffer, ssize_t num);
+static void release_posixmq_contactlist();
 
 
 
@@ -405,6 +406,8 @@ static void release_posixmq_resources(struct result_code* rc)
 	{
 		free(posixmq_inst.rx_buffer);
 	}
+
+	release_posixmq_contactlist();
 
 	int ret = pthread_mutex_destroy(&posixmq_inst.itc_message_buffer_mtx);
 	if(ret != 0)
@@ -795,6 +798,22 @@ static void process_received_message(char *rx_buffer, ssize_t num)
 
 	notify_receiver_about_msg_arrival(*mbox_iter);
 	MUTEX_UNLOCK(&posixmq_inst.m_active_mbox_tree_mtx);
+}
+
+static void release_posixmq_contactlist()
+{
+	for(int i = 0; i < MAX_SUPPORTED_PROCESSES; ++i)
+	{
+		if(posixmq_inst.posixmq_cl[i].mbox_id_in_itccoord != 0)
+		{
+			if (mq_close(posixmq_inst.posixmq_cl[i].posix_mqd) == -1) {
+				TPT_TRACE(TRACE_ERROR, "Failed to mq_close, my_posix_mqd = %d, errno = %d!", posixmq_inst.my_posix_mqd, errno);
+			}
+
+			posixmq_inst.posixmq_cl[i].mbox_id_in_itccoord = 0;
+			posixmq_inst.posixmq_cl[i].posix_mqd = 0;
+		}
+	}
 }
 
 

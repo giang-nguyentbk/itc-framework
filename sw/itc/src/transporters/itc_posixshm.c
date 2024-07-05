@@ -137,6 +137,8 @@ static void add_posixshm_cl(struct result_code* rc, struct posixshm_contactlist*
 static void handle_received_message(struct posixshm_slot_info_t *slot);
 static void rxthread_destructor(void* data);
 
+static void release_posixshm_contactlist();
+
 
 
 
@@ -380,18 +382,6 @@ static void posixshm_send(struct result_code* rc, struct itc_message *message, i
 
 	memcpy((void *)((unsigned long)new_slot + POSIXSHM_SLOT_HEADER_SIZE), message, message->size + ITC_HEADER_SIZE + 1);
 
-	// Unmmap unlimited slot to save space for our sender's virtual address space
-	if(whichpool == POOL_UNLIMIT && num_unlimit_pages > (posixshm_inst.slot_sizes[POOL_16352] / POSIXSHM_PAGE_SIZE))
-	{
-		if(munmap(cl->metadata, (POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages) * POSIXSHM_PAGE_SIZE) == -1)
-		{
-			TPT_TRACE(TRACE_ERROR, "Failed to munmap(POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages), errno = %d!", errno);
-			return;
-		}
-
-		cl->metadata = (struct posixshm_metadata_t *)mmap(NULL, POSIXSHM_STATIC_ALLOC_PAGES * POSIXSHM_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, cl->posixshm_id, 0);
-	}
-
 	// Release mutex lock
 	if(sem_post(cl->m_sem_mutex) == -1)
 	{
@@ -406,6 +396,18 @@ static void posixshm_send(struct result_code* rc, struct itc_message *message, i
 		TPT_TRACE(TRACE_ERROR, "Failed to sem_post(my_sem_slot), errno = %d!", errno);
 		rc->flags |= ITC_SYSCALL_ERROR;
 		return;
+	}
+
+	// Unmmap unlimited slot to save space for our sender's virtual address space
+	if(whichpool == POOL_UNLIMIT && num_unlimit_pages > (posixshm_inst.slot_sizes[POOL_16352] / POSIXSHM_PAGE_SIZE))
+	{
+		if(munmap(cl->metadata, (POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages) * POSIXSHM_PAGE_SIZE) == -1)
+		{
+			TPT_TRACE(TRACE_ERROR, "Failed to munmap(POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages), errno = %d!", errno);
+			return;
+		}
+
+		cl->metadata = (struct posixshm_metadata_t *)mmap(NULL, POSIXSHM_STATIC_ALLOC_PAGES * POSIXSHM_PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, cl->posixshm_id, 0);
 	}
 
 	union itc_msg* msg;
@@ -521,6 +523,7 @@ static void* posixshm_rx_thread(void *data)
 					break;
 				}
 
+				/* FIXME: Still don't know why but comment out this ftruncate will lower send-receive latency from 5.5ms to 3.2ms */
 				int res = ftruncate(posixshm_inst.my_shmid, POSIXSHM_STATIC_ALLOC_PAGES * POSIXSHM_PAGE_SIZE);
 				if(res < 0)
 				{
@@ -798,6 +801,7 @@ static void release_posixshm_resources(struct result_code* rc)
 {
 	remove_posixshm();
 	remove_posixshm_semaphores();
+	release_posixshm_contactlist();
 
 	int ret = pthread_key_delete(posixshm_inst.destruct_key);
 	if(ret != 0)
@@ -973,6 +977,46 @@ static void rxthread_destructor(void* data)
 	(void)data;
 }
 
+static void release_posixshm_contactlist()
+{
+	for(int i = 0; i < MAX_SUPPORTED_PROCESSES; ++i)
+	{
+		if(posixshm_inst.posixshm_cl[i].mbox_id_in_itccoord != 0)
+		{
+			if(munmap(posixshm_inst.posixshm_cl[i].metadata, POSIXSHM_STATIC_ALLOC_PAGES * POSIXSHM_PAGE_SIZE) == -1)
+			{
+				TPT_TRACE(TRACE_ERROR, "Failed to munmap(POSIXSHM_STATIC_ALLOC_PAGES + num_unlimit_pages), errno = %d!", errno);
+				return;
+			}
+
+			if (close(posixshm_inst.posixshm_cl[i].posixshm_id) == -1) {
+				TPT_TRACE(TRACE_ERROR, "Failed to close, my_shmid = %d, errno = %d!", posixshm_inst.my_shmid, errno);
+			}
+
+			if(sem_close(posixshm_inst.posixshm_cl[i].m_sem_mutex) == -1)
+			{
+				TPT_TRACE(TRACE_ERROR, "Failed to sem_close, m_sem_mutex, errno = %d!", errno);
+			}
+
+			if(sem_close(posixshm_inst.posixshm_cl[i].m_sem_notify) == -1)
+			{
+				TPT_TRACE(TRACE_ERROR, "Failed to sem_close, m_sem_notify, errno = %d!", errno);
+			}
+
+			if(sem_close(posixshm_inst.posixshm_cl[i].m_sem_slot) == -1)
+			{
+				TPT_TRACE(TRACE_ERROR, "Failed to sem_close, m_sem_slot, errno = %d!", errno);
+			}
+
+			posixshm_inst.posixshm_cl[i].mbox_id_in_itccoord = 0;
+			posixshm_inst.posixshm_cl[i].posixshm_id = 0;
+			posixshm_inst.posixshm_cl[i].m_sem_mutex = 0;
+			posixshm_inst.posixshm_cl[i].m_sem_notify = 0;
+			posixshm_inst.posixshm_cl[i].m_sem_slot = 0;
+			posixshm_inst.posixshm_cl[i].metadata = NULL;
+		}
+	}
+}
 
 
 

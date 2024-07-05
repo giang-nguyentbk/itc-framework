@@ -1105,12 +1105,14 @@ static bool delete_tcp_peer_resource(int sockfd)
 	close((*iter)->fd);
 	(*iter)->fd = -1;
 
+	struct tcp_peer_info *tmp = *iter;
+
 	tdelete((*iter)->addr, &itcgw_inst.tcp_server_tree, compare_addr_tcp_tree);
 
 	/* Notify UDP thread about our disconnected peer as well */
 	union itc_msg *req;
-	req = itc_alloc(offsetof(struct itcgw_udp_rmv_peer, addr) + strlen((*iter)->addr) + 1, ITCGW_UDP_RMV_PEER);
-	strcpy(req->itcgw_udp_rmv_peer.addr, (*iter)->addr);
+	req = itc_alloc(offsetof(struct itcgw_udp_rmv_peer, addr) + strlen(tmp->addr) + 1, ITCGW_UDP_RMV_PEER);
+	strcpy(req->itcgw_udp_rmv_peer.addr, tmp->addr);
 
 	if(itc_send(&req, itcgw_inst.udp_mbox_id, ITC_MY_MBOX_ID, NULL) == false)
 	{
@@ -1119,7 +1121,7 @@ static bool delete_tcp_peer_resource(int sockfd)
 		return false;
 	}
 
-	strcpy((*iter)->addr, ITC_GATEWAY_NO_ADDR_STRING);
+	strcpy(tmp->addr, ITC_GATEWAY_NO_ADDR_STRING);
 
 	return true;
 }
@@ -1434,9 +1436,11 @@ static bool handle_tcp_client_rmv_peer(int sockfd)
 	close((*iter)->fd);
 	(*iter)->fd = -1;
 
+	struct tcp_peer_info *tmp = *iter;
+
 	tdelete((*iter)->addr, &itcgw_inst.tcp_client_tree, compare_addr_tcp_tree);
 
-	strcpy((*iter)->addr, ITC_GATEWAY_NO_ADDR_STRING);
+	strcpy(tmp->addr, ITC_GATEWAY_NO_ADDR_STRING);
 
 	return true;
 }

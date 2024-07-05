@@ -166,66 +166,16 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 
 ### 8. Performance and latency evaluation
 ```
-1. Thread to Thread (local thread shared memory)
-	+ Measured time: ~50 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+1. Normal message passing latency
 ```
-![](./assets/local_pe_excel.png?raw=true)
+![](./assets/pe_chart.png?raw=true)
 
-![](./assets/local_pe.png?raw=true)
 
-```
-2. Process to Process (sysvmq)
-	+ Measured time: ~100 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/sysvmq_pe_excel.png?raw=true)
 
 ```
-3. Host to Host (local + sysvmq + TCP socket)
-	+ Measured time: ~300 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
+2. Large message passing latency (10MB)
 ```
-![](./assets/over_host_sysvmq_excel.png?raw=true)
-
-```
-4. Process to Process (posixmq)
-	+ Measured time: ~185 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/posixmq_pe_excel.png?raw=true)
-
-```
-5. Host to Host (local + posixmq + TCP socket)
-	+ Measured time: ~400 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/over_host_posixmq_excel.png?raw=true)
-
-```
-6. Process to Process (posixshm)
-	+ Measured time: ~100 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/posixshm_pe_excel.png?raw=true)
-
-```
-7. Host to Host (local + posixshm + TCP socket)
-	+ Measured time: ~200 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/over_host_posixshm_excel.png?raw=true)
-
-```
-8. Process to Process (sysvshm)
-	+ Measured time: ~100 us (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/sysvshm_pe_excel.png?raw=true)
-
-```
-9. Process to Process (posixshm - 10MB)
-	+ Measured time: ~3.5 ms (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/posixshm_10mb_pe_excel.png?raw=true)
-
-```
-10. Process to Process (sysvshm - 10MB)
-	+ Measured time: ~7.5 ms (after removing all debugging tracepoints in between of itc_send and itc_receive)
-```
-![](./assets/sysvshm_10mb_pe_excel.png?raw=true)
+![](./assets/pe_10mb_chart.png?raw=true)
 
 ### 9. Future Improvements
 ```

@@ -89,6 +89,8 @@ extern struct itci_transport_apis posixmq_trans_apis;
 extern struct itci_transport_apis sysvmq_trans_apis;
 #elif defined UT_POSIXSHM_PLUGIN
 extern struct itci_transport_apis posixshm_trans_apis;
+#elif defined UT_SYSVSHM_PLUGIN
+extern struct itci_transport_apis sysvshm_trans_apis;
 #else
 extern struct itci_transport_apis sysvmq_trans_apis;
 #endif
@@ -180,6 +182,8 @@ bool itc_init_zz(int32_t nr_mboxes, itc_alloc_scheme alloc_scheme, uint32_t init
 	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
 #elif defined UT_POSIXSHM_PLUGIN
 	trans_mechanisms[ITC_TRANS_POSIXSHM]	= posixshm_trans_apis;
+#elif defined UT_SYSVSHM_PLUGIN
+	trans_mechanisms[ITC_TRANS_SYSVSHM]	= sysvshm_trans_apis;
 #else
 	trans_mechanisms[ITC_TRANS_SYSVMQ]	= sysvmq_trans_apis;
 #endif

@@ -153,6 +153,7 @@ static void rxthread_destructor(void* data);
 
 static void init_unilimit_sysvshm(struct result_code* rc, uint16_t num_unlimit_pages, struct sysvshm_contactlist* cl);
 static void get_my_unlimit_shm(uint16_t num_unlimit_pages);
+static void release_sysvshm_contactlist();
 
 
 
@@ -528,7 +529,10 @@ static void* sysvshm_rx_thread(void *data)
 			if(sysvshm_inst.my_shm_ptr->head.whichpool == POOL_UNLIMIT && sysvshm_inst.my_shm_ptr->num_unlimit_pages > 0)
 			{
 				num_unlimit_pages = sysvshm_inst.my_shm_ptr->num_unlimit_pages;
-				get_my_unlimit_shm(num_unlimit_pages);
+				if(sysvshm_inst.my_unlimit_shmid == 0 && sysvshm_inst.my_unlimit_shm_ptr == NULL)
+				{
+					get_my_unlimit_shm(num_unlimit_pages);
+				}
 			}
 
 			unsigned long pool_offset = sysvshm_inst.pool_offset[sysvshm_inst.my_shm_ptr->head.whichpool];
@@ -575,6 +579,7 @@ static void* sysvshm_rx_thread(void *data)
 			slot->next_slot.whichpool = -1;
 			slot->next_slot.whichslot = -1;
 
+			/* FIXME: Still don't know why but comment out this if-block will lower send-receive latency from 7.5ms to 3.5ms */
 			// Unmap unlimited slot for a large itc message to save memory
 			if(num_unlimit_pages > 0)
 			{
@@ -586,7 +591,9 @@ static void* sysvshm_rx_thread(void *data)
 				{
 					TPT_TRACE(TRACE_ERROR, "Failed to IPC_RMID shmctl(my_unlimit_shmid), errno = %d", errno);
 				}
-				
+
+				sysvshm_inst.my_unlimit_shmid = 0;
+				sysvshm_inst.my_unlimit_shm_ptr = NULL;
 				sysvshm_inst.my_shm_ptr->num_unlimit_pages = 0;
 				sysvshm_inst.my_shm_ptr->num_pages = SYSVSHM_STATIC_ALLOC_PAGES;
 			}
@@ -611,7 +618,7 @@ static void* sysvshm_rx_thread(void *data)
 			break;
 		}
 	}
-	
+
 	return NULL;
 }
 
@@ -878,6 +885,7 @@ static void release_sysvshm_resources(struct result_code* rc)
 {
 	remove_sysvshm();
 	remove_sysvshm_semaphores();
+	release_sysvshm_contactlist();
 
 	int ret = pthread_key_delete(sysvshm_inst.destruct_key);
 	if(ret != 0)
@@ -1332,7 +1340,27 @@ static void generate_msqfile(struct result_code* rc)
 	}
 }
 
+static void release_sysvshm_contactlist()
+{
+	for(int i = 0; i < MAX_SUPPORTED_PROCESSES; ++i)
+	{
+		if(sysvshm_inst.sysvshm_cl[i].mbox_id_in_itccoord != 0)
+		{
+			if (shmdt((void *)sysvshm_inst.sysvshm_cl[i].metadata) == -1) {
+				TPT_TRACE(TRACE_ERROR, "Failed to shmdt, errno = %d!", errno);
+			}
 
+			sysvshm_inst.sysvshm_cl[i].mbox_id_in_itccoord = 0;
+			sysvshm_inst.sysvshm_cl[i].sysvshm_id = 0;
+			sysvshm_inst.sysvshm_cl[i].metadata = NULL;
+			sysvshm_inst.sysvshm_cl[i].m_sem_mutex = 0;
+			sysvshm_inst.sysvshm_cl[i].m_sem_notify = 0;
+			sysvshm_inst.sysvshm_cl[i].m_sem_slot = 0;
+			sysvshm_inst.sysvshm_cl[i].unlimit_shm_ptr = NULL;
+			sysvshm_inst.sysvshm_cl[i].unlimit_sysvshm_id = 0;
+		}
+	}
+}
 
 
 
