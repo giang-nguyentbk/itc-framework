@@ -5,6 +5,7 @@
 #include "itc_impl.h"
 #include "itci_alloc.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 /*****************************************************************************\/

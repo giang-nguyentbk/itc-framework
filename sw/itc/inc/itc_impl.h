@@ -24,6 +24,7 @@ extern "C" {
 
 #include "itc.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 /*****************************************************************************\/

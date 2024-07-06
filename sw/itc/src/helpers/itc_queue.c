@@ -5,6 +5,7 @@
 #include "itc_queue.h"
 #include "itc_impl.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 

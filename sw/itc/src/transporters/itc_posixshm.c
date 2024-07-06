@@ -23,6 +23,7 @@
 #include "itci_trans.h"
 #include "itc_threadmanager.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 /*****************************************************************************\/
@@ -523,7 +524,7 @@ static void* posixshm_rx_thread(void *data)
 					break;
 				}
 
-				/* FIXME: Still don't know why but comment out this ftruncate will lower send-receive latency from 5.5ms to 3.2ms */
+				/* FIXME: Comment out this ftruncate will lower send-receive latency from 5.5ms to 3.2ms */
 				int res = ftruncate(posixshm_inst.my_shmid, POSIXSHM_STATIC_ALLOC_PAGES * POSIXSHM_PAGE_SIZE);
 				if(res < 0)
 				{

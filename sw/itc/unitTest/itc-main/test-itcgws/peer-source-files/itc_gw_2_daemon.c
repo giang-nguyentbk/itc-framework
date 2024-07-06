@@ -34,6 +34,7 @@
 #include "itc_proto.h"
 #include "itc_gw_proto.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 /*****************************************************************************\/

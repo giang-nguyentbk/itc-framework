@@ -24,6 +24,7 @@
 #include "itci_trans.h"
 #include "itc_threadmanager.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 /*****************************************************************************\/
@@ -579,7 +580,7 @@ static void* sysvshm_rx_thread(void *data)
 			slot->next_slot.whichpool = -1;
 			slot->next_slot.whichslot = -1;
 
-			/* FIXME: Still don't know why but comment out this if-block will lower send-receive latency from 7.5ms to 3.5ms */
+			/* FIXME: Comment out this if-block will lower send-receive latency from 7.5ms to 3.5ms */
 			// Unmap unlimited slot for a large itc message to save memory
 			if(num_unlimit_pages > 0)
 			{

@@ -18,6 +18,7 @@
 #include "itci_trans.h"
 #include "itc_proto.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 

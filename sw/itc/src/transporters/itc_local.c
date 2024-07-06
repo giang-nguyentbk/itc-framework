@@ -33,6 +33,7 @@ Which functions to be done:
 #include "itc_impl.h"
 #include "itci_trans.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 /*****************************************************************************\/

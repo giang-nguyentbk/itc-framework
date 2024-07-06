@@ -25,6 +25,7 @@
 #include "itc_proto.h"
 #include "itc_queue.h"
 
+#include "itc_tpt_provider.h"
 #include "traceIf.h"
 
 /*****************************************************************************\/
