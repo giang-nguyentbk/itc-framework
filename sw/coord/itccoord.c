@@ -22,7 +22,7 @@
 #include "itc_queue.h"
 #include "itc_proto.h"
 
-#include "itc_tpt_provider.h"
+#include "itc_coord_tpt_provider.h"
 #include "traceIf.h"
 
 

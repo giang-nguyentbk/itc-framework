@@ -7,11 +7,11 @@
 *                                                                                                 
 */
 
-#ifndef __ITC_TPT_PROVIDER_H__
-#define __ITC_TPT_PROVIDER_H__
+#ifndef __ITC_GW_TPT_PROVIDER_H__
+#define __ITC_GW_TPT_PROVIDER_H__
 
 #ifndef TPT_PROVIDER
-#define TPT_PROVIDER "com_giangnguyentbk_itc_framework"
+#define TPT_PROVIDER	"com_giangnguyentbk_itc_gateway"
 #endif
 
-#endif // __ITC_TPT_PROVIDER_H__
+#endif // __ITC_GW_TPT_PROVIDER_H__
