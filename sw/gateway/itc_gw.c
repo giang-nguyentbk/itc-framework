@@ -332,17 +332,20 @@ static void itcgw_exit_handler(void)
 		itc_delete_mailbox(itcgw_inst.udp_mbox_id);
 	}
 
-	if(itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
-	{
-		TPT_TRACE(TRACE_INFO, "Deleting TCP server mailbox...");
-		itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
-	}
+	/* Do not need to delete mailboxes of threads which is spawned by std::thread or pthread_create
+	ITC system will help us to delete it when threads are about to be terminated, user only needs to
+	delete the mailbox of the first thread of the process */
+	// if(itcgw_inst.tcp_server_mbox_id != ITC_NO_MBOX_ID)
+	// {
+	// 	TPT_TRACE(TRACE_INFO, "Deleting TCP server mailbox...");
+	// 	itc_delete_mailbox(itcgw_inst.tcp_server_mbox_id);
+	// }
 
-	if(itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
-	{
-		TPT_TRACE(TRACE_INFO, "Deleting TCP client mailbox...");
-		itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
-	}
+	// if(itcgw_inst.tcp_client_mbox_id != ITC_NO_MBOX_ID)
+	// {
+	// 	TPT_TRACE(TRACE_INFO, "Deleting TCP client mailbox...");
+	// 	itc_delete_mailbox(itcgw_inst.tcp_client_mbox_id);
+	// }
 
 	int ret = pthread_cancel(itcgw_inst.tcp_server_tid);
 	if(ret != 0)
