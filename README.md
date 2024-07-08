@@ -17,6 +17,7 @@ $ git ls-files | grep "\(.c\|.sig\|.h\)$" | xargs wc -l
 -> Total: 24186 lines (updated 7/6/2024) -> itc-v1.0.1: optimization
 -> Total: 25662 lines (updated 23/6/2024)
 -> Total: 26940 lines (updated 23/6/2024) -> itc-v2.0.0: posixmq + posixshm
+-> Total: 28789 lines (updated 23/6/2024) -> itc-v2.0.1: sysvshm
 ```
 
 ## Fundamental knowledge:
@@ -169,8 +170,6 @@ Based on namespace, it's easier for mailbox to select which trans function shoul
 1. Normal message passing latency
 ```
 ![](./assets/pe_chart.png?raw=true)
-
-
 
 ```
 2. Large message passing latency (10MB)

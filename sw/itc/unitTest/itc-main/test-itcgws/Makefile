@@ -31,6 +31,7 @@ SRC_DIR += -I ../../../src/allocators
 SRC_DIR += -I ../../../src/helpers
 SRC_DIR += -I ../../../src/transporters
 SRC_DIR += -I ../../../../coord
+SRC_DIR += -I ../../../../gateway
 SRC_DIR += -I ./peer-source-files
 SRC_DIR += -I ./
 
