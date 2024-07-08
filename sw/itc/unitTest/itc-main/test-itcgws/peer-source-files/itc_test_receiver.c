@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 					}
 
 					// send_msg = test_itc_alloc(offsetof(struct InterfaceAbcModuleXyzSetup1CfmS, large_pl) + 10485000, MODULE_XYZ_INTERFACE_ABC_SETUP1_CFM);
-					memset(send_msg->InterfaceAbcModuleXyzSetup1Cfm.large_pl, 0xCC, 10485000);
+					// memset(send_msg->InterfaceAbcModuleXyzSetup1Cfm.large_pl, 0xCC, 10485000);
 
 					if(is_external)
 					{

@@ -1,7 +1,6 @@
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 TARGET = itc_test_1
 BIN = ./bin
-UTILSFWK_TRACE_LIBDIR = $(ROOT_DIR)/external/utilsFramework/lib
 # Only one of two -DMUTEX_... is enabled at a time, otherwise you will get multiple definition error in compilation
 # -DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 # -DMUTEX_TRACE_UNITTEST #-DMUTEX_TRACE_TIME_UNITTEST

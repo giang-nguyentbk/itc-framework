@@ -1,3 +1,4 @@
+ROOT_DIR := $(shell git rev-parse --show-toplevel)
 BIN = ./bin
 TARGET_1 = itc_gw
 TARGET_2 = itc_gw_2
@@ -6,24 +7,23 @@ TARGET_4 = itc_coord_peer
 TARGET_SENDER = itc_test_sender
 TARGET_RECEIVER = itc_test_receiver
 
-CFLAGS = -g -Wall -Werror -Wextra -lpthread -lrt -DUT_SYSVSHM_PLUGIN #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
+CC = gcc
+# CFLAGS = -g -Wall -Werror -Wextra -lpthread -lrt -DUT_SYSVSHM_PLUGIN #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 # CFLAGS = -g -Wall -Werror -Wextra -lpthread -lrt -DUT_POSIXSHM_PLUGIN #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 # CFLAGS = -g -Wall -Werror -Wextra -lpthread -lrt -DUT_POSIXMQ_PLUGIN #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
-# CFLAGS = -g -Wall -Werror -Wextra -lpthread -lrt -DUT_SYSVMQ_PLUGIN #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
+CFLAGS = -g -Wall -Werror -Wextra -lpthread -lrt -DUT_SYSVMQ_PLUGIN #-DMUTEX_TRACE_TIME_UNITTEST #-DMUTEX_TRACE_UNITTEST
 
-
-CC = gcc
-
-ROOT_DIR := $(shell git rev-parse --show-toplevel)
-UTILSFWK_TRACE_LIBDIR = $(ROOT_DIR)/external/utilsFramework/lib
-UTILSFWK_TRACE_INCDIR = $(ROOT_DIR)/external/utilsFramework/include
+SDK_SYSROOT_DIR		:= $(SDKSYSROOT)
+SDK_USR_DIR		:= $(SDK_SYSROOT_DIR)/usr
+SDK_LIB_DIR		:= $(SDK_USR_DIR)/lib
+SDK_INC_DIR		:= $(SDK_USR_DIR)/include
 
 
 INCLUDE_DIR =
 INCLUDE_DIR += -I ../../../if
 INCLUDE_DIR += -I ../../../inc
 INCLUDE_DIR += -I ./
-INCLUDE_DIR += -I$(UTILSFWK_TRACE_INCDIR)
+INCLUDE_DIR += -I$(SDK_INC_DIR)
 
 SRC_DIR =
 SRC_DIR += -I ../../../src
@@ -52,107 +52,107 @@ create_bin:
 
 #############################################################################################
 
+# $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_1)
+
+# $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_2)
+
+# $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_3)
+
+# $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_4)
+
+# $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_SENDER)
+
+# $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_RECEIVER)
+
+#############################################################################################
+
+# $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_1)
+
+# $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_2)
+
+# $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_3)
+
+# $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_4)
+
+# $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_SENDER)
+
+# $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_RECEIVER)
+
+#############################################################################################
+
+# $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_1)
+
+# $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_2)
+
+# $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_3)
+
+# $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_4)
+
+# $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_SENDER)
+
+# $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
+# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
+# 	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_RECEIVER)
+
+#############################################################################################
+
 $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
-	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_1)
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_1)
 
 $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
-	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_2)
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_2)
 
 $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
-	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_3)
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_3)
 
 $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
-	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_4)
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_4)
 
 $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
-	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_SENDER)
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_SENDER)
 
 $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvshm.o
-	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_RECEIVER)
-
-#############################################################################################
-
-# $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_1)
-
-# $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_2)
-
-# $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_3)
-
-# $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_4)
-
-# $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_SENDER)
-
-# $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixshm.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_RECEIVER)
-
-#############################################################################################
-
-# $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_1)
-
-# $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_2)
-
-# $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_3)
-
-# $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_4)
-
-# $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_SENDER)
-
-# $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_posixmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_RECEIVER)
-
-#############################################################################################
-
-# $(TARGET_1): $(BIN)/itc_gw_daemon.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_1)
-
-# $(TARGET_2): $(BIN)/itc_gw_2_daemon.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_2)
-
-# $(TARGET_3): $(BIN)/itccoord.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_3)
-
-# $(TARGET_4): $(BIN)/itccoord_peer.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_4)
-
-# $(TARGET_SENDER): $(BIN)/itc_test_sender.o $(BIN)/itc.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_SENDER)
-
-# $(TARGET_RECEIVER): $(BIN)/itc_test_receiver.o $(BIN)/itc_peer.o $(BIN)/itc_threadmanager.o $(BIN)/itc_queue.o $(BIN)/itc_malloc.o \
-# 	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
-# 	$(CC) $^ $(CFLAGS) -L$(UTILSFWK_TRACE_LIBDIR) -ltracea -o $(BIN)/$(TARGET_RECEIVER)
+	   $(BIN)/itc_local.o $(BIN)/itc_lsocket.o $(BIN)/itc_sysvmq.o
+	$(CC) $^ $(CFLAGS) -L$(SDK_LIB_DIR) -ltraceifa -o $(BIN)/$(TARGET_RECEIVER)
 
 #############################################################################################
 
@@ -203,8 +203,8 @@ $(BIN)/itc_lsocket.o: itc_lsocket.c itc_impl.h itci_trans.h itc.h itc_proto.h
 
 #############################################################################################
 
-$(BIN)/itc_sysvshm.o: itc_sysvshm.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
-	$(CC) -c $(CFLAGS) -lrt -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+# $(BIN)/itc_sysvshm.o: itc_sysvshm.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
+# 	$(CC) -c $(CFLAGS) -lrt -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 #############################################################################################
 
@@ -218,8 +218,8 @@ $(BIN)/itc_sysvshm.o: itc_sysvshm.c itc_impl.h itci_trans.h itc.h itc_threadmana
 
 #############################################################################################
 
-# $(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
-# 	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
+$(BIN)/itc_sysvmq.o: itc_sysvmq.c itc_impl.h itci_trans.h itc.h itc_threadmanager.h
+	$(CC) -c $(CFLAGS) -o $@ $(INCLUDE_DIR) $(SRC_DIR) $<
 
 #############################################################################################
 
