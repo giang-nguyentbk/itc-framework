@@ -1,5 +1,7 @@
 ITCGWS_SRC_DIR		:= $(SW_DIR)/gateway
 
+ITCGWS_CCLDFLAGS	:= -lpthread -lrt -L$(LIB_DIR) -litc -L$(SDK_LIB_DIR) -ltraceif
+
 ITCGWS_SRCS		= 
 ITCGWS_SRCS		+= itc_gw.c
 
@@ -19,16 +21,16 @@ $(OBJ_DIR)/%.o: $(ITCGWS_SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CC \t\t $@"
-	@$(ITC_CC) $(ITC_CFLAGS) $(ITCGWS_INCDIR) -o $@ $<
+	@$(ITC_CC) $(ITC_CFLAGS) $(ITCGWS_INCDIR) $< -o $@
 
 $(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBAR): $(ITCGWS_OBJ)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(SDK_LIB_DIR) -ltraceifa -o $@
+	@$(ITC_CC) $^ $(ITCGWS_CCLDFLAGS) -o $@
 
 $(EXEC_DIR)/$(TARGET_ITCGWS_W_LIBSO): $(ITCGWS_OBJ)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $^ -L$(LIB_DIR) -litc -L$(SDK_LIB_DIR) -ltraceif -o $@
+	@$(ITC_CC) $^ $(ITCGWS_CCLDFLAGS) -o $@

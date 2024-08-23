@@ -1,5 +1,7 @@
 ITCCOORD_SRC_DIR	:= $(SW_DIR)/coord
 
+ITCCOORD_CCLDFLAGS	:= -lpthread -lrt -L$(LIB_DIR) -litc -L$(SDK_LIB_DIR) -ltraceif
+
 ITCCOORD_SRCS		=
 ITCCOORD_SRCS		+= itccoord.c
 
@@ -18,13 +20,13 @@ $(OBJ_DIR)/%.o: $(ITCCOORD_SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CC \t\t $@"
-	@$(ITC_CC) $(ITC_CFLAGS) $(ITCCOORD_INCDIR) -o $@ $<
+	@$(ITC_CC) $(ITC_CFLAGS) $(ITCCOORD_INCDIR) $< -o $@
 
 $(EXEC_DIR)/$(TARGET_ITCCOORD_W_LIBAR): $(ITCCOORD_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $^ -L$(LIB_DIR) -litca -L$(SDK_LIB_DIR) -ltraceifa -o $@
+	@$(ITC_CC) $^ $(ITCCOORD_CCLDFLAGS) -o $@
 #	@echo "  ROOT \t\t $@"
 #	@sudo setcap 'CAP_SYS_RESOURCE=+ep' $@
 
@@ -32,6 +34,6 @@ $(EXEC_DIR)/$(TARGET_ITCCOORD_W_LIBSO): $(ITCCOORD_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $^ -L$(LIB_DIR) -litc -L$(SDK_LIB_DIR) -ltraceif -o $@
+	@$(ITC_CC) $^ $(ITCCOORD_CCLDFLAGS) -o $@
 #	@echo "  ROOT \t\t $@"
 #	@sudo setcap 'CAP_SYS_RESOURCE=+ep' $@

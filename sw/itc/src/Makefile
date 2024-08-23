@@ -1,6 +1,6 @@
 ITC_SRC_DIR	:= $(ITC_DIR)/src
 
-
+ITC_CCLDFLAGS	:= -lpthread -lrt -L$(SDK_LIB_DIR) -ltraceif
 ITC_SRCS	+= \
 		itc.c \
 		allocators/itc_malloc.c \
@@ -25,7 +25,7 @@ $(OBJ_DIR)/%.o: $(ITC_SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CC \t\t $@"
-	@$(ITC_CC) $(ITC_LDFLAGS) $(ITC_CFLAGS) $(ITC_INCS) -L$(SDK_LIB_DIR) -ltraceif -o $@ $^
+	@$(ITC_CC) $(ITC_LDFLAGS) $(ITC_CFLAGS) $(ITC_INCS) $^ -o $@
 
 $(LIB_DIR)/$(TARGET_LIBAR): $(ITC_OBJS)
 	@mkdir -p $(@D)
@@ -37,9 +37,9 @@ $(LIB_DIR)/$(TARGET_LIBSO): $(ITC_OBJS)
 	@mkdir -p $(@D)
 	@cd $(<D)
 	@echo "  CCLD \t\t $@"
-	@$(ITC_CC) $(ITC_SOFLAGS) -o $@ $^
+	@$(ITC_CC) $(ITC_SOFLAGS) $^ $(ITC_CCLDFLAGS) -o $@
 
 install-header-files-itc:
 	@mkdir -p $(INCLUDE_DIR)
-	@echo "  CPY \t\t $(ITC_DIR)/if"
+	@echo "  COPY \t\t $(ITC_DIR)/if"
 	@cp -rf $(ITC_DIR)/if/*.h $(INCLUDE_DIR)
