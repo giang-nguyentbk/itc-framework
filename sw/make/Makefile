@@ -14,7 +14,6 @@ all: rootMakefile
 
 rootMakefile:
 	@echo
-	@echo "Run sw/make/Makefile: Compilation for $(TARGET_LIBAR) done! [OK]"
 	@echo "Run sw/make/Makefile: Compilation for $(TARGET_LIBSO) done! [OK]"
 	@echo "Run sw/make/Makefile: Compilation for $(TARGET_ITCCORD_W_LIBAR) done! [OK]"
 	@echo "Run sw/make/Makefile: Compilation for $(TARGET_ITCCORD_W_LIBSO) done! [OK]"

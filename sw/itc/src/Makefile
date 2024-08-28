@@ -16,9 +16,9 @@ ITC_INCS	:= \
 		-I$(ITC_DIR)/if \
 		-I$(ITC_DIR)/inc \
 		-I$(SDK_INC_DIR)
-#		-I$(MOCK_UTILSFWK_INCDIR)
 
-all: $(ITC_OBJS) $(LIB_DIR)/$(TARGET_LIBAR) $(LIB_DIR)/$(TARGET_LIBSO) install-header-files-itc
+# all: $(ITC_OBJS) $(LIB_DIR)/$(TARGET_LIBAR) $(LIB_DIR)/$(TARGET_LIBSO) install-header-files-itc
+all: $(ITC_OBJS) $(LIB_DIR)/$(TARGET_LIBSO) install-header-files-itc
 
 # Build target 1 objects
 $(OBJ_DIR)/%.o: $(ITC_SRC_DIR)/%.c
@@ -27,11 +27,14 @@ $(OBJ_DIR)/%.o: $(ITC_SRC_DIR)/%.c
 	@echo "  CC \t\t $@"
 	@$(ITC_CC) $(ITC_LDFLAGS) $(ITC_CFLAGS) $(ITC_INCS) $^ -o $@
 
-$(LIB_DIR)/$(TARGET_LIBAR): $(ITC_OBJS)
-	@mkdir -p $(@D)
-	@cd $(<D)
-	@echo "  AR \t\t $@"
-	@$(ITC_AR) $(ITC_ARFLAGS) $@ $^
+##### CANNOT BUILD STATIC LIBRARY FOR LEVEL-2 LIBRARY OR UPWARD #####
+##### TO DO THIS, COMBINE THIS LIBRARY'S OBJECTS WITH ALL OTHER LEVEL-1 OBJECT BY YOURSELF WITH 'AR' COMMAND #####
+##### OR JUST USING GNU-LIBTOOL OR SIMILARITIES INSTEAD #####
+# $(LIB_DIR)/$(TARGET_LIBAR): $(ITC_OBJS)
+# 	@mkdir -p $(@D)
+# 	@cd $(<D)
+# 	@echo "  AR \t\t $@"
+# 	@$(ITC_AR) $(ITC_ARFLAGS) $@ $^
 
 $(LIB_DIR)/$(TARGET_LIBSO): $(ITC_OBJS)
 	@mkdir -p $(@D)
